@@ -2,6 +2,9 @@
   "name": "ionic-tabs-starter-sass-jade-coffee",
   "private": "true",
   "devDependencies": {
-    "ionic": "driftyco/ionic-bower#1.0.1"
+    "ionic": "driftyco/ionic-bower#1.0.1",
+    "angular-toastr": "~1.4.1",
+    "ionic-material": "~0.4.2",
+    "robotodraft": "~1.1.0"
   }
 }

@@ -13,6 +13,16 @@ appRun = ($ionicPlatform) ->
 
 appRun.$inject = ['$ionicPlatform']
 
+toastrConfig = (toastrConfig) ->
+  angular.extend toastrConfig, {
+    timeOut: 4000
+    positionClass: 'toast-bottom-right'
+  }
+
+
 angular
   .module 'starter.core'
+  .config toastrConfig
   .run appRun
+
+

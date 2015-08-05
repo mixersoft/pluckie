@@ -10,6 +10,7 @@ html
 
         // cordova script (this will be a 404 during development)
         script(src='cordova.js')
+        script(src='lib/ionic/js/ionic.bundle.js')  // load angular first
 
         // inject:js
         // endinject
@@ -17,8 +18,7 @@ html
     body(ng-app="starter")
 
         // The nav bar that will be updated as we navigate between views.
-
-        ion-nav-bar.bar-stable
+        ion-nav-bar.bar-positive
           ion-nav-back-button
 
         // The views will be rendered in the <ion-nav-view> directive below

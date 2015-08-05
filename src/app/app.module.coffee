@@ -15,7 +15,9 @@ angular
     'starter.core'
     'starter.layout'
     # Feature areas
-    'starter.account'
-    'starter.chat'
-    'starter.dash'
+    # 'starter.account'
+    # 'starter.chat'
+    # 'starter.dash'
+    'starter.home'
+    'starter.profile'
   ]

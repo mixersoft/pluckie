@@ -1,7 +1,9 @@
 'use strict'
 
+otherwisePath = '/app/home'
+
 appRun = (routerHelper) ->
-  routerHelper.configureStates getStates()
+  routerHelper.configureStates getStates(), otherwisePath
 
 getStates = ->
   [
@@ -10,6 +12,14 @@ getStates = ->
       url: '/tab'
       abstract: true
       templateUrl: 'layout/tabs.html'
+  ,
+    state: 'app'
+    config:
+      url: '/app'
+      abstract: true
+      templateUrl: 'layout/sidemenu.html'
+      # controller: 'AppCtrl'
+      # controllerAs: 'vm'
   ]
 
 appRun.$inject = ['routerHelper']

@@ -49,7 +49,7 @@ gulp.task 'images', ->
 gulp.task 'sass', ->
   gulp.src paths.sass
     .pipe cache 'sass'
-    .pipe scssLint customReport: scssStylish
+    # .pipe scssLint customReport: scssStylish
     .pipe sass errLogToConsole: true
     .pipe if argv.production then minifyCss() else gutil.noop()
     .pipe gulp.dest(paths.dest)
@@ -71,7 +71,7 @@ gulp.task 'coffee', ->
 
 gulp.task 'index', ->
   # Inject in the correct order to startup app
-  vendor = gulp.src [paths.vendor+'**/*.js'], read: false
+  vendor = gulp.src [paths.vendor+'**/*.js','!**/lib/ionic/**'], read: false
   blocks = gulp.src ['./www/blocks/router/*.module.js', './www/blocks/router/*.js'], read: false
   core = gulp.src ['./www/core/core.module.js', './www/core/core.*.js'], read: false
   layout = gulp.src ['./www/layout/layout.module.js', './www/layout/layout.route.js'], read: false

@@ -1,4 +1,12 @@
 {
-  "production": ["ionic/js/ionic.bundle.min.js", "ionic/fonts/*"],
-  "dev": ["ionic/js/ionic.bundle.js", "ionic/fonts/*"]
+  "production": [
+    "ionic/js/ionic.bundle.min.js",
+    "ionic/fonts/*"
+  ],
+  "dev": [
+    "ionic/js/ionic.bundle.js", 
+    "ionic/fonts/*", 
+    "angular-toastr/dist/angular-toastr.tpls.min.js",
+    "angular-toastr/dist/angular-toastr.min.css"
+  ]
 }
