@@ -27,3 +27,96 @@ $RobotoDraftFontName: "RobotoDraft";
 $RobotoDraftFontVersion: "1.0.0";
 
 @import '../../../bower_components/robotodraft/sass/robotodraft.scss';
+
+
+// ionicMaterial overrides
+.item {
+  &.light-bg {
+    @extend .light-bg;
+  }
+  &.stable-bg {
+    @extend .stable-bg;
+  }
+  &.positive-bg {
+    @extend .positive-bg;
+  }
+  &.calm-bg {
+    @extend .calm-bg;
+  }
+  &.balanced-bg {
+    @extend .balanced-bg;
+  }
+  &.energized-bg {
+    @extend .energized-bg;
+  }
+  &.assertive-bg {
+    @extend .assertive-bg;
+  }
+  &.royal-bg {
+    @extend .royal-bg;
+  }
+  &.dark-bg {
+    @extend .dark-bg;
+  }
+}
+
+.hero {
+  h1, h2, h3, h4, h5, h6 {
+    color: inherit;
+  }
+}
+
+.item-avatar > img:first-child {
+  top: 10px;
+}
+
+
+
+// app scss
+
+.larger {
+  font-size: $font-size-large;
+}
+
+.list.condensed .item {
+  /* row spacing reduced by 1/2 */
+  padding-top: 8px;
+  padding-bottom: 8px;
+  min-height: 32px;
+}
+
+.muted {
+  color: #C3C3C3;
+}
+
+.clear-bg {
+  background: transparent; 
+}
+
+.menu-item.list {
+  .item {
+    white-space: normal;
+  }
+}
+
+.btn-contribute {
+  line-height: 40px;
+  > * {
+    display: inline-block;
+  }
+  .icon {
+    font-size: 40px;
+  }
+  .label {
+    vertical-align: top;
+  }
+}
+
+.item-radio-royal {
+  .radio-icon {
+    color: $royal;
+  }
+}
+
+
+

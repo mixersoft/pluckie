@@ -10,7 +10,12 @@
     "angular-toastr/dist/angular-toastr.tpls.min.js",
     "angular-toastr/dist/angular-toastr.min.css",
     "robotodraft/fonts/**/*",
+    "ionic-material/dist/ionic.material.js",
+    "ionic-material/dist/ionic.material.css",
+    "x-ionic-material-design-lite/dist/ionic.material-design-lite.css",
+    "x-ionic-material-design-lite/dist/ionic.material-design-lite.js",
     "moment/min/moment.min.js",
     "angular-moment/angular-moment.js"
+
   ]
 }

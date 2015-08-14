@@ -12,13 +12,16 @@ angular
   .module 'starter', [
     # Shared modules
     'ionic'
+    'ionic-material'
     'starter.core'
     'starter.layout'
+    # Components
     # Feature areas
     # 'starter.account'
     # 'starter.chat'
     # 'starter.dash'
     'starter.data'
     'starter.home'
+    'starter.events'
     'starter.profile'
   ]

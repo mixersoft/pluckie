@@ -1,0 +1,171 @@
+// home/home.jade
+ion-view(view-title="{{vm.title}}")
+  // hide ion-navicon???
+  ion-content.has-header.light-bg {{item=vm.event;""}}
+    div.hero.has-mask(ng-style="vm.imgAsBg(item.heroPic)")
+      div.content
+        button.button.button-large.button-clear.flat.pull-right.text-white.waves-effect.waves-button.waves-light.icon.ion-heart
+        div.padding-left.text-left
+          h2.text-white {{item.title}}
+          p {{item.inspiration}}
+
+    //- class=dark overrides all color specs
+    div.item-detail  
+
+      // 100% iphone, 50% ipad
+      div.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+
+          div.row.text-left
+            p {{item.description}}
+
+          div.row.text-center
+            // event: general attr
+            div.col  
+              dt category
+              dd {{ item.category }}
+            div.col
+              dt cuisine
+              dd {{ item.cusine }}
+            div.col
+              dt aspiration
+              dd
+                pl-star-ratings(value="item.aspiration" read-only="!vm.acl.isOwner()")
+                //- ionic-ratings(ratingsobj="vm.ionicRating.aspirationRating")
+              
+      // 100% iphone, 50% ipad
+      a(name="details")
+      div.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+        
+          div(style="position:absolute;right:0")
+            div.larger.pull-right.positive Details
+          div.row.responsive-sm
+            // event: host attr
+            div.col
+              div.list
+                div.item(ng-class="item.host.face ? 'item-avatar' : 'item-icon-left'")
+                  img(ng-show="item.host.face" src="{{item.host.face}}")
+                  i.icon.ion-person(ng-show="!item.host.face")
+                  {{ [item.host.firstname,item.host.lastname].join(' ')  || item.ownerId }}
+                div.item.item-icon-left
+                  i.icon.ion-ios-lightbulb
+                  {{ item.inspiration }}
+                div.item.item-icon-left 
+                  i.icon.ion-ios-people
+                  {{ item.seats }} seats
+
+            // event: when/where attr
+            div.col
+              div.list
+                div.item.item-icon-left
+                  i.icon.ion-ios-calendar-outline
+                  {{ item.startTime | amCalendar }}
+                div.item.item-icon-left
+                  i.icon.ion-ios-clock-outline
+                  {{ item.duration | amDurationFormat:'milliseconds' }}
+                div.item.item-icon-left
+                  i.icon.ion-ios-location
+                  {{vm.getLabel_Location(item)}}
+
+      // 100% iphone, 50% ipad
+      a(name="menu")
+      div.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-center
+              h2 Menu
+              div.list.menu-item
+                div.item.item-avatar(ng-repeat="mitem in item.menuItems") 
+                  img(src="{{mitem.pic}}")
+                  div.muted.pull-right {{ mitem.category }}
+                  b.title {{ mitem.title  }} 
+                  div.detail {{ mitem.detail  }}
+                  div.list.participation(ng-if="vm.acl.isParticipant()")
+                    div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
+                      img(ng-src="{{contrib.contributor.face}}")
+                      div.pull-right {{contrib.portions}} portions
+                      b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
+                    div.item.btn-contribute(ng-if="!mitem.contributions")
+                      i.icon.ion-android-add-circle.balanced
+                      p.label.dark Contribute
+
+      // 100% iphone, 50% ipad
+      a(name="participants")
+      div.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-center
+              h2 Participants
+              div.list.participants(ng-repeat="participation in item.participants")
+                div.item.item-avatar.participation(ng-init="person = participation.user")
+                  img(ng-src="{{person.face}}")
+                  b {{[person.firstname,person.lastname].join(' ') }}
+                  div.seats.pull-right {{participation.seats}} seat(s)
+                  div.comment.muted {{participation.comment}}
+
+
+                      
+
+                  
+
+      // 100% iphone, 50% ipad
+      a(name="cp-participant")
+      div.content.row.responsive-sm(ng-if="vm.acl.isParticipant()")
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-left.rounded.item-divider(ng-init="participation = vm.getParticipation(vm.me)")
+              h4.balanced My Participation
+              div.list.my-participation
+                div.item.item-avatar.participation(ng-init="person = vm.me")
+                  img(ng-src="{{person.face}}")
+                  b {{[person.firstname,person.lastname].join(' ') }}
+                  div.seats {{participation.seats}} seat(s)
+                  div.comment.muted {{participation.comment}}
+
+                div.item.item-avatar(ng-repeat="contrib in participation.contributions")
+                  img(src="{{contrib.menuItem.pic}}")
+                  div.muted.pull-right {{ contrib.menuItem.category }}
+                  b.title {{ contrib.menuItem.title  }} 
+                  div
+                    b.portions {{contrib.portions}} portions
+                  div.detail.muted {{ contrib.menuItem.detail  }}
+
+
+
+            // 100% iphone, 50% ipad
+      a(name="cp-host")
+      div.content.row.responsive-sm(ng-if="vm.acl.isOwner()")
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-left.rounded.item-divider
+              h4.royal Host Control Panel
+              div.list.control-panel.light-bg
+                ion-toggle(ng-model="item.isPublic" toggle-class="toggle-royal") Is Published
+                ion-toggle(ng-model="item.setting.isExclusive" toggle-class="toggle-royal") Is Invitation Only
+                ion-toggle(ng-model="item.setting.canForward" toggle-class="toggle-royal") Can Forward Invitations
+                ion-toggle(ng-model="item.setting.hideAddress" toggle-class="toggle-royal") Address for Guests only
+                ion-toggle(ng-model="item.setting.hasWaitList" toggle-class="toggle-royal") Can Join Waitlist
+                ion-toggle(ng-model="item.setting.fixedMenu" toggle-class="toggle-royal") Fixed Menu
+                div.item.item-radio-royal Feed Visibibility
+                  ion-radio(ng-model="item.setting.feedVisibility" ng-value="'public'") Public
+                  ion-radio(ng-model="item.setting.feedVisibility" ng-value="'participants'") Participants
+                  ion-radio(ng-model="item.setting.feedVisibility" ng-value="'host'") Host
+
+
+
+
+
+
+      
+
+
+
+
+
+
+
+
+
+
+

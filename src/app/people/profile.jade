@@ -1,6 +1,10 @@
 // people/profile.jade
-ion-view(view-title="Profile")
-  ion-content.has-header(xxx-ng-switch="vm.viewName()")
-      div.padding-horizontal
-        ion-list.card.header-card
-          ion-item.item-divider.item-positive Profile
+ion-view(view-title="{{vm.title}}")
+  ion-content.has-header
+    div.xxx-slide-up
+      ion-list.card.header-card 
+        ion-item.item-divider.item-positive Profile title={{vm.title}}
+
+    div.list.animate-fade-slide-in-right.padding
+      ion-item.item-dark Hello
+      ion-item.item-dark World
