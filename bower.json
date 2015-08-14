@@ -5,6 +5,10 @@
     "ionic": "driftyco/ionic-bower#1.0.1",
     "angular-toastr": "~1.4.1",
     "ionic-material": "~0.4.2",
-    "robotodraft": "~1.1.0"
+    "robotodraft": "~1.1.0",
+    "lodash": "~3.10.1",
+    "moment": "~2.10.6",
+    "angular-moment": "~0.10.2",
+    "ionic-ratings": "~0.1.0"
   }
 }

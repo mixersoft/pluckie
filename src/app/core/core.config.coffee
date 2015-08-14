@@ -1,6 +1,7 @@
 'use strict'
 
 appRun = ($ionicPlatform) ->
+
   $ionicPlatform.ready ->
     # Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     # for form inputs)
@@ -11,7 +12,7 @@ appRun = ($ionicPlatform) ->
       # org.apache.cordova.statusbar required
       StatusBar.styleLightContent()
 
-appRun.$inject = ['$ionicPlatform']
+  return # appRun
 
 toastrConfig = (toastrConfig) ->
   angular.extend toastrConfig, {
@@ -19,6 +20,11 @@ toastrConfig = (toastrConfig) ->
     positionClass: 'toast-bottom-right'
   }
 
+
+
+
+
+appRun.$inject = ['$ionicPlatform']
 
 angular
   .module 'starter.core'

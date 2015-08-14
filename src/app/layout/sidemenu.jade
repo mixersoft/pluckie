@@ -3,9 +3,9 @@ ion-side-menus(enable-menu-with-back-views="true")
 
   // Menu Content
   ion-side-menu-content(edge-drag-threshold="true")
-    ion-nav-bar.bar-balanced
+    ion-nav-bar.bar-positive
       ion-nav-buttons(side="primary")
-        button.button.button-icon.icon.ion-navicon(menu-toggle="primary")
+        button.button.button-icon.icon.ion-navicon.flat(menu-toggle="primary")
     ion-nav-view(name="menuContent")
       ion-view
         ion-content
@@ -17,4 +17,5 @@ ion-side-menus(enable-menu-with-back-views="true")
     ion-content
       ion-list
         ion-item(nav-clear, menu-close, ui-sref="app.home") Home
+        ion-item(nav-clear, menu-close, ui-sref="app.events") Events
         ion-item(nav-clear, menu-close, ui-sref="app.profile") Profile

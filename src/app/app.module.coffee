@@ -18,6 +18,7 @@ angular
     # 'starter.account'
     # 'starter.chat'
     # 'starter.dash'
+    'starter.data'
     'starter.home'
     'starter.profile'
   ]
