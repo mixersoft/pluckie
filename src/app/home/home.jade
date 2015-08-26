@@ -1,6 +1,15 @@
 // home/home.jade
 ion-view(view-title="{{vm.title}}")
   ion-content.has-header(delegate-handle="collection-repeat-wrap")
-    div.padding-horizontal
-      ion-list.card.header-card
-        ion-item.item-divider.item-positive Welcome {{vm.title}}
+    div.content.row.responsive-sm
+      div.col.col-offset-25.col-50
+        div.card
+          div.item.item-positive.light
+            h2.light Welcome {{vm.title}}
+
+          div.item.item-text-wrap
+            p Hello 
+              span.capitalize(ng-show="vm.acl.isUser()") {{vm.me.displayName}}
+            button.button.button-full.button-balanced(ng-click="vm.on.click($event)").
+              Click Me
+
