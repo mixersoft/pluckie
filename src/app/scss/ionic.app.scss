@@ -97,6 +97,9 @@ $RobotoDraftFontVersion: "1.0.0";
   .item {
     white-space: normal;
   }
+  &.text-center .item {
+    text-align: center;
+  }
 }
 
 .btn-contribute {
@@ -115,6 +118,16 @@ $RobotoDraftFontVersion: "1.0.0";
 .item-radio-royal {
   .radio-icon {
     color: $royal;
+  }
+}
+
+.col.text-center {
+  & > h2 {
+    position: relative;
+    button.overlay-right {
+      position: absolute;
+      right: 0;
+    }
   }
 }
 

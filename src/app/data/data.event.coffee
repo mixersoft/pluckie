@@ -24,14 +24,15 @@ EventsResource = (Resty, amMoment) ->
       neighborhood: "Lozenets, Sofia"
       address: 'Blvd "James Bourchier" 83'
       location: [42.671027, 23.316299] # search/filter
-      seats: 12
+      seatsTotal: 12
+      seatsOpen: 12
 
       # host:
       ownerId: "0" # belongsTo Users
       isPublic: true # searchable
 
       participants: {  # indexBy userId
-        # add host participation record
+        # add host participation record in controller
         '1':
           userId: '1'
           seats: 1
@@ -41,6 +42,12 @@ EventsResource = (Resty, amMoment) ->
           seats: 3
           comment: 'the whole family is excited!!!'
       }        # habtm Users
+      booking:  # calculate in getParticipants()
+        parties: 0
+        seats: 0
+        contributors: 0
+        portions: 0
+
       contributors: {}        # set by getContributions()
       # menu:    # menu ideas
       menuItemIds: [10..14]   # TODO: use habtm Contribution

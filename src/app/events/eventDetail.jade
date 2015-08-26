@@ -13,6 +13,9 @@ ion-view(view-title="{{vm.title}}")
     div.item-detail  
 
       // 100% iphone, 50% ipad
+      //- 
+      //- Hero 
+      //- 
       div.content.row.responsive-sm
         div.col.col-offset-25.col-50
 
@@ -32,17 +35,39 @@ ion-view(view-title="{{vm.title}}")
               dd
                 pl-star-ratings(value="item.aspiration" read-only="!vm.acl.isOwner()")
                 //- ionic-ratings(ratingsobj="vm.ionicRating.aspirationRating")
-              
+
+
+
+      // ***
+      // ACTIVE BLOCK
+      // ***
+
+
+
+
+
+      // ***
+      // ACTIVE BLOCK
+      // ***
+
+
+
+
+
       // 100% iphone, 50% ipad
-      a(name="details")
-      div.content.row.responsive-sm
+      //- 
+      //- Details
+      //- alt: event details
+      //- 
+      div#details.content.row.responsive-sm
         div.col.col-offset-25.col-50
         
-          div(style="position:absolute;right:0")
-            div.larger.pull-right.positive Details
+          //- div(style="position:absolute;right:0")
+          //-   div.larger.pull-right.positive Details
           div.row.responsive-sm
             // event: host attr
-            div.col
+            div.col.text-center(ng-switch="vm.settings.view.menu")
+              h2 Details
               div.list
                 div.item(ng-class="item.host.face ? 'item-avatar' : 'item-icon-left'")
                   img(ng-show="item.host.face" src="{{item.host.face}}")
@@ -53,89 +78,208 @@ ion-view(view-title="{{vm.title}}")
                   {{ item.inspiration }}
                 div.item.item-icon-left 
                   i.icon.ion-ios-people
-                  {{ item.seats }} seats
+                  {{ item.seatsTotal }} seats / {{ item.seatsOpen }} open
 
             // event: when/where attr
             div.col
               div.list
                 div.item.item-icon-left
                   i.icon.ion-ios-calendar-outline
-                  {{ item.startTime | amCalendar }}
+                  {{ item.startTime | amCalendar }} 
+                  span.dark ( {{item.summary.countdown}} )
                 div.item.item-icon-left
                   i.icon.ion-ios-clock-outline
                   {{ item.duration | amDurationFormat:'milliseconds' }}
                 div.item.item-icon-left
                   i.icon.ion-ios-location
+                  //- feastly: Exact addr will be shared upon purchase
+                  //- eatwith: exact location provided upon booking
                   {{vm.getLabel_Location(item)}}
 
       // 100% iphone, 50% ipad
-      a(name="menu")
-      div.content.row.responsive-sm
+      //- 
+      //- Menu
+      //- 
+      div#menu.content.row.responsive-sm
         div.col.col-offset-25.col-50
           div.row
-            div.col.text-center
-              h2 Menu
-              div.list.menu-item
+            div.col.text-center(ng-switch="vm.settings.view.menu")
+              h2
+                button.overlay-right.button.button-clear.icon.ion-more.positive(ng-click="vm.on.menuView('next')")
+                span Menu
+                
+              div.list.menu-item.text-center(ng-switch-when="less")
+                div.item(ng-repeat="mitem in item.menuItems") 
+                  b.title {{ mitem.title  }} 
+                  div.muted {{ mitem.category }}
+                  
+              div.list.menu-item(ng-switch-when="more")
+                div.item.item-avatar(ng-repeat="mitem in item.menuItems") 
+                  img(src="{{mitem.pic}}")
+                  div.pull-right
+                    span.muted {{ mitem.category }}
+                    
+                  b.title {{ mitem.title  }} 
+                  div.detail {{ mitem.detail  }}
+                  button.button.button-small.icon.ion-thumbsup(
+                      ng-class=" 0 ? 'positive' : 'muted' "
+                      ng-click=""
+                    )
+                  div.list.participation(ng-if="vm.acl.isParticipant()")
+                    //- TODO: need to show committed vs suggested menu items to visitors
+                    div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
+                      img(ng-src="{{contrib.contributor.face}}")
+                      div.pull-right {{contrib.portions}} portions
+                      b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
+
+              div.list.menu-item(ng-switch-when="contribute")
                 div.item.item-avatar(ng-repeat="mitem in item.menuItems") 
                   img(src="{{mitem.pic}}")
                   div.muted.pull-right {{ mitem.category }}
                   b.title {{ mitem.title  }} 
                   div.detail {{ mitem.detail  }}
                   div.list.participation(ng-if="vm.acl.isParticipant()")
+                    //- ???: should we hide participation from visitors
                     div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
                       img(ng-src="{{contrib.contributor.face}}")
                       div.pull-right {{contrib.portions}} portions
                       b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
-                    div.item.btn-contribute(ng-if="!mitem.contributions")
+                    div.item.btn-contribute(
+                      ng-if="vm.acl.isParticipant() && !mitem.summary.isContributed" 
+                    )
                       i.icon.ion-android-add-circle.balanced
                       p.label.dark Contribute
+                      span.pull-right {{mitem.summary.portionsRemaining}} portions
+                div.item.button-full(
+                  ng-if="vm.acl.isParticipant() && item.setting.fixedMenu==false"
+                )
+                  div.button.button-balanced.icon.ion-android-add-circle.
+                    Add Menu Item
 
       // 100% iphone, 50% ipad
-      a(name="participants")
-      div.content.row.responsive-sm
+      //- 
+      //- Booking
+      //- alt: Join Event, Actions, 
+      //- 
+      div(style="position:absolute;right:0")
+      div.larger.pull-right.positive Actions
+      div#cp-booking.content.row.responsive-sm(ng-if="!vm.acl.isParticipant()")
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-left
+              div.list.booking
+                div.item.item-text-wrap.button-full(ng-if="item.summary.myParticipation.isFullyParticipating==false")
+                  div.button.button-balanced.icon.ion-android-add-circle(
+                    ng-click="vm.on.bookSeats()"
+                  ).
+                    Book Seats
+                div.item.item-text-wrap
+                  div.button-bar
+                    div.button.icon.xxx-icon-left.ion-thumbsup Like
+                    div.button.icon.xxx-icon-left.ion-heart Favorite
+                    div.button.icon.xxx-icon-left.ion-ios-upload Share
+
+
+
+      // 100% iphone, 50% ipad
+      //- 
+      //- Participants
+      //- alt: guests, 
+      //- 
+      div#participants.content.row.responsive-sm
         div.col.col-offset-25.col-50
           div.row
             div.col.text-center
               h2 Participants
+              //- eatWith: Guest List, x of y seats booked, show face icon or empty faces
+              //- 
               div.list.participants(ng-repeat="participation in item.participants")
                 div.item.item-avatar.participation(ng-init="person = participation.user")
                   img(ng-src="{{person.face}}")
                   b {{[person.firstname,person.lastname].join(' ') }}
-                  div.seats.pull-right {{participation.seats}} seat(s)
+                  div.seats.pull-right(ng-if="participation.seats > 1") + {{participation.seats - 1}} other{{participation.seats>2 ? 's' : ''}}
                   div.comment.muted {{participation.comment}}
-
-
-                      
-
                   
 
       // 100% iphone, 50% ipad
-      a(name="cp-participant")
-      div.content.row.responsive-sm(ng-if="vm.acl.isParticipant()")
+      //- 
+      //- MyParticipantion
+      //- alt: booking, reservation, contribution
+      //- 
+      div#cp-participant.content.row.responsive-sm(ng-if="vm.acl.isParticipant()")
         div.col.col-offset-25.col-50
           div.row
-            div.col.text-left.rounded.item-divider(ng-init="participation = vm.getParticipation(vm.me)")
+            div.col.text-left.rounded.item-divider
               h4.balanced My Participation
               div.list.my-participation
+                h5.balanced Booking
                 div.item.item-avatar.participation(ng-init="person = vm.me")
                   img(ng-src="{{person.face}}")
                   b {{[person.firstname,person.lastname].join(' ') }}
-                  div.seats {{participation.seats}} seat(s)
+                  div.seats {{participation.seats}} seat{{participation.seats>1 ? 's' : ''}}
                   div.comment.muted {{participation.comment}}
-
-                div.item.item-avatar(ng-repeat="contrib in participation.contributions")
+                h5.balanced Contribution
+                div.item.item-avatar(ng-repeat="contrib in item.myParticipation.contributions")
                   img(src="{{contrib.menuItem.pic}}")
                   div.muted.pull-right {{ contrib.menuItem.category }}
                   b.title {{ contrib.menuItem.title  }} 
                   div
                     b.portions {{contrib.portions}} portions
                   div.detail.muted {{ contrib.menuItem.detail  }}
+                div.item.item-text-wrap.button-full(ng-if="item.summary.myParticipation.isFullyParticipating==false")
+                  p. 
+                    You are contributing a total of {{item.summary.myParticipation.portions}} portions, 
+                    or {{item.summary.myParticipation.portionsPct}}% 
+                    based on your participation of {{item.myParticipation.seats}} seats.
+                  div.button.button-balanced.icon.ion-android-add-circle(
+                    ng-click="vm.on.menuView('contribute')"
+                  ).
+                    Contribute
 
 
 
-            // 100% iphone, 50% ipad
-      a(name="cp-host")
-      div.content.row.responsive-sm(ng-if="vm.acl.isOwner()")
+
+
+      // 100% iphone, 50% ipad
+      //- 
+      //- Quick Summary
+      //- 
+      div#quick-summary.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-left
+              div.list.card
+                div.item.item-divider.item-royal.light
+                  h3 Quick Summary
+                div.item.item-icon-left.royal 
+                  i.icon.ion-ios-calendar-outline
+                  {{ item.summary.countdown }} 
+                div.item.item-icon-left.royal 
+                  i.icon.ion-ios-people
+                  {{ item.summary.booking.parties }} Parties
+                div.item.item-icon-left.royal 
+                  i.icon.ion-fork
+                  {{ item.summary.booking.seats }} Seats Booked ( {{item.summary.booking.seatsPct}}% )
+                div.item.item-icon-left.royal 
+                  i.icon.ion-help
+                  {{item.seatsOpen}} Seats Available
+                div(ng-hide="vm.acl.isVisitor()")
+                  div.item.item-icon-left.royal 
+                    i.icon.ion-person
+                    {{item.summary.participation.contributors}} Contributors ({{item.summary.participation.contributorsPct}}%) 
+
+                  div.item.item-icon-left.royal 
+                    i.icon.ion-pizza
+                    {{item.summary.participation.menuItemContributions}} Menu Contributions ({{item.summary.participation.menuItemContributionsPct}}%)
+                    / {{item.summary.participation.portions}} Portions ({{item.summary.participation.portionsPct}}%)
+
+
+
+
+      //- 
+      //- Host Control Panel
+      //- 
+      div#cp-host.content.row.responsive-sm(ng-if="vm.acl.isOwner()")
         div.col.col-offset-25.col-50
           div.row
             div.col.text-left.rounded.item-divider
@@ -153,6 +297,17 @@ ion-view(view-title="{{vm.title}}")
                   ion-radio(ng-model="item.setting.feedVisibility" ng-value="'host'") Host
 
 
+
+
+      //- 
+      //- More/Other/Upcoming/Similar Meals
+      //- 
+      div.content.row.responsive-sm(ng-if="vm.acl.isVisitor()")
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-left.rounded.item-divider
+              h4 Other Upcoming Meals
+              i.icon.ion-more
 
 
 
