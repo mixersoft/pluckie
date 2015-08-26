@@ -4,12 +4,32 @@ ion-view(view-title="{{vm.title}}")
     div.content.row.responsive-sm
       div.col.col-offset-25.col-50
         div.card
-          div.item.item-positive.light
+          div.item.item-icon-right.item-positive.light
             h2.light Welcome {{vm.title}}
+            i.icon(
+              ng-class="vm.settings.show=='less' ? 'ion-arrow-down-b' : 'ion-arrow-up-b' "
+              ng-click="vm.on.setView()"
+            )
 
-          div.item.item-text-wrap
-            p Hello 
-              span.capitalize(ng-show="vm.acl.isUser()") {{vm.me.displayName}}
+          div(ng-switch="vm.settings.show")
+            div(ng-switch-when="less")
+              div.item.item-text-wrap
+                p Hello 
+                  a.capitalize(
+                    ng-show="vm.acl.isUser()"
+                    ui-sref="app.profile({id:'{{vm.me.id}}'})"
+                  ) {{vm.me.displayName}}
+            div(ng-switch-when="more")                
+              div.item.item-avatar(ng-show="vm.me")
+                div
+                  img(
+                    ng-src="{{vm.me.face}}"
+                    ui-sref="app.profile({id:'{{vm.me.id}}'})"
+                  )
+                  {{vm.me.firstname}} {{vm.me.lastname}}
+              div.item(ng-hide="vm.me") You are not signed in
+
+          div.item
             button.button.button-full.button-balanced(ng-click="vm.on.click($event)").
               Click Me
 

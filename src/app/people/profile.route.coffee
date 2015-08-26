@@ -7,7 +7,7 @@ getStates = ->
   [
     state: 'app.profile'
     config:
-      url: '/profile'
+      url: '/profile/:id'
       views:
         'menuContent':
           templateUrl: 'people/profile.html'

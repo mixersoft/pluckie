@@ -24,22 +24,27 @@ HomeCtrl = (
       $location.hash(anchor)
       $ionicScrollDelegate.anchorScroll(true)
       return
-      
+
     setView: (value)->
-      return vm.settings.show = 'less' ? 'more' : 'less' if 'value==null'
-      return vm.settings.show = value 
+      if 'value==null'
+        next = if vm.settings.show == 'less' then 'more' else 'less'
+        return vm.settings.show = next
+      return vm.settings.show = value
 
     click: (ev)->
       toastr.info("something was clicked")
   }
 
   initialize = ()->
-    DEV_USER_ID = '0'
-    devConfig.loginUser( DEV_USER_ID ).then (user)->
-      # loginUser() sets $rootScope.user
+    # return
+    if $rootScope.user?
       vm.me = $rootScope.user
-      toastr.info "Login as userId=0"
-    return
+    else 
+      DEV_USER_ID = '0'
+      devConfig.loginUser( DEV_USER_ID ).then (user)->
+        # loginUser() sets $rootScope.user
+        vm.me = $rootScope.user
+        toastr.info "Login as userId=0"
 
   activate = ()->
     return

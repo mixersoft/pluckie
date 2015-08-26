@@ -1,6 +1,16 @@
 // people/profile.jade
-ion-view(view-title="Profile")
-  ion-content.has-header(xxx-ng-switch="vm.viewName()")
-      div.padding-horizontal
-        ion-list.card.header-card
-          ion-item.item-divider.item-positive Profile
+ion-view(view-title="{{vm.title}}")
+  ion-content#profile.has-header{{me=vm.me;''}}
+    div.hero
+      div.content
+        div.hero-bg.has-mask-reverse(ng-style="vm.imgAsBg(vm.me.face)")
+        div.hero-toolbar.padding
+          i.padding-left.icon.ion-heart.dark
+          i.padding-left.icon.ion-ios-upload.dark
+        div.text-center.padding
+          h2.light.text-center {{me.displayName}}
+          img.face(ng-src="{{vm.me.face}}")
+    div.text-center 
+      h2.capitalize {{me.firstname}} {{me.lastname}}
+      button.button.icon-left.icon.ion-chatbox Contact Me
+
