@@ -76,10 +76,19 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       return vm.settings.view.menu = values[next]
 
     beginBooking: (person, event)->
-      vm.modal.booking.show(person, event)
-
-    submitBooking: (form)->
-      booking = vm['booking']
+      appModalSvc.show('events/booking.modal.html', vm, {
+        myBooking :
+          person: person
+          event: event
+          booking:
+            userId: person.id
+            seats: 1
+            comment: null
+      })
+      .then (result)->
+        $log.info "Contribute Modal resolved, result=" + JSON.stringify result
+      return
+    submitBooking: (booking, onSuccess)->
       # some sanity checks
       if vm.event.id != booking.event.id
         toastr.warn("You are booking for a different event. title="+booking.event.title)
@@ -88,14 +97,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       if vm.event.participants[booking.booking.userId]
         toastr.warn("You are replacing an existing booking for this userId")
 
-      createBooking(booking).then ()->
-        vm.modal.booking.hide()
-        vm['booking'] = null
+      createBooking(booking).then (result)->
+        onSuccess?(result)
+        return result
       return
 
-    cancelBooking: ()->
-      vm.modal.booking.hide()
-      vm.booking = null
 
     beginContribute: (mitem)->
       dishes = ['Starter','Side','Main','Dessert']
@@ -119,43 +125,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         onSuccess?(result)
         return result
       return
-  }
-
-  vm.modal = {
-    'booking': # actions for the booking modal
-      instance: null
-      initialize : (person, event)->
-        self = vm.modal['booking']
-        vm['booking'] = {
-          person: person
-          event: event
-          booking: {}
-        } if `vm['booking']==null`
-        return $q.when(self.instance) if self.instance
-
-        $scope.$on '$destroy', ()->
-          self.instance.remove()
-
-        return $ionicModal.fromTemplateUrl( 'events/booking.modal.html'
-        , {
-          scope: $scope
-          animation: 'slide-in-up'
-        }).then (modal)->
-          return self.instance = modal
-
-      show: (person, event)->
-        self = vm.modal['booking']
-        self.initialize(person, event).then (modal)->
-          vm['booking'].booking = {
-            userId: vm['booking'].person.id
-            seats: 1
-            comment: null
-          }
-          modal.show()
-      hide: ()->
-        self = vm.modal['booking']
-        return if !self.instance?
-        self.instance.hide()
   }
 
   initialize = ()->
@@ -416,7 +385,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         # second contribution to menuItem, NEW contribution record
         contrib['id'] = vm.event.contributions.length + ''
         vm.event.contributions.push contrib
-        
+
         # and save backlink to vm.event.menuItems[].contributions
         menuItem.contributions.push mItemContribution
         # register as contributor

@@ -1,5 +1,5 @@
 //- events/booking.modal.jade
-ion-modal-view {{item=vm['booking'].event; me=vm['booking'].person;''}}
+ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
   ion-header-bar.bar-balanced
     h1.title Join {{ item.title }}
   ion-content
@@ -22,21 +22,21 @@ ion-modal-view {{item=vm['booking'].event; me=vm['booking'].person;''}}
         {{ item.seatsTotal }} seats / {{ item.seatsOpen }} open
 
 
-    form(name="bookingForm" novalidate="" ng-submit="vm.on.submitBooking(bookingForm)")
+    form(name="bookingForm" novalidate="" ng-submit="vm.on.submitBooking(myBooking, closeModal)")
 
-      div.list {{ myBooking = vm['booking'].booking;'' }}
+      div.list {{ booking = myBooking.booking;'' }}
         div.item.item-avatar
           img(ng-src="{{me.face}}")
           b {{[me.firstname,me.lastname].join(' ') }} - You are about to join this event.
         label.item.item-input
           span.input-label Number of People
-          input(type="text" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="myBooking.seats")
+          input(type="text" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="booking.seats")
         div.item.range.range-positive
           i.icon.ion-ios-person.positive
-          input(type="range" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="myBooking.seats")
+          input(type="range" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="booking.seats")
           i.icon.ion-ios-people.positive
         label.item.item-input
-          textarea(ng-model="myBooking.comment" placeholder="Add a message to announce your participation!" maxlength="165")
+          textarea(ng-model="booking.comment" placeholder="Add a message to announce your participation!" maxlength="165")
 
         //- div.item.item-text-wrap.button-full
         //-   b Guests are asked to make a contribution to the event
@@ -45,7 +45,7 @@ ion-modal-view {{item=vm['booking'].event; me=vm['booking'].person;''}}
         //-   ).
         //-     Contribute
         div.item.button-bar
-          button.button.button-positive.button-outline(ng-click="vm.on.cancelBooking()") Cancel
+          button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
           button.button.button-positive(type="submit") Join
 
 
