@@ -148,6 +148,7 @@ ion-view(view-title="{{vm.title}}")
                       b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
                     div.item.btn-contribute(
                       ng-if="vm.acl.isParticipant() && !mitem.summary.isContributed" 
+                      ng-click="vm.on.beginContribute(mitem)"
                     )
                       i.icon.ion-android-add-circle.balanced
                       p.label.dark Contribute
@@ -155,7 +156,9 @@ ion-view(view-title="{{vm.title}}")
                 div.item.button-full(
                   ng-if="vm.acl.isParticipant() && item.setting.fixedMenu==false"
                 )
-                  div.button.button-balanced.icon.ion-android-add-circle.
+                  div.button.button-balanced.icon.ion-android-add-circle(
+                    ng-click="vm.on.beginContribute()"
+                    ).
                     Add Menu Item
 
       // 100% iphone, 50% ipad

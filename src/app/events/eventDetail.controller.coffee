@@ -4,6 +4,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   $ionicHistory, $location, $ionicScrollDelegate, $ionicModal
   $log, toastr, exportDebug
   EventsResource, UsersResource, MenuItemsResource, ContributionsResource
+  appModalSvc
   utils, devConfig
   ionicMaterialMotion, ionicMaterialInk
   ) ->
@@ -45,7 +46,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
   vm.settings = {
     view:
-      menu: 'less'   # [less|more|contribute]
+      menu: 'contribute'   # [less|more|contribute]
   }
 
   vm.on = {
@@ -87,7 +88,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       if vm.event.participants[booking.booking.userId]
         toastr.warn("You are replacing an existing booking for this userId")
 
-      processBooking(booking).then ()->
+      createBooking(booking).then ()->
         vm.modal.booking.hide()
         vm['booking'] = null
       return
@@ -95,6 +96,29 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     cancelBooking: ()->
       vm.modal.booking.hide()
       vm.booking = null
+
+    beginContribute: (mitem)->
+      dishes = ['Starter','Side','Main','Dessert']
+      # label = if dishes.indexOf(mitem.category) > -1 then 'dish' else 'item'
+      appModalSvc.show('events/contribute.modal.html', vm, {
+        myContribution :
+          menuItem: mitem
+          # label: label
+          contribution:
+            eventId: vm.event.id
+            menuItemId: mitem.id
+            contributorId: vm.me.id
+            portions: Math.min(12, mitem.summary.portionsRemaining)
+            comment: null
+        })
+      .then (result)->
+        $log.info "Contribute Modal resolved, result=" + JSON.stringify result
+      return
+    submitContribute: (contribution, onSuccess)->
+      createContribution(contribution).then (result)->
+        onSuccess?(result)
+        return result
+      return
   }
 
   vm.modal = {
@@ -326,7 +350,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       return
     return
 
-  processBooking = (options)->
+  createBooking = (options)->
     # add booking as participant to event
     userId = options.booking.userId
     # clean up data
@@ -335,16 +359,84 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     # add object lookup
     options.booking['user'] = options.person
 
-    return $q.when(
-      vm.event.participants[userId] = options.booking
-    ).then (booking)->
+    async = (booking)->
+      vm.event.participants[userId] = booking
+      return $q.when booking
+
+    return async( options.booking ).then (booking)->
       $scope.$broadcast 'event:participant-changed', options
       message = "Congratulations, you have just booked " + options.booking.seats + " seats! "
-      message += "Now consider your contribution."
+      message += "Now search for your contribution."
       toastr.info message
       vm.on.scrollTo('cp-participant')
       return booking
 
+  createContribution = (options)->
+    # clean up data
+    options.contribution.portions = parseInt options.contribution.portions
+
+    async = (contrib, menuItem)->
+      found = _.filter(vm.event.contributions, _.pick(contrib, ['contributorId','menuItemId']))
+      if found.length > 1
+        toastr.warn "Warning: same menu item contributed by same person more than once"
+      if found.length == 1
+        # update portion from existing contrib
+        found[0].portions += contrib.portions
+        found[0].comments = (found[0].comments || ' ') + contrib.comments
+        return $q.when found[0]
+
+      mItemContribution = {
+        contributor: vm.me
+        menuItem: menuItem
+        portions: contrib.portions
+      }
+
+      if menuItem && !menuItem.contributions
+        # first contribution, update null contribution record,
+        # create new menuItem.contributions entry
+        found = _.filter(vm.event.contributions, _.pick(contrib, ['menuItemId']))
+        if found[0].contributorId != null
+          toastr.warn "warning: expecting an empty contribution here createContribution()"
+        # new contribution assignment
+        found[0].contributorId = contrib.contributorId
+        found[0].portions += contrib.portions
+        found[0].comments = (found.comments || ' ') + contrib.comments
+
+        # and save backlink to vm.event.menuItems[].contributions
+        menuItem.contributions = [mItemContribution]
+        # register as contributor
+        vm.event.contributors[contrib.contributorId] = vm.me
+        if vm.me.contributions?
+          vm.me.contributions.push mItemContribution
+        else
+          vm.me.contributions = [vm.me.contributions]
+        return $q.when found[0]
+
+      if menuItem?.contributions?
+        # second contribution to menuItem, NEW contribution record
+        contrib['id'] = vm.event.contributions.length + ''
+        vm.event.contributions.push contrib
+        
+        # and save backlink to vm.event.menuItems[].contributions
+        menuItem.contributions.push mItemContribution
+        # register as contributor
+        vm.event.contributors[contrib.contributorId] = vm.me
+        if vm.me.contributions?
+          vm.me.contributions.push mItemContribution
+        else
+          vm.me.contributions = [vm.me.contributions]
+        return $q.when contrib
+
+      toastr.warn "we shouldn't be here, didn't test for all conditions createContribution()"
+      return $q.reject()
+
+    return async(options.contribution, options.menuItem).then (contribution)->
+      $scope.$broadcast 'event:contribution-changed', options
+      message = "Congratulations, you are signed-up to contribute " + contribution.portions
+      message += " portions of " + options.menuItem.title + "."
+      toastr.info message
+      vm.on.scrollTo('cp-participant')
+      return contribution
 
     
   activate = ()->
@@ -411,6 +503,14 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     # push notification to host + participants
     return
 
+  $scope.$on 'event:contribution-changed', (ev, options)->
+    check = options
+    event = vm.event
+    getDerivedValues_Event(event)
+    getDerivedValues_MenuItems(event)
+    # push notification to host + participants
+    return
+
 
   $scope.$on '$ionicView.loaded', (e) ->
     $log.info "viewLoaded for EventDetailCtrl"
@@ -428,6 +528,7 @@ EventDetailCtrl.$inject = [
   '$ionicHistory', '$location', '$ionicScrollDelegate', '$ionicModal'
   '$log', 'toastr', 'exportDebug'
   'EventsResource', 'UsersResource', 'MenuItemsResource', 'ContributionsResource'
+  'appModalSvc'
   'utils', 'devConfig'
   'ionicMaterialMotion', 'ionicMaterialInk'
 ]

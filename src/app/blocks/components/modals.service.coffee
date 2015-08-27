@@ -62,7 +62,7 @@ ReusableModal = ($ionicModal, $rootScope, $q, $injector, $controller) ->
           ctrlInstance['openModal'] = modalScope.openModal
           ctrlInstance['closeModal'] = modalScope.closeModal
 
-      angular.extend(modalScope, parameters) if parameters?    
+      angular.extend(modalScope, parameters) if parameters?
 
       return modalScope.modal.show().then ()->
         modalScope.$broadcast 'modal.afterShow', modalScope.modal

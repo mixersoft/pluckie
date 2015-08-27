@@ -1,0 +1,45 @@
+//- events/contribute.modal.jade
+ion-modal-view 
+  ion-header-bar.bar-balanced {{event=vm.event; me=vm.me; mitem = myContribution.menuItem;''}}
+    h1.title Contribute to {{ event.title }}
+  ion-content
+    div.list.card.menu-item
+      div.item.item-avatar
+        img(src="{{mitem.pic}}")
+        div.muted.pull-right {{ mitem.category }}
+        b.title {{ mitem.title  }} 
+        div.detail {{ mitem.detail  }}
+        div.list.participation(ng-if="vm.acl.isParticipant()")
+          //- ???: should we hide participation from visitors
+          div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
+            img(ng-src="{{contrib.contributor.face}}")
+            div.pull-right {{contrib.portions}} portions
+            b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
+            a(ng-if="mitem.link" ng-href="mitem.link")
+      div.item.item-icon-left
+        i.icon.ion-fork 
+        {{mitem.summary.portionsRemaining}} portions needed
+
+
+    form(name="contributeForm" novalidate="" ng-submit="vm.on.submitContribute(myContribution, closeModal); closeModal")
+
+      div.list {{contribution = myContribution.contribution;''}}
+        div.item.item-avatar 
+          img(ng-src="{{me.face}}")
+          b {{[me.firstname,me.lastname].join(' ') }} - You are about to contribute this {{mitem.category}}.
+        label.item.item-input
+          span.input-label Number of Portions
+          input(type="text" name="portions" min="1" max="{{mitem.summary.portionsRemaining}}" ng-model="contribution.portions")
+        div.item.range.range-positive
+          i.icon.ion-ios-person.positive
+          input(type="range" name="portions" min="1" max="{{mitem.summary.portionsRemaining}}" ng-model="contribution.portions")
+          i.icon.ion-ios-people.positive
+        label.item.item-input
+          textarea(ng-model="contribution.comment" placeholder="Add a message to announce your contribution!" maxlength="165")
+
+        div.item.button-bar
+          button.button.button-positive.button-outline(ng-click="vm.on.cancelContribution()") Cancel
+          button.button.button-positive(type="submit") Contribute
+
+
+
