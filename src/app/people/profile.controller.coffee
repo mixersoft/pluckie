@@ -1,48 +1,72 @@
 'use strict'
 
-ProfileCtrl = ($scope, $timeout, $log, toastr, ionicMaterialMotion, ionicMaterialInk) ->
+ProfileCtrl = (
+  $scope, $rootScope, $location
+  $ionicScrollDelegate
+  $log, toastr
+  utils, devConfig, exportDebug
+  )->
+
   vm = this
-  vm.title = 'Profile'
-  
-
-  activate = ()->
-    # // Set Ink
-    ionicMaterialInk.displayEffect()
-    setMaterialEffects()
-
-  setMaterialEffects = () ->
-    # Set Motion
-    $timeout ()->
-      ionicMaterialMotion.slideUp({
-        selector: '.slide-up'
-      })
+  vm.title = "Profile"
+  vm.me = null      # current user, set in initialize()
+  vm.imgAsBg = utils.imgAsBg
+  vm.acl = {
+    isVisitor: ()->
+      return true if !$rootScope.user
+    isUser: ()->
+      return true if $rootScope.user
+  }
+  vm.settings = {
+    show: 'less'
+  }
+  vm.on = {
+    scrollTo: (anchor)->
+      $location.hash(anchor)
+      $ionicScrollDelegate.anchorScroll(true)
       return
-    , 300
 
-    $timeout () ->
-      ionicMaterialMotion.fadeSlideInRight({
-        startVelocity: 3000
-      })
-      return
-    , 700
+    setView: (value)->
+      if 'value==null'
+        next = if vm.settings.show == 'less' then 'more' else 'less'
+        return vm.settings.show = next
+      return vm.settings.show = value
+
+    click: (ev)->
+      toastr.info("something was clicked")
+  }
+
+  initialize = ()->
+    if $rootScope.user?
+      vm.me = $rootScope.user
+    else
+      DEV_USER_ID = '0'
+      devConfig.loginUser( DEV_USER_ID ).then (user)->
+        # loginUser() sets $rootScope.user
+        vm.me = $rootScope.user
+        toastr.info "Login as userId=0"
     return
 
+  activate = ()->
+    return
 
-  toastr.info "Creating ProfileCtrl"
-  
-  $scope.$on '$ionicView.loaded', (e) ->
+  $scope.$on '$ionicView.loaded', (e)->
     $log.info "viewLoaded for ProfileCtrl"
+    initialize()
 
-  $scope.$on '$ionicView.enter', (e) ->
+  $scope.$on '$ionicView.enter', (e)->
+    $log.info "viewEnter for ProfileCtrl"
     activate()
 
-  return vm # end ProfileCtrl, return is required for controllerAs syntax
+  return # end ProfileCtrl
+
 
 ProfileCtrl.$inject = [
-  '$scope', '$timeout', '$log'
-  'toastr'
-  'ionicMaterialMotion', 'ionicMaterialInk'
-  ]
+  '$scope', '$rootScope', '$location'
+  '$ionicScrollDelegate'
+  '$log', 'toastr'
+  'utils', 'devConfig', 'exportDebug'
+]
 
-angular.module 'starter.profile'
+angular.module 'starter.home'
   .controller 'ProfileCtrl', ProfileCtrl

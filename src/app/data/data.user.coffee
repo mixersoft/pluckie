@@ -3,16 +3,16 @@
 UsersResource = (Resty, amMoment) ->
   data = {
     0:
-      firstname  : 'Marky'
-      lastname   : 'Mark'
-      username   : 'marky'
-      displayName: 'marky'
-      face       : Resty.lorempixel 200, 200, 'people'
-    1:
       firstname  : 'Masie'
       lastname   : 'May'
       username   : 'maymay'
       displayName: 'maymay'
+      face       : Resty.lorempixel 200, 200, 'people'
+    1:
+      firstname  : 'Marky'
+      lastname   : 'Mark'
+      username   : 'marky'
+      displayName: 'marky'
       face       : Resty.lorempixel 200, 200, 'people'
     2:
       firstname  : 'Lucy'

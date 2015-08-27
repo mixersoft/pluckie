@@ -1,31 +1,51 @@
 'use strict'
 
-HomeCtrl = ($scope, $q, $timeout, $log, toastr,
-  HomeResource, utils
+HomeCtrl = (
+  $scope, $rootScope, $location, $timeout
+  $ionicScrollDelegate
+  $log, toastr
+  HomeResource
   ionicMaterialMotion, ionicMaterialInk
-  ) ->
+  utils, devConfig, exportDebug
+  )->
+
   vm = this
   vm.title = "Discover"
-  vm.events = []
+  vm.me = null      # current user, set in initialize()
   vm.imgAsBg = utils.imgAsBg
+  vm.acl = {
+    isVisitor: ()->
+      return true if !$rootScope.user
+    isUser: ()->
+      return true if $rootScope.user
+  }
+  vm.settings = {
+    show: 'less'
+  }
+  vm.on = {
+    scrollTo: (anchor)->
+      $location.hash(anchor)
+      $ionicScrollDelegate.anchorScroll(true)
+      return
 
-  initialize = ()->
-    getData()
-    return
+    setView: (value)->
+      if 'value==null'
+        next = if vm.settings.show == 'less' then 'more' else 'less'
+        return vm.settings.show = next
+      return vm.settings.show = value
 
-  activate = ()->
-    # // Set Ink
-    ionicMaterialInk.displayEffect()
-    setMaterialEffects()
-    return
+    click: (ev)->
+      toastr.info("something was clicked")
+  }
 
   getData = () ->
     HomeResource.query().then (cards)->
       vm.cards = cards
+      exportDebug.set( 'home', vm['cards'] )
       toastr.info JSON.stringify( cards)[0...50]
       return cards
 
-  setMaterialEffects = () ->
+  startMaterialEffects = () ->
     # Set Motion
     $timeout ()->
       ionicMaterialMotion.slideUp({
@@ -36,38 +56,61 @@ HomeCtrl = ($scope, $q, $timeout, $log, toastr,
 
     $timeout () ->
       ionicMaterialMotion.fadeSlideInRight({
+        selector: '[nav-view="active"] .animate-fade-slide-in-right .item'
         startVelocity: 3000
       })
       return
     , 700
 
-    $timeout () ->
-      ionicMaterialMotion.blinds({
-        startVelocity: 3000
-      })
-      return
-    , 700
+    # $timeout () ->
+    #   ionicMaterialMotion.blinds({
+    #     startVelocity: 3000
+    #   })
+    #   return
+    # , 700
     return
 
 
-  toastr.info "Creating HomeCtrl"
+  initialize = ()->
+    getData()
+    # return
+    if $rootScope.user?
+      vm.me = $rootScope.user
+    else
+      DEV_USER_ID = '0'
+      devConfig.loginUser( DEV_USER_ID ).then (user)->
+        # loginUser() sets $rootScope.user
+        vm.me = $rootScope.user
+        toastr.info "Login as userId=0"
 
-  $scope.$on '$ionicView.loaded', (e) ->
+  activate = ()->
+    ionicMaterialInk.displayEffect()
+    startMaterialEffects()
+    return
+
+  $scope.$on '$ionicView.loaded', (e)->
     $log.info "viewLoaded for HomeCtrl"
     initialize()
 
-  $scope.$on '$ionicView.enter', (e) ->
+  $scope.$on '$ionicView.enter', (e)->
+    $log.info "viewEnter for HomeCtrl"
     activate()
 
-  return vm # # end HomeCtrl,  return is required for controllerAs syntax
+  return # end HomeCtrl
 
 
 HomeCtrl.$inject = [
-  '$scope', '$q', '$timeout'
+  '$scope', '$rootScope', '$location', '$timeout'
+  '$ionicScrollDelegate'
   '$log', 'toastr'
-  'HomeResource', 'utils'
+  'HomeResource'
   'ionicMaterialMotion', 'ionicMaterialInk'
+  'utils', 'devConfig', 'exportDebug'
 ]
 
 angular.module 'starter.home'
   .controller 'HomeCtrl', HomeCtrl
+
+
+
+

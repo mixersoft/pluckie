@@ -13,7 +13,7 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
  
   _filters = {
     'comingSoon':
-      label: "Events Coming Soon"
+      label: "Coming Soon"
       filterBy: 'startTime'
     'nearby':
       label: "Events Near Me"

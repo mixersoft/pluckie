@@ -8,10 +8,11 @@ ion-view(view-title="{{vm.title}}")
       div.card.dark-bg(
         ng-repeat="item in vm.events"
         )
-        a.item.item-bg-image.waves-effect.waves-button.waves-light.has-mask-reverse(
+        a.item.item-bg-image.waves-effect.waves-button.waves-light.has-mask(
           class="{{colors[$index % colors.length]}}"
           ui-sref="app.event-detail({id: {{item.id}}  })"
           ) 
-          h2 {{item.title}}
-          p {{item.description}}
+          div.has-mask-wrap
+            h2 {{item.title}}
+            p {{item.description}}
           img.hero(ng-style="{{vm.imgAsBg(item.heroPic)}}")

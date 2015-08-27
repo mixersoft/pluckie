@@ -1,7 +1,7 @@
 'use strict'
 
 EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
-  $ionicHistory, $location, $ionicScrollDelegate
+  $ionicHistory, $location, $ionicScrollDelegate, $ionicModal
   $log, toastr, exportDebug
   EventsResource, UsersResource, MenuItemsResource, ContributionsResource
   utils, devConfig
@@ -35,7 +35,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       return true if !$rootScope.user
       return !vm.acl.isParticipant()
     isOwner: ()->
-      return vm.event?.ownerId == $rootScope.user?.id
+      return vm.event?.ownerId? == $rootScope.user?.id
     isParticipant: ()->
       return true if vm.acl.isOwner()
       return vm.event.participants?[$rootScope.user?.id]?
@@ -45,7 +45,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
   vm.settings = {
     view:
-      menu: 'more'   # [less|more|contribute]
+      menu: 'less'   # [less|more|contribute]
   }
 
   vm.on = {
@@ -62,8 +62,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
           i = _.indexOf values, vm.settings.view.menu
         when 'contribute'
           i = 1
-        else 
-          i = value  
+        else
+          i = value
 
       next = i + 1
       if values[next] == 'contribute'
@@ -74,18 +74,73 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       vm.on.scrollTo('menu')
       return vm.settings.view.menu = values[next]
 
-    bookSeats: ()->
-      toastr.info("transitionTo app.events.booking")
+    beginBooking: (person, event)->
+      vm.modal.booking.show(person, event)
 
+    submitBooking: (form)->
+      booking = vm['booking']
+      # some sanity checks
+      if vm.event.id != booking.event.id
+        toastr.warn("You are booking for a different event. title="+booking.event.title)
+      if vm.me.id != booking.person.id
+        toastr.warn("You are booking for a different person. name="+booking.person.displayName)
+      if vm.event.participants[booking.booking.userId]
+        toastr.warn("You are replacing an existing booking for this userId")
 
+      processBooking(booking).then ()->
+        vm.modal.booking.hide()
+        vm['booking'] = null
+      return
 
+    cancelBooking: ()->
+      vm.modal.booking.hide()
+      vm.booking = null
+  }
 
+  vm.modal = {
+    'booking': # actions for the booking modal
+      instance: null
+      initialize : (person, event)->
+        self = vm.modal['booking']
+        vm['booking'] = {
+          person: person
+          event: event
+          booking: {}
+        } if `vm['booking']==null`
+        return $q.when(self.instance) if self.instance
+
+        $scope.$on '$destroy', ()->
+          self.instance.remove()
+
+        return $ionicModal.fromTemplateUrl( 'events/booking.modal.html'
+        , {
+          scope: $scope
+          animation: 'slide-in-up'
+        }).then (modal)->
+          return self.instance = modal
+
+      show: (person, event)->
+        self = vm.modal['booking']
+        self.initialize(person, event).then (modal)->
+          vm['booking'].booking = {
+            userId: vm['booking'].person.id
+            seats: 1
+            comment: null
+          }
+          modal.show()
+      hide: ()->
+        self = vm.modal['booking']
+        return if !self.instance?
+        self.instance.hide()
   }
 
   initialize = ()->
     DEBUG_USER_ID = "3"
     devConfig.loginUser( DEBUG_USER_ID ).then (user)->   # sets $rootScope.user
       vm.me = $rootScope.user
+      vm.settings.view.menu = 'more' if vm.acl.isParticipant()
+    vm.settings.view.menu = 'more' if vm.acl.isParticipant()
+    return
 
   getEvent = (id) ->
     return EventsResource.get(id).then (result)->
@@ -159,7 +214,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         menuItem: event.menuItems[o.menuItemId]
         portions: o.portions
       }
-      event.booking.portions += o.portions
+      event.booking.portions += parseInt o.portions
       if _.isArray event.menuItems[o.menuItemId]['contributions']
         event.menuItems[o.menuItemId]['contributions'].push contribution
       else
@@ -202,7 +257,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
      
     _.each event.participants, (o)->
       if o.seats
-        summary.booking['seats'] += o.seats
+        summary.booking['seats'] += parseInt o.seats
         summary.booking['parties'] += 1
       return
     summary.booking['seatsPct'] = Math.round( summary.booking.seats/event.seatsTotal * 100 )
@@ -216,16 +271,16 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     if vm.acl.isContributor()
       myParticipation = summary['myParticipation']
       _.each event.myParticipation.contributions, (o)->
-        myParticipation['portions'] += o.portions
+        myParticipation['portions'] += parseInt o.portions
         return
       myParticipation['portionsPct'] =
         Math.round( myParticipation['portions'] /
           (event.myParticipation['seats'] * event.seatsTotal) * 100
         )
       if myParticipation['portionsPct'] > 85
-        myParticipation['isFullyParticipating'] = true 
+        myParticipation['isFullyParticipating'] = true
 
-    if vm.acl.isOwner()
+    if vm.acl.isParticipant()
       contributors = []
       participation = summary['participation']
       _.each event.contributions, (o)->
@@ -233,7 +288,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         return if !o.contributorId?   # null ok
         contributors.push( o.contributorId )
         participation['menuItemContributions'] += 1
-        participation['portions'] += o.portions
+        participation['portions'] += parseInt o.portions
         return
       participation['contributors'] = _.uniq(contributors).length
       participation['contributorsPct'] =
@@ -259,7 +314,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         isContributed: false
       }
       _.each mi.contributions, (c)->
-        mi.summary['portions'] += c.portions
+        mi.summary['portions'] += parseInt c.portions
         return
       mi.summary['portionsRemaining'] = Math.max(event.seatsTotal - mi.summary['portions'], 0)
       mi.summary['portionsPct'] =
@@ -270,6 +325,26 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         mi.summary['isContributed'] = true
       return
     return
+
+  processBooking = (options)->
+    # add booking as participant to event
+    userId = options.booking.userId
+    # clean up data
+    options.booking.seats = parseInt options.booking.seats
+    options.booking.createdAt = new Date()
+    # add object lookup
+    options.booking['user'] = options.person
+
+    return $q.when(
+      vm.event.participants[userId] = options.booking
+    ).then (booking)->
+      $scope.$broadcast 'event:participant-changed', options
+      message = "Congratulations, you have just booked " + options.booking.seats + " seats! "
+      message += "Now consider your contribution."
+      toastr.info message
+      vm.on.scrollTo('cp-participant')
+      return booking
+
 
     
   activate = ()->
@@ -328,6 +403,15 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
   toastr.info "Creating EventDetailCtrl"
 
+  $scope.$on 'event:participant-changed', (ev, options)->
+    check = options
+    event = vm.event
+    getDerivedValues_Event(event)
+    getDerivedValues_MenuItems(event)
+    # push notification to host + participants
+    return
+
+
   $scope.$on '$ionicView.loaded', (e) ->
     $log.info "viewLoaded for EventDetailCtrl"
     initialize()
@@ -341,7 +425,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
 EventDetailCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$timeout', '$stateParams'
-  '$ionicHistory', '$location', '$ionicScrollDelegate'
+  '$ionicHistory', '$location', '$ionicScrollDelegate', '$ionicModal'
   '$log', 'toastr', 'exportDebug'
   'EventsResource', 'UsersResource', 'MenuItemsResource', 'ContributionsResource'
   'utils', 'devConfig'
