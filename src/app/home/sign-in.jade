@@ -1,0 +1,15 @@
+ion-modal-view {{me=vm.me;''}}
+  ion-header-bar.bar-balanced.icon-right
+    h1.title Please Sign-in
+    button.button.button-clear.icon.ion-close(ng-click="closeModal(me)")
+  ion-content
+    div.list
+      label.item.item-input.item-floating-label
+        span.input-label Username
+        input(type="text" placeholder="Username" ng-model="me.displayName")
+      label.item.item-input.item-floating-label
+        span.input-label Password
+        input(type="password" placeholder="Password" ng-model="me.password")
+
+
+

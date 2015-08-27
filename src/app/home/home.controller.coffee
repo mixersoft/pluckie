@@ -4,6 +4,7 @@ HomeCtrl = (
   $scope, $rootScope, $location
   $ionicScrollDelegate
   $log, toastr
+  appModalSvc
   utils, devConfig, exportDebug
   )->
 
@@ -32,14 +33,24 @@ HomeCtrl = (
       return vm.settings.show = value
 
     click: (ev)->
-      toastr.info("something was clicked")
+      appModalSvc.show('home/sign-in.html', vm, {
+        xyz: "hello world"
+      })
+      .then (result)->
+        # result from modal
+        toastr.info result
+
+
+    close: (o)->
+      $log.info "CloseModal called"
+
   }
 
   initialize = ()->
     # return
     if $rootScope.user?
       vm.me = $rootScope.user
-    else 
+    else
       DEV_USER_ID = '0'
       devConfig.loginUser( DEV_USER_ID ).then (user)->
         # loginUser() sets $rootScope.user
@@ -64,6 +75,7 @@ HomeCtrl.$inject = [
   '$scope', '$rootScope', '$location'
   '$ionicScrollDelegate'
   '$log', 'toastr'
+  'appModalSvc'
   'utils', 'devConfig', 'exportDebug'
 ]
 

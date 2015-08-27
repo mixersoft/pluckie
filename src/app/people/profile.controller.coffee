@@ -39,7 +39,7 @@ ProfileCtrl = (
   initialize = ()->
     if $rootScope.user?
       vm.me = $rootScope.user
-    else 
+    else
       DEV_USER_ID = '0'
       devConfig.loginUser( DEV_USER_ID ).then (user)->
         # loginUser() sets $rootScope.user
