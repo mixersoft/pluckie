@@ -21,15 +21,14 @@ ion-view(view-title="{{vm.title}}")
                   ) {{vm.me.displayName}}
             div(ng-switch-when="more")                
               div.item.item-avatar(ng-show="vm.me")
-                div
-                  img(
-                    ng-src="{{vm.me.face}}"
-                    ui-sref="app.profile({id:'{{vm.me.id}}'})"
-                  )
-                  {{vm.me.firstname}} {{vm.me.lastname}}
+                img(
+                  ng-src="{{vm.me.face}}"
+                  ui-sref="app.profile({id:'{{vm.me.id}}'})"
+                )
+                {{vm.me.firstname}} {{vm.me.lastname}}
               div.item(ng-hide="vm.me") You are not signed in
 
           div.item
             button.button.button-full.button-balanced(ng-click="vm.on.click($event)").
-              Sign In
+              Show Dialog
 
