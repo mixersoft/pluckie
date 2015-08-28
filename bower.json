@@ -1,8 +1,8 @@
 {
-  "name": "ionic-tabs-starter-sass-jade-coffee",
+  "name": "pluckie",
   "private": "true",
   "devDependencies": {
-    "ionic": "driftyco/ionic-bower#1.0.1",
+    "ionic": "driftyco/ionic-bower#1.1.0",
     "angular-toastr": "~1.4.1",
     "ionic-material": "~0.4.2",
     "robotodraft": "~1.1.0",
@@ -10,5 +10,11 @@
     "moment": "~2.10.6",
     "angular-moment": "~0.10.2",
     "ionic-ratings": "~0.1.0"
+  },
+  "resolutions": {
+    "ionic": "1.1.0",
+    "angular": "1.4.3",
+    "angular-sanitize": "1.4.3",
+    "angular-animate": "1.4.3"
   }
 }

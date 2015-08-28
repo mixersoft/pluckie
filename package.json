@@ -1,11 +1,11 @@
 {
-  "name": "ionic-tabs-starter-sass-jade-coffee",
-  "version": "1.0.0",
-  "description": "ionic-tabs-starter-sass-jade-coffee: Ionic tabs starter project implemented with sass, jade and coffeescript.",
-  "author": "David Del Prado <dpramar@gmail.com>",
+  "name": "pluckie",
+  "version": "0.1.0",
+  "description": "An app for elevating potlucks and community meals around the world.",
+  "author": "Michael Lin <michael@snaphappi.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dpramar/ionic-tabs-starter-sass-jade-coffee"
+    "url": "https://github.com/mixersoft/pluckie"
   },
   "dependencies": {
     "coffee-script": "^1.9.3"
@@ -33,5 +33,23 @@
     "stream-series": "^0.1.1",
     "yargs": "^3.15.0"
   },
-  "license": "MIT"
+  "license": "",
+  "cordovaPlugins": [
+    "cordova-plugin-console",
+    "com.ionic.keyboard",
+    "cordova-plugin-device",
+    "cordova-plugin-file",
+    "cordova-plugin-splashscreen",
+    {
+      "locator": "https://github.com/phonegap-build/PushPlugin",
+      "id": "com.phonegap.plugins.PushPlugin"
+    },
+    {
+      "locator": "https://github.com/katzer/cordova-plugin-local-notifications",
+      "id": "de.appplant.cordova.plugin.local-notification"
+    }
+  ],
+  "cordovaPlatforms": [
+    "ios"
+  ]
 }
