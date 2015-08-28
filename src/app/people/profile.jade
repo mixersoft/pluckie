@@ -15,3 +15,28 @@ ion-view(view-title="{{vm.title}}")
       h2.capitalize {{me.firstname}} {{me.lastname}}
       button.button.icon-left.icon.ion-chatbox Contact Me
 
+    div.padding.text-center
+      button.button.button-assertive.icon.ion-gear-b(
+        ng-click="dev.on.selectUser()"
+        )
+        span.padding-left Change User
+
+    div.content.row.responsive-sm
+      div.col.col-offset-25.col-50
+        div.list.card(ng-show="vm.settings.show=='admin'")
+          div.item.item-assertive.item-icon-right
+            h2.title.light Select User for Testing
+            i.light.icon.ion-close(ng-click="vm.settings.show='less'")
+          a.item.item-avatar(
+            ng-repeat="person in vm.people"
+            ng-click="dev.on.loginUser(person)"
+          )
+            img(ng-src="{{person.face}}")
+            b {{[person.firstname,person.lastname].join(' ') }}
+            p id = {{person.id}}
+
+
+
+
+
+

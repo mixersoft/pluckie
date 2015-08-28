@@ -128,10 +128,13 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   }
 
   initialize = ()->
-    DEBUG_USER_ID = "3"
-    devConfig.loginUser( DEBUG_USER_ID ).then (user)->   # sets $rootScope.user
+    if $rootScope.user?
       vm.me = $rootScope.user
-      vm.settings.view.menu = 'more' if vm.acl.isParticipant()
+    else
+      DEBUG_USER_ID = "3"
+      devConfig.loginUser( DEBUG_USER_ID ).then (user)->   # sets $rootScope.user
+        vm.me = $rootScope.user
+        vm.settings.view.menu = 'more' if vm.acl.isParticipant()
     vm.settings.view.menu = 'more' if vm.acl.isParticipant()
     return
 

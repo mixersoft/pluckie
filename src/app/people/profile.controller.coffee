@@ -4,6 +4,8 @@ ProfileCtrl = (
   $scope, $rootScope, $location
   $ionicScrollDelegate
   $log, toastr
+  UsersResource
+  appModalSvc
   utils, devConfig, exportDebug
   )->
 
@@ -32,8 +34,26 @@ ProfileCtrl = (
         return vm.settings.show = next
       return vm.settings.show = value
 
-    click: (ev)->
-      toastr.info("something was clicked")
+    
+        
+
+  }
+
+  $scope.dev = {
+    on:
+      selectUser: ()->
+        UsersResource.query()
+        .then (result)->
+          vm.people = _.indexBy result, 'id'
+          vm.settings.show = 'admin'
+      loginUser: (person)->
+        devConfig.loginUser( person.id )
+        .then (user)->   # sets $rootScope.user
+          vm.me = $rootScope.user
+          toastr.info "You are now " + person.displayName
+          vm.settings.show = 'less'
+
+
   }
 
   initialize = ()->
@@ -65,6 +85,8 @@ ProfileCtrl.$inject = [
   '$scope', '$rootScope', '$location'
   '$ionicScrollDelegate'
   '$log', 'toastr'
+  'UsersResource'
+  'appModalSvc'
   'utils', 'devConfig', 'exportDebug'
 ]
 
