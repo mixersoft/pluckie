@@ -17,7 +17,7 @@ EventsResource = (Resty, amMoment) ->
       heroPic: "https://noisynoodler.files.wordpress.com/2013/06/tonkotsu-ramen.jpg"
 
       # when: 4=Thur
-      startTime: moment().day(4).hour(20).startOf('hour').toJSON() # search/filter
+      startTime: moment().weekday(4).add(7,'d').hour(20).startOf('hour').toJSON() # search/filter
       duration: moment.duration(3, 'hours').asMilliseconds()
 
       # where:
@@ -85,7 +85,7 @@ EventsResource = (Resty, amMoment) ->
       heroPic: "http://slice.seriouseats.com/images/20111208-basil-duo.jpg"
 
       # when: 4=Thur
-      startTime: moment().day(6).hour(17).startOf('hour').toJSON() # search/filter
+      startTime: moment().weekday(6).add(7,'d').hour(17).startOf('hour').toJSON() # search/filter
       duration: moment.duration(3, 'hours').asMilliseconds()
 
       # where:
@@ -131,7 +131,7 @@ EventsResource = (Resty, amMoment) ->
       heroPic: "http://www.foodpeoplewant.com/wp-content/uploads/2010/06/Peach-BBQ-Spare-Ribs.jpg"
 
       # when: 4=Thur
-      startTime: moment().day(7).hour(13).startOf('hour').toJSON() # search/filter
+      startTime: moment().weekday(7).add(7,'d').hour(13).startOf('hour').toJSON() # search/filter
       duration: moment.duration(3, 'hours').asMilliseconds()
 
       # where:

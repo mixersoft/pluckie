@@ -36,7 +36,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       return true if !$rootScope.user
       return !vm.acl.isParticipant()
     isOwner: ()->
-      return vm.event?.ownerId? == $rootScope.user?.id
+      return vm.event && vm.event.ownerId == $rootScope.user?.id
     isParticipant: ()->
       return true if vm.acl.isOwner()
       return vm.event.participants?[$rootScope.user?.id]?
@@ -46,7 +46,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
   vm.settings = {
     view:
-      menu: 'contribute'   # [less|more|contribute]
+      menu: 'less'   # [less|more|contribute]
   }
 
   vm.on = {
@@ -71,8 +71,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         if vm.acl.isParticipant() == false
           return vm.on.menuView(next) # skip
         if vm.event.summary.myParticipation.isFullyParticipating
-          return vm.on.menuView(next) # skip
+          if value == 'next'
+            return vm.on.menuView(next) # skip unless forced
       vm.on.scrollTo('menu')
+      if value == 'contribute'
+        toastr.info "Contribute a suggested Menu Item or add a new one."
       return vm.settings.view.menu = values[next]
 
     beginBooking: (person, event)->
@@ -91,11 +94,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     submitBooking: (booking, onSuccess)->
       # some sanity checks
       if vm.event.id != booking.event.id
-        toastr.warn("You are booking for a different event. title="+booking.event.title)
+        toastr.warning("You are booking for a different event. title="+booking.event.title)
       if vm.me.id != booking.person.id
-        toastr.warn("You are booking for a different person. name="+booking.person.displayName)
+        toastr.warning("You are booking for a different person. name="+booking.person.displayName)
       if vm.event.participants[booking.booking.userId]
-        toastr.warn("You are replacing an existing booking for this userId")
+        toastr.warning("You are replacing an existing booking for this userId")
 
       createBooking(booking).then (result)->
         onSuccess?(result)
@@ -118,6 +121,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             comment: null
         })
       .then (result)->
+        result = _.omit result, ['contributor', 'menuItem']
         $log.info "Contribute Modal resolved, result=" + JSON.stringify result
       return
     submitContribute: (contribution, onSuccess)->
@@ -128,14 +132,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   }
 
   initialize = ()->
-    if $rootScope.user?
+    # dev
+    DEV_USER_ID = '0'
+    devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
-    else
-      DEBUG_USER_ID = "3"
-      devConfig.loginUser( DEBUG_USER_ID ).then (user)->   # sets $rootScope.user
-        vm.me = $rootScope.user
-        vm.settings.view.menu = 'more' if vm.acl.isParticipant()
-    vm.settings.view.menu = 'more' if vm.acl.isParticipant()
+      vm.settings.view.menu = 'more' if vm.acl.isParticipant()
     return
 
   getEvent = (id) ->
@@ -166,7 +167,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     .then (result)->
       # ownerId => host
       event.menuItems = _.indexBy result,'id'
-      toastr.info JSON.stringify( result )[0...50]
+      # toastr.info JSON.stringify( result )[0...50]
       return event
 
   getContributors = (event)->
@@ -204,23 +205,40 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       # TODO: add rule, contributor must be a participant
       if !event.participants[o.contributorId]
         $log.warn "WARNING: contributor is not a registered participant"
-      # event.menuItems[i].contributor
-      contribution = {
-        contributor: event.contributors[o.contributorId]
-        menuItem: event.menuItems[o.menuItemId]
-        portions: o.portions
-      }
-      event.booking.portions += parseInt o.portions
-      if _.isArray event.menuItems[o.menuItemId]['contributions']
-        event.menuItems[o.menuItemId]['contributions'].push contribution
-      else
-        event.menuItems[o.menuItemId]['contributions'] = [ contribution ]
 
-      # event.contributors[i].menuItem
-      if _.isArray event.contributors[o.contributorId]['contribution']
-        event.contributors[o.contributorId]['contributions'].push contribution
-      else
-        event.contributors[o.contributorId]['contributions'] = [contribution]
+      event.booking.portions += parseInt o.portions
+
+
+      # contribution = {
+      #   contributor: event.contributors[o.contributorId]
+      #   menuItem: event.menuItems[o.menuItemId]
+      #   portions: o.portions
+      # }
+      
+      # if _.isArray event.menuItems[o.menuItemId]['contributions']
+      #   event.menuItems[o.menuItemId]['contributions'].push contribution
+      # else
+      #   event.menuItems[o.menuItemId]['contributions'] = [ contribution ]
+
+      # # event.contributors[i].menuItem
+      # if _.isArray event.contributors[o.contributorId]['contribution']
+      #   event.contributors[o.contributorId]['contributions'].push contribution
+      # else
+      #   event.contributors[o.contributorId]['contributions'] = [contribution]
+      # return
+
+      contribution = o
+      # set-up backlinks
+      contribution['menuItem'] = event.menuItems[ o['menuItemId'] ]
+      contribution['contributor'] =  event.contributors[ o['contributorId'] ]
+      event.booking.portions += parseInt o.portions
+      # add backlinks
+      if !event.menuItems[o.menuItemId]['contributions']
+        event.menuItems[o.menuItemId]['contributions'] = {}
+      event.menuItems[o.menuItemId]['contributions'][contribution.id] = contribution
+      if !event.contributors[o.contributorId]['contribution']
+        event.contributors[o.contributorId]['contributions'] = {}
+      event.contributors[o.contributorId]['contributions'][contribution.id] = contribution
       return
 
     return event
@@ -350,56 +368,64 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     async = (contrib, menuItem)->
       found = _.filter(vm.event.contributions, _.pick(contrib, ['contributorId','menuItemId']))
       if found.length > 1
-        toastr.warn "Warning: same menu item contributed by same person more than once"
+        toastr.warning "Warning: same menu item contributed by same person more than once"
       if found.length == 1
         # update portion from existing contrib
         found[0].portions += contrib.portions
         found[0].comments = (found[0].comments || ' ') + contrib.comments
         return $q.when found[0]
-
-      mItemContribution = {
-        contributor: vm.me
-        menuItem: menuItem
-        portions: contrib.portions
-      }
+      
+      
+      # register person as contributor
+      vm.event.contributors[contrib.contributorId] = vm.me
+      vm.event.contributorIds = _.keys vm.event.contributors
 
       if menuItem && !menuItem.contributions
-        # first contribution, update null contribution record,
-        # create new menuItem.contributions entry
+        # first contribution to exisiting menuItem
+        #   update null contribution record,
+        #   create new menuItem.contributions entry
         found = _.filter(vm.event.contributions, _.pick(contrib, ['menuItemId']))
         if found[0].contributorId != null
-          toastr.warn "warning: expecting an empty contribution here createContribution()"
+          toastr.warning "warning: expecting an empty contribution here createContribution()"
         # new contribution assignment
+
         found[0].contributorId = contrib.contributorId
         found[0].portions += contrib.portions
-        found[0].comments = (found.comments || ' ') + contrib.comments
+        found[0].comments = (found.comments || ' ') + contrib.comment
+        # add backlinks
+        found[0]['contributor'] = vm.me
+        found[0]['menuItem'] = menuItem
+        contrib = found[0]
 
         # and save backlink to vm.event.menuItems[].contributions
-        menuItem.contributions = [mItemContribution]
-        # register as contributor
-        vm.event.contributors[contrib.contributorId] = vm.me
-        if vm.me.contributions?
-          vm.me.contributions.push mItemContribution
-        else
-          vm.me.contributions = [vm.me.contributions]
-        return $q.when found[0]
+        if !menuItem.contributions
+          menuItem.contributions = {}
+        menuItem.contributions[contrib.id] = contrib
+        if !vm.me.contributions
+          vm.me.contributions = {}
+        vm.me.contributions[contrib.id] = contrib
+        return $q.when contrib
 
       if menuItem?.contributions?
-        # second contribution to menuItem, NEW contribution record
+        # generate contribution.id
         contrib['id'] = vm.event.contributions.length + ''
+        # add backlinks
+        contrib['contributor'] = vm.me
+        contrib['menuItem'] = menuItem
+        # second contribution to menuItem, NEW contribution record
         vm.event.contributions.push contrib
 
         # and save backlink to vm.event.menuItems[].contributions
-        menuItem.contributions.push mItemContribution
+        if !menuItem.contributions
+          menuItem.contributions = {}
+        menuItem.contributions[contrib.id] = contrib
         # register as contributor
-        vm.event.contributors[contrib.contributorId] = vm.me
-        if vm.me.contributions?
-          vm.me.contributions.push mItemContribution
-        else
-          vm.me.contributions = [vm.me.contributions]
+        if !vm.me.contributions
+          vm.me.contributions = {}
+        vm.me.contributions[contrib.id] = contrib
         return $q.when contrib
 
-      toastr.warn "we shouldn't be here, didn't test for all conditions createContribution()"
+      toastr.warning "we shouldn't be here, didn't test for all conditions createContribution()"
       return $q.reject()
 
     return async(options.contribution, options.menuItem).then (contribution)->
@@ -465,7 +491,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     return
 
 
-  toastr.info "Creating EventDetailCtrl"
+  # toastr.info "Creating EventDetailCtrl"
 
   $scope.$on 'event:participant-changed', (ev, options)->
     check = options
@@ -491,6 +517,33 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   $scope.$on '$ionicView.enter', (e) ->
     $log.info "viewEnter for EventDetailCtrl"
     activate()
+
+
+  $scope.dev = {
+    settings:
+      show: 'less'
+    on:
+      selectUser: ()->
+        UsersResource.query()
+        .then (result)->
+          vm.people = _.indexBy result, 'id'
+          $scope.dev.settings.show = 'admin'
+          vm.on.scrollTo('admin-change-user')
+          return
+      loginUser: (person)->
+        devConfig.loginUser( person.id )
+        .then (user)->   # sets $rootScope.user
+          vm.me = $rootScope.user
+          toastr.info "You are now " + person.displayName
+          $scope.dev.settings.show = 'less'
+          return user
+        .then ()->
+          # getDerivedValues_Event(event)
+          # getDerivedValues_MenuItems(event)
+          activate()
+          vm.on.scrollTo()
+          return
+  }
    
   return vm # # end EventDetailCtrl,  return is required for controllerAs syntax
 

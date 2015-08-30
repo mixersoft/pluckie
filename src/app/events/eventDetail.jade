@@ -121,7 +121,7 @@ ion-view(view-title="{{vm.title}}")
                   
               div.list.menu-item(ng-switch-when="more")
                 div.item.item-avatar(ng-repeat="mitem in item.menuItems") 
-                  img(src="{{mitem.pic}}")
+                  img(ng-src="{{mitem.pic}}")
                   div.pull-right
                     span.muted {{ mitem.category }}
                     
@@ -136,7 +136,7 @@ ion-view(view-title="{{vm.title}}")
 
               div.list.menu-item(ng-switch-when="contribute")
                 div.item.item-avatar(ng-repeat="mitem in item.menuItems") 
-                  img(src="{{mitem.pic}}")
+                  img(ng-src="{{mitem.pic}}")
                   div.muted.pull-right {{ mitem.category }}
                   b.title {{ mitem.title  }} 
                   div.detail {{ mitem.detail  }}
@@ -199,12 +199,13 @@ ion-view(view-title="{{vm.title}}")
               h2 Participants
               //- eatWith: Guest List, x of y seats booked, show face icon or empty faces
               //- 
-              div.list.participants(ng-repeat="participation in item.participants")
-                div.item.item-avatar.participation(ng-init="person = participation.user")
-                  img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
-                  b {{[person.firstname,person.lastname].join(' ') }}
-                  div.seats.pull-right(ng-if="participation.seats > 1") + {{participation.seats - 1}} other{{participation.seats>2 ? 's' : ''}}
-                  div.comment.muted {{participation.comment}}
+              div.list.condensed.participants
+                div(ng-repeat="participation in item.participants")
+                  div.item.item-avatar.participation {{person = participation.user;''}}
+                    img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
+                    b {{[person.firstname,person.lastname].join(' ') }}
+                    div.seats.pull-right(ng-if="participation.seats > 1") + {{participation.seats - 1}} other{{participation.seats>2 ? 's' : ''}}
+                    div.comment.muted {{participation.comment}}
                   
 
       // 100% iphone, 50% ipad
@@ -215,30 +216,35 @@ ion-view(view-title="{{vm.title}}")
       div#cp-participant.content.row.responsive-sm(ng-if="vm.acl.isParticipant()")
         div.col.col-offset-25.col-50
           div.row
-            div.col.text-left.rounded.item-divider
-              h4.balanced My Participation
-              div.list.my-participation
-                h5.balanced Booking
+            div.col.text-left
+              div.my-participation.list.card.condensed
+                div.item.item-divider.item-balanced.light
+                  div.larger My Participation
+                h5.balanced.padding-horizontal Booking
                 div.item.item-avatar.participation(ng-init="person = vm.me")
                   img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
-                  b {{[person.firstname,person.lastname].join(' ') }}
-                  div.seats {{item.myParticipation.seats}} seat{{item.myParticipation.seats>1 ? 's' : ''}}
-                  div.comment.muted {{item.myParticipation.comment}}
-                h5.balanced Contribution
-                div.item.item-avatar(ng-repeat="contrib in item.myParticipation.contributions")
-                  img(src="{{contrib.menuItem.pic}}")
-                  div.muted.pull-right {{ contrib.menuItem.category }}
-                  b.title {{ contrib.menuItem.title  }} 
                   div
-                    b.portions {{contrib.portions}} portions
-                  div.detail.muted {{ contrib.menuItem.detail  }}
-                div.item.item-text-wrap.button-full
+                    b.name {{[person.firstname,person.lastname].join(' ') }}
+                    &nbsp;
+                    b.seats ({{item.myParticipation.seats}} seat{{item.myParticipation.seats>1 ? 's' : ''}})
+                  div.comment.muted {{item.myParticipation.comment}}
+                h5.balanced.padding-horizontal Contribution
+                div.item.item-avatar(ng-repeat="contrib in item.myParticipation.contributions")
+                  img(ng-src="{{contrib.menuItem.pic}}")
+                  div
+                    div.muted.pull-right {{ contrib.menuItem.category }}
+                    b.title.wrap {{ contrib.menuItem.title  }} 
+                      span.portions.nowrap {{contrib.portions}} portions
+                  div
+                    p.detail.muted {{ contrib.menuItem.detail  }}
+                div.item.item-text-wrap
                   p(ng-if="item.summary.myParticipation.isFullyParticipating==false"). 
                     You are contributing a total of {{item.summary.myParticipation.portions}} portions 
                     ( {{item.summary.myParticipation.portionsPct}}% )
                     based on your participation of {{item.myParticipation.seats}} seats. 
                   p(ng-if="item.summary.myParticipation.isFullyParticipating").
                     You are already contributing to this event, but feel free to sign-up for more if you like.
+                div.item.button-full
                   div.button.button-balanced.icon.ion-android-add-circle(
                     ng-click="vm.on.menuView('contribute')"
                   ).
@@ -255,10 +261,10 @@ ion-view(view-title="{{vm.title}}")
       div#quick-summary.content.row.responsive-sm
         div.col.col-offset-25.col-50
           div.row
-            div.col.text-left
-              div.list.card
+            div.col.text-left.royal
+              div.list.card.condensed
                 div.item.item-divider.item-royal.light
-                  h3 Quick Summary
+                  div.larger Quick Summary
                 div.item.item-icon-left.royal 
                   i.icon.ion-ios-calendar-outline
                   {{ item.summary.countdown }} 
@@ -267,10 +273,8 @@ ion-view(view-title="{{vm.title}}")
                   {{ item.summary.booking.parties }} Parties
                 div.item.item-icon-left.royal 
                   i.icon.ion-fork
-                  {{ item.summary.booking.seats }} Seats Booked ( {{item.summary.booking.seatsPct}}% )
-                div.item.item-icon-left.royal 
-                  i.icon.ion-help
-                  {{item.seatsOpen}} Seats Available
+                  div.royal {{ item.summary.booking.seats }} Seats Booked ( {{item.summary.booking.seatsPct}}% )
+                  div.royal {{item.seatsOpen}} Seats Available
                 div(ng-hide="vm.acl.isVisitor()")
                   div.item.item-icon-left.royal 
                     i.icon.ion-person
@@ -278,8 +282,8 @@ ion-view(view-title="{{vm.title}}")
 
                   div.item.item-icon-left.royal 
                     i.icon.ion-pizza
-                    {{item.summary.participation.menuItemContributions}} Menu Contributions ({{item.summary.participation.menuItemContributionsPct}}%)
-                    / {{item.summary.participation.portions}} Portions ({{item.summary.participation.portionsPct}}%)
+                    div.royal {{item.summary.participation.menuItemContributions}} Menu Contributions ({{item.summary.participation.menuItemContributionsPct}}%)
+                    div.royal {{item.summary.participation.portions}} Portions ({{item.summary.participation.portionsPct}}%)
 
 
 
@@ -290,16 +294,17 @@ ion-view(view-title="{{vm.title}}")
       div#cp-host.content.row.responsive-sm(ng-if="vm.acl.isOwner()")
         div.col.col-offset-25.col-50
           div.row
-            div.col.text-left.rounded.item-divider
-              h4.royal Host Control Panel
-              div.list.control-panel.light-bg
-                ion-toggle(ng-model="item.isPublic" toggle-class="toggle-royal") Is Published
-                ion-toggle(ng-model="item.setting.isExclusive" toggle-class="toggle-royal") Is Invitation Only
-                ion-toggle(ng-model="item.setting.canForward" toggle-class="toggle-royal") Can Forward Invitations
-                ion-toggle(ng-model="item.setting.hideAddress" toggle-class="toggle-royal") Address for Guests only
-                ion-toggle(ng-model="item.setting.hasWaitList" toggle-class="toggle-royal") Can Join Waitlist
-                ion-toggle(ng-model="item.setting.fixedMenu" toggle-class="toggle-royal") Fixed Menu
-                div.item.item-radio-royal Feed Visibibility
+            div.col.text-left
+              div.list.condensed.card.control-panel
+                div.item.item-divider.item-dark.light
+                  div.larger Host Control Panel
+                ion-toggle(ng-model="item.isPublic" toggle-class="toggle-balanced") Is Published
+                ion-toggle(ng-model="item.setting.isExclusive" toggle-class="toggle-balanced") Is Invitation Only
+                ion-toggle(ng-model="item.setting.canForward" toggle-class="toggle-balanced") Can Forward Invitations
+                ion-toggle(ng-model="item.setting.hideAddress" toggle-class="toggle-balanced") Address for Guests only
+                ion-toggle(ng-model="item.setting.hasWaitList" toggle-class="toggle-balanced") Can Join Waitlist
+                ion-toggle(ng-model="item.setting.fixedMenu" toggle-class="toggle-balanced") Fixed Menu
+                div.item Feed Visibibility
                   ion-radio(ng-model="item.setting.feedVisibility" ng-value="'public'") Public
                   ion-radio(ng-model="item.setting.feedVisibility" ng-value="'participants'") Participants
                   ion-radio(ng-model="item.setting.feedVisibility" ng-value="'host'") Host
@@ -316,6 +321,31 @@ ion-view(view-title="{{vm.title}}")
             div.col.text-left.rounded.item-divider
               h4 Other Upcoming Meals
               i.icon.ion-more
+
+
+
+      div#admin-change-user.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div.row(ng-hide="dev.settings.show=='admin'")
+            div.col
+              div.padding.text-center
+                button.button.button-assertive.icon.ion-gear-b(
+                ng-click="dev.on.selectUser()"
+                )
+                  span.padding-left Change User ({{vm.me.displayName}})
+          div.row(ng-show="dev.settings.show=='admin'")
+            div.col
+              div.list.card.condensed
+                div.item.item-assertive.item-icon-right
+                  h2.title.light Select User for Testing
+                  i.light.icon.ion-close(ng-click="dev.settings.show='less'")
+                a.item.item-avatar(
+                  ng-repeat="person in vm.people"
+                  ng-click="dev.on.loginUser(person)"
+                )
+                  img(ng-src="{{person.face}}")
+                  b {{[person.firstname,person.lastname].join(' ') }}
+                  p id = {{person.id}}
 
 
 

@@ -1,9 +1,11 @@
 //- events/contribute.modal.jade
 ion-modal-view 
-  ion-header-bar.bar-balanced {{event=vm.event; me=vm.me; mitem = myContribution.menuItem;''}}
+  ion-header-bar.bar-positive {{event=vm.event; me=vm.me; mitem = myContribution.menuItem;''}}
     h1.title Contribute to {{ event.title }}
   ion-content
-    div.list.card.menu-item
+    div.list.card.condensed.menu-item
+      div.item.item-divider.item-balanced.light
+        div.larger {{mitem.category}}
       div.item.item-avatar
         img(src="{{mitem.pic}}")
         div.muted.pull-right {{ mitem.category }}

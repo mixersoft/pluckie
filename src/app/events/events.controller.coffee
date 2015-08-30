@@ -38,7 +38,7 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
   getData = () ->
     EventsResource.query().then (events)->
       vm.events = events
-      toastr.info JSON.stringify( events)[0...50]
+      # toastr.info JSON.stringify( events)[0...50]
       return events
 
   setMaterialEffects = () ->
@@ -72,7 +72,7 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
     return
 
 
-  toastr.info "Creating EventsCtrl"
+  # toastr.info "Creating EventsCtrl"
 
   $scope.$on '$ionicView.loaded', (e) ->
     $log.info "viewLoaded for EventsCtrl"

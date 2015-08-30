@@ -40,32 +40,32 @@ ProfileCtrl = (
   }
 
   $scope.dev = {
+    settings:
+      show: 'less'
     on:
       selectUser: ()->
         UsersResource.query()
         .then (result)->
           vm.people = _.indexBy result, 'id'
-          vm.settings.show = 'admin'
+          $scope.dev.settings.show = 'admin'
+          vm.on.scrollTo('admin-change-user')
       loginUser: (person)->
         devConfig.loginUser( person.id )
         .then (user)->   # sets $rootScope.user
           vm.me = $rootScope.user
           toastr.info "You are now " + person.displayName
-          vm.settings.show = 'less'
-
-
+          $scope.dev.settings.show = 'less'
+          return user
   }
 
   initialize = ()->
-    if $rootScope.user?
+    # dev
+    DEV_USER_ID = '0'
+    devConfig.loginUser( DEV_USER_ID , false)
+    .then (user)->
       vm.me = $rootScope.user
-    else
-      DEV_USER_ID = '0'
-      devConfig.loginUser( DEV_USER_ID ).then (user)->
-        # loginUser() sets $rootScope.user
-        vm.me = $rootScope.user
-        toastr.info "Login as userId=0"
-    return
+      activate()
+      vm.on.scrollTo()
 
   activate = ()->
     return

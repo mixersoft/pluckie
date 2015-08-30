@@ -1,7 +1,7 @@
 'use strict'
 
 HomeCtrl = (
-  $scope, $rootScope, $location, $timeout
+  $scope, $rootScope, $q, $location, $timeout
   $ionicScrollDelegate
   $log, toastr
   HomeResource
@@ -42,7 +42,7 @@ HomeCtrl = (
     HomeResource.query().then (cards)->
       vm.cards = cards
       exportDebug.set( 'home', vm['cards'] )
-      toastr.info JSON.stringify( cards)[0...50]
+      # toastr.info JSON.stringify( cards)[0...50]
       return cards
 
   startMaterialEffects = () ->
@@ -73,15 +73,12 @@ HomeCtrl = (
 
   initialize = ()->
     getData()
-    # return
-    if $rootScope.user?
+
+    # dev
+    DEV_USER_ID = '3'
+    devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
-    else
-      DEV_USER_ID = '0'
-      devConfig.loginUser( DEV_USER_ID ).then (user)->
-        # loginUser() sets $rootScope.user
-        vm.me = $rootScope.user
-        toastr.info "Login as userId=0"
+
 
   activate = ()->
     ionicMaterialInk.displayEffect()
@@ -100,7 +97,7 @@ HomeCtrl = (
 
 
 HomeCtrl.$inject = [
-  '$scope', '$rootScope', '$location', '$timeout'
+  '$scope', '$rootScope', '$q', '$location', '$timeout'
   '$ionicScrollDelegate'
   '$log', 'toastr'
   'HomeResource'

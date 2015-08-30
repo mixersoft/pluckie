@@ -1,19 +1,21 @@
 'use strict'
 
 # helper functions to set up dev testing
-DevConfig = ($rootScope, UsersResource)->
+DevConfig = ($rootScope, UsersResource, $q, $log)->
   self = {
-    loginUser : (id)->
+    loginUser : (id, force=true)->
       # manually set current user for testing
+      return $q.when( $rootScope.user ) if $rootScope.user? && !force
       return UsersResource.get( id ).then (user)->
-        $rootScope['user'] = user
-        return user
+        $log.info "Sign-in for id=" + user.id
+        return $rootScope['user'] = user
+
   }
   
   return self # DevConfig
 
 
-DevConfig.$inject = ['$rootScope', 'UsersResource']
+DevConfig.$inject = ['$rootScope', 'UsersResource', '$q', '$log']
 
 
 

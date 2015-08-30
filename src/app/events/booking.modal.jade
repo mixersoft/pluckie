@@ -3,9 +3,9 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
   ion-header-bar.bar-balanced
     h1.title Join {{ item.title }}
   ion-content
-    div.list.card
+    div.list.card.condensed
       div.item.item-divider.item-positive
-        span.light.larger {{item.title}}
+        div.light.larger {{item.title}}
       div.item(ng-class="item.host.face ? 'item-avatar' : 'item-icon-left'")
         img(ng-src="{{item.host.face}}" ui-sref="app.profile({id:'{{item.host.id}}'})")
         i.icon.ion-person(ng-show="!item.host.face")
