@@ -74,11 +74,11 @@ ion-view(view-title="{{vm.title}}")
           div.row.responsive-sm
             // event: host attr
             div.col
-              div.list
-                div.item(ng-class="item.host.face ? 'item-avatar' : 'item-icon-left'")
-                  img(ng-src="{{item.host.face}}" ui-sref="app.profile({id:'{{item.host.id}}'})")
-                  i.icon.ion-person(ng-show="!item.host.face")
-                  {{ [item.host.firstname,item.host.lastname].join(' ')  || item.ownerId }}
+              div.list {{host=vm.lookup['host'];''}}
+                div.item(ng-class="host.face ? 'item-avatar' : 'item-icon-left'")
+                  img(ng-src="{{host.face}}" ui-sref="app.profile({id:'{{host.id}}'})")
+                  i.icon.ion-person(ng-show="!host.face")
+                  {{ [host.firstname,host.lastname].join(' ')  || item.ownerId }}
                 div.item.item-icon-left
                   i.icon.ion-ios-lightbulb
                   {{ item.inspiration }}
@@ -109,43 +109,50 @@ ion-view(view-title="{{vm.title}}")
       div#menu.content.row.responsive-sm
         div.col.col-offset-25.col-50
           div.row
-            div.col.text-center(ng-switch="vm.settings.view.menu")
+            div.col.text-center(ng-switch="vm.settings.view.menu") 
               h2
                 button.overlay-right.button.button-clear.icon.ion-more.positive(ng-click="vm.on.menuView('next')")
                 span Menu
                 
-              div.list.menu-item.text-center(ng-switch-when="less")
-                div.item(ng-repeat="mitem in item.menuItems") 
+              div.list.menu-item.text-center(ng-switch-when="less") 
+                div.item(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
                   b.title {{ mitem.title  }} 
                   div.muted {{ mitem.category }}
                   
               div.list.menu-item(ng-switch-when="more")
-                div.item.item-avatar(ng-repeat="mitem in item.menuItems") 
+                div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
                   img(ng-src="{{mitem.pic}}")
                   div.pull-right
                     span.muted {{ mitem.category }}
                     
                   b.title {{ mitem.title  }} 
                   div.detail {{ mitem.detail  }}
-                  div.list.participation(ng-if="vm.acl.isParticipant()")
+                  div.list.participation(ng-if="true || vm.acl.isParticipant()")
                     //- TODO: need to show committed vs suggested menu items to visitors
-                    div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
-                      img(ng-src="{{contrib.contributor.face}}" ui-sref="app.profile({id:'{{contrib.contributor.id}}'})")
+                    div.item.item-avatar.contribution(
+                      ng-repeat="contrib in vm.getContributionsByMenuItem(mitem)"
+                      ng-if="contrib.contributorId"
+                    ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
+                      img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
                       div.pull-right {{contrib.portions}} portions
-                      b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
+                      b {{[person.firstname,person.lastname].join(' ') }}
+                      p.muted {{contrib.comment}}
 
               div.list.menu-item(ng-switch-when="contribute")
-                div.item.item-avatar(ng-repeat="mitem in item.menuItems") 
+                div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
                   img(ng-src="{{mitem.pic}}")
                   div.muted.pull-right {{ mitem.category }}
                   b.title {{ mitem.title  }} 
                   div.detail {{ mitem.detail  }}
                   div.list.participation(ng-if="vm.acl.isParticipant()")
-                    //- ???: should we hide participation from visitors
-                    div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
-                      img(ng-src="{{contrib.contributor.face}}")
+                    div.item.item-avatar.contribution(
+                      ng-repeat="contrib in vm.getContributionsByMenuItem(mitem)"
+                      ng-if="contrib.contributorId"
+                    ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
+                      img(ng-src="{{person.face}}")
                       div.pull-right {{contrib.portions}} portions
-                      b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
+                      b {{[person.firstname,person.lastname].join(' ') }}
+                      p.muted {{contrib.comment}}
                     div.item.btn-contribute(
                       ng-if="vm.acl.isParticipant() && !mitem.summary.isContributed" 
                       ng-click="vm.on.beginContribute(mitem)"
@@ -200,36 +207,40 @@ ion-view(view-title="{{vm.title}}")
               //- eatWith: Guest List, x of y seats booked, show face icon or empty faces
               //- 
               div.list.condensed.participants
-                div(ng-repeat="participation in item.participants")
-                  div.item.item-avatar.participation {{person = participation.user;''}}
+                div(ng-repeat="particip in vm.getParticipationsByEvent(item)")
+                  div.item.item-avatar.participation {{person=vm.lookup['Users'][particip.participantId];''}}
                     img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
                     b {{[person.firstname,person.lastname].join(' ') }}
-                    div.seats.pull-right(ng-if="participation.seats > 1") + {{participation.seats - 1}} other{{participation.seats>2 ? 's' : ''}}
-                    div.comment.muted {{participation.comment}}
+                    div.seats.pull-right(ng-if="particip.seats > 1") + {{particip.seats - 1}} other{{particip.seats>2 ? 's' : ''}}
+                    div.comment.muted {{particip.comment}}
                   
 
       // 100% iphone, 50% ipad
       //- 
-      //- MyParticipantion
+      //- MyParticipation
       //- alt: booking, reservation, contribution
       //- 
       div#cp-participant.content.row.responsive-sm(ng-if="vm.acl.isParticipant()")
         div.col.col-offset-25.col-50
           div.row
             div.col.text-left
-              div.my-participation.list.card.condensed
+              div.my-participation.list.card.condensed {{myPart=vm.lookup['MyParticipation'];''}}
                 div.item.item-divider.item-balanced.light
                   div.larger My Participation
                 h5.balanced.padding-horizontal Booking
-                div.item.item-avatar.participation(ng-init="person = vm.me")
+                {{person = vm.me;''}}
+                div.item.item-avatar.participation 
                   img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
                   div
                     b.name {{[person.firstname,person.lastname].join(' ') }}
                     &nbsp;
-                    b.seats ({{item.myParticipation.seats}} seat{{item.myParticipation.seats>1 ? 's' : ''}})
-                  div.comment.muted {{item.myParticipation.comment}}
-                h5.balanced.padding-horizontal Contribution
-                div.item.item-avatar(ng-repeat="contrib in item.myParticipation.contributions")
+                    b.seats ({{myPart.seats}} seat{{myPart.seats>1 ? 's' : ''}})
+                  div.comment.muted {{myPart.comment}}
+
+                h5.balanced.padding-horizontal Contribution 
+                {{ myContribs=vm.lookupByClass(item, 'Contributions', myPart.contributionIds);''}}
+                div.item.item-avatar(ng-repeat="contrib in myContribs")
+                  {{contrib.menuItem=vm.lookup['MenuItems'][contrib.menuItemId];''}}
                   img(ng-src="{{contrib.menuItem.pic}}")
                   div
                     div.muted.pull-right {{ contrib.menuItem.category }}
@@ -241,7 +252,7 @@ ion-view(view-title="{{vm.title}}")
                   p(ng-if="item.summary.myParticipation.isFullyParticipating==false"). 
                     You are contributing a total of {{item.summary.myParticipation.portions}} portions 
                     ( {{item.summary.myParticipation.portionsPct}}% )
-                    based on your participation of {{item.myParticipation.seats}} seats. 
+                    based on your participation of {{myPart.seats}} seats. 
                   p(ng-if="item.summary.myParticipation.isFullyParticipating").
                     You are already contributing to this event, but feel free to sign-up for more if you like.
                 div.item.button-full

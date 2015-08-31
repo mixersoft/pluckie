@@ -14,6 +14,13 @@ Resty = ($q) ->
     @save = RestyClass::post
     @update = RestyClass::put
     @remove = RestyClass::delete
+    @fields = ['id']
+    _.each @_data
+    , (o)->
+      @fields = _.uniq @fields.concat _.keys o
+      return
+    , this
+    @fields = _.uniq @fields.concat ['createdAt', 'updatedAt']
     return
 
 
@@ -22,7 +29,7 @@ Resty = ($q) ->
       result = _.chain( @_data )
       .each (v,k)-> v.id = k
       .value()
-      return $q.when _.values result
+      return $q.when angular.copy _.values result
 
     if _.isArray id
       promises = []
@@ -32,25 +39,31 @@ Resty = ($q) ->
           return $q.when null
         return
       return $q.all( promises).then (o)->
-        return _.compact o
+        return angular.copy _.compact o
 
     result = @_data[id]
     if result?
       result.id = id
-      return $q.when result
+      return $q.when angular.copy result
     return $q.reject false
 
   RestyClass::post = (o)->
     return $q.reject false if `o==null`
-    id = _.keys( @_data ).length
-    o.id = id
-    return $q.when @_data[id] = o
+    id = _.keys( @_data ).length + ''
+    o['id'] = id
+    o['updatedAt'] = o['createdAt'] = new Date()
+    o = _.pick o, @fields
+    return $q.when angular.copy @_data[id] = o
 
   RestyClass::put = (id, o) ->
+    id = id + ''
     return $q.reject false if `o==null`
     if @_data[id]?
-      o.id = id
-      return $q.when @_data[id] = o
+      o['id'] = id
+      o['updatedAt'] = new Date()
+      o = _.pick o, @fields
+      o = _.extend @_data[id], o
+      return $q.when angular.copy @_data[id] = o
     return $q.reject false
 
   RestyClass::delete = (id)->

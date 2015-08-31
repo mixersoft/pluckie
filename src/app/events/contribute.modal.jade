@@ -23,7 +23,7 @@ ion-modal-view
         {{mitem.summary.portionsRemaining}} portions needed
 
 
-    form(name="contributeForm" novalidate="" ng-submit="vm.on.submitContribute(myContribution, closeModal); closeModal")
+    form(name="contributeForm" novalidate="" ng-submit="vm.on.submitContribute(myContribution, closeModal);")
 
       div.list {{contribution = myContribution.contribution;''}}
         div.item.item-avatar 
@@ -36,7 +36,8 @@ ion-modal-view
           i.icon.ion-ios-person.positive
           input(type="range" name="portions" min="1" max="{{mitem.summary.portionsRemaining}}" ng-model="contribution.portions")
           i.icon.ion-ios-people.positive
-        label.item.item-input
+        label.item.item-input.item-floating-label
+          span.input-label Comment
           textarea(ng-model="contribution.comment" placeholder="Add a message to announce your contribution!" maxlength="165")
 
         div.item.button-bar

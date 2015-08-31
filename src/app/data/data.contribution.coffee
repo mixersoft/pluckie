@@ -8,6 +8,7 @@ ContributionsResource = (Resty, amMoment) ->
       menuItemId: "10"
       contributorId: "1"
       portions: 6
+      comment: ''
       sort: "0"
     1:
       eventId: "0"

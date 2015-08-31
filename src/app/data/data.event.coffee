@@ -42,16 +42,11 @@ EventsResource = (Resty, amMoment) ->
           seats: 3
           comment: 'the whole family is excited!!!'
       }        # habtm Users
-      booking:  # calculate in getParticipants()
-        parties: 0
-        seats: 0
-        contributors: 0
-        portions: 0
 
-      contributors: {}        # set by getContributions()
+      # contributors: {}      # see vm.lookup['Contributions']
       # menu:    # menu ideas
       menuItemIds: [10..14]   # TODO: use habtm Contribution
-      menuItems: {}           # set by getMenuItems()
+      # menuItems: {}         # see vm.lookup['MenuItems']
 
       setting:
         isExclusive: false   # invite Only
@@ -147,7 +142,6 @@ EventsResource = (Resty, amMoment) ->
       # guests:  # habtm Users
       # menu:    # menu ideas
       menuItemIds: [4..9]    # TODO: use habtm Contribution
-      contributionIds: {} # join table: event | menuItem | user
 
       setting:
         isExclusive: false   # invite Only
