@@ -67,9 +67,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     
     isParticipant: ()->
       return false if !$rootScope.user
-      participantIds = _.pluck vm.lookup['Participations'],'participantId' 
+      participantIds = _.pluck vm.lookup['Participations'], 'participantId'
       return true if ~participantIds.indexOf($rootScope.user.id)
-      # return true if _.pluck(vm.lookup['Participations'],'participantId').indexOf($rootScope.user.id) > -1
       return true if vm.acl.isOwner()
       return false
 
@@ -206,7 +205,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
   initialize = ()->
     # dev
-    DEV_USER_ID = '1'
+    DEV_USER_ID = '0'
     devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
       vm.settings.view.menu = 'more' if vm.acl.isParticipant()
