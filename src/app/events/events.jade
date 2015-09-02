@@ -1,18 +1,20 @@
 // home/home.jade
 ion-view(view-title="{{vm.title}}")
   // hide ion-navicon???
-  ion-content.has-header.dark-bg
+  ion-content#events.has-header.dark-bg
     div.list.condensed-space.no-padding.animate-blinds(
       ng-init="colors=['dark-bg','energized-bg','assertive-bg','balanced-bg','royal-bg']"
     )
-      div.card.dark-bg(
-        ng-repeat="item in vm.events"
-        )
-        a.item.item-bg-image.waves-effect.waves-button.waves-light.has-mask(
-          class="{{colors[$index % colors.length]}}"
-          ui-sref="app.event-detail({id: {{item.id}}  })"
-          ) 
-          div.has-mask-wrap
-            h2 {{item.title}}
-            p {{item.description}}
-          img.hero(ng-style="{{vm.imgAsBg(item.heroPic)}}")
+      div.row.ng-repeat-grid.responsive-sm
+        div.col.col-33(
+          ng-repeat="item in vm.events"
+          )
+          div.card.dark-bg
+            a.item.item-bg-image.waves-effect.waves-button.waves-light.has-mask(
+              class="{{colors[$index % colors.length]}}"
+              ui-sref="app.event-detail({id: {{item.id}}  })"
+              ) 
+              div.has-mask-wrap
+                h2 {{item.title}}
+                p {{item.description}}
+              img.hero(ng-style="{{vm.imgAsBg(item.heroPic)}}")

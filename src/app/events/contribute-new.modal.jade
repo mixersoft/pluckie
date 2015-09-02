@@ -33,7 +33,7 @@ ion-modal-view
           input(type="text" name="Photo" placeholder="Photo" ng-model="mitem.pic")    
         label.item.item-input
           span.input-label Number of Portions
-          input(type="text" name="portions" min="1" max="{{myContribution.maxPortions}}" ng-model="contribution.portions")
+          input(type="text" name="portions" min="1" max="{{2 * myContribution.maxPortions}}" ng-model="contribution.portions")
         div.item.range.range-positive
           i.icon.ion-ios-person.positive
           input(type="range" name="portions" min="1" max="{{myContribution.maxPortions}}" ng-model="contribution.portions")

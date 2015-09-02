@@ -16,9 +16,12 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   vm.lookup = {}
   exportDebug.set( 'lookup', vm['lookup'] )
   vm.imgAsBg = utils.imgAsBg
-  vm.getLabel_Location = (item, user={}) ->
-    return item.address if user.hasJoined
-    return item.neighborhood
+  vm.setLabel_Location = (event, user) ->
+    userid = (user || vm.me || {}).id
+    event.locationLabel = event.neighborhood
+    if userid && ~event.participantIds?.indexOf(userid)
+      event.locationLabel = [event.address, event.neighborhood].join(', ')
+    return event.locationLabel
 
 
   ###
@@ -86,10 +89,18 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
   vm.settings = {
     view:
-      menu: 'more'   # [less|more|contribute]
+      menu: 'less'   # [less|more|contribute]
   }
 
   vm.on = {
+    refresh: ()->
+      event = vm.event
+      getDerivedValues_Event(event)
+      getDerivedValues_MenuItems(event)
+      $timeout ()->
+        $scope.$broadcast('scroll.refreshComplete')
+      , 1000
+
     scrollTo: (anchor)->
       $location.hash(anchor)
       $ionicScrollDelegate.anchorScroll(true)
@@ -137,7 +148,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
         toastr.warning("You are booking for a different event. title="+booking.event.title)
       if vm.me.id != booking.person.id
         toastr.warning("You are booking for a different person. name="+booking.person.displayName)
-      if vm.event.participants[booking.booking.userId]
+      if vm.event.participantIds[booking.booking.userId]
         toastr.warning("You are replacing an existing booking for this userId")
 
       createBooking(booking).then (result)->
@@ -165,6 +176,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             menuItemId: null
             contributorId: vm.me.id
             portions: Math.min(12, vm.event.seatsTotal)
+            portionsRequired: null   # TODO: allow create from to set portionsRequired
             comment: null
         })
 
@@ -205,7 +217,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
   initialize = ()->
     # dev
-    DEV_USER_ID = '0'
+    DEV_USER_ID = '3'
     devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
       vm.settings.view.menu = 'more' if vm.acl.isParticipant()
@@ -267,8 +279,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       vm.lookup['Participations'] = _.indexBy result, 'id'
       return event
     .then (event)->
-      participantIds = _.pluck vm.lookup['Participations'], 'participantId'
-      UsersResource.get( participantIds )
+      event.participantIds = _.pluck vm.lookup['Participations'], 'participantId'
+      UsersResource.get( event.participantIds )
     .then (result)->
       _.extend vm.lookup['Users'], _.indexBy result, 'id'
       return event
@@ -280,26 +292,29 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     NOTE: remember to update vm.lookup cached values on Resty.put()/post()
   ###
   getDerivedValues_Event = (event)->
+    # neighborhood or address
+    vm.setLabel_Location(event)
+
     summary = {
       countdown: ''
       booking:
         seats: 0
-        seatsPct: ''
+        seatsPct: 0
         parties: 0         # count of indivivdual parties aka participants        contributors: 0
       views:
         count: 0
       participation:
         contributors: 0
-        contributorsPct: ''
+        contributorsPct: 0
         menuItems: 0
         menuItemContributions: 0
-        menuItemContributionsPct: ''
+        menuItemContributionsPct: 0
         portions: 0
-        portionsPct: ''
+        portionsPct: 0
       myParticipation:
         isFullyParticipating: false
         portions: 0
-        portionsPct: ''
+        portionsPct: 0
     }
 
     # public stats
@@ -381,11 +396,17 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     # , {}
 
     _.each event.menuItemIds, (id)->
+      required = _.reduce vm.lookup['Contributions'], (result, o)->
+        return result if o.menuItemId != id || !o.portionsRequired
+        return result = Math.max(result||0, o.portionsRequired)
+      , null
       mi = vm.lookup['MenuItems'][id]
       mi.summary = {
         portions: 0
         portionsPct: 0
-        portionsRemaining: event.seatsTotal
+        # TODO: need to be able to set portionsRemaining to something less than seatsTotal
+        portionsRequired: required || event.seatsTotal
+        portionsRemaining: null  # derived below
         isContributed: false
       }
       # mi.summary['portions'] = portionsByMenuItemId[mi.id] || 0
@@ -393,10 +414,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       , (result, contrib)->
         return result += parseInt contrib.portions
       , 0
-      mi.summary['portionsRemaining'] = Math.max(event.seatsTotal - mi.summary['portions'], 0)
+      mi.summary['portionsRemaining'] =
+        Math.max(mi.summary['portionsRequired'] - mi.summary['portions'], 0)
       mi.summary['portionsPct'] =
         Math.round( mi.summary['portions'] /
-          (event.seatsTotal) * 100
+          (mi.summary['portionsRequired']) * 100
         )
       if mi.summary['portionsPct'] > 85
         mi.summary['isContributed'] = true
@@ -418,8 +440,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     ParticipationsResource.post(particip)
     .then (result)->
       # update lookups
-      if !~vm.event['participationIds'][result.id]
+      if !~vm.event['participationIds'].indexOf(result.id)
         vm.event['participationIds'].push result.id
+        vm.event['participantIds'].push result.participantId
       vm.lookup['Participations'][result.id] = result
       vm.lookup['Users'][result.participantId] = person
       vm.lookup['MyParticipation'] = vm.getParticipationByUser(person)

@@ -1,17 +1,22 @@
 // home/home.jade
 ion-view(view-title="{{vm.title}}")
-  ion-content.has-header.dark-bg
+  ion-content#home.has-header.dark-bg
     div.list.condensed-space.no-padding.animate-fade-slide-in-right(
-      ng-init="colors=['dark-bg','energized-bg','assertive-bg','balanced-bg','royal-bg']"
+      ng-init="colors=['', 'dark-bg','energized-bg','assertive-bg','balanced-bg','royal-bg']"
     )
-      div.card.dark-bg(
-        ng-repeat="item in vm.cards"
-        )
-        a.item.item-bg-image.waves-effect.waves-button.waves-light.has-mask(
-          class="{{colors[$index % colors.length]}}"
-          ui-sref="{{item.target}}"
-          ) 
-          div.has-mask-wrap
-            h2 {{item.title}}
-            p {{item.description}} {{item.target}}
-          img.hero(ng-style="{{vm.imgAsBg(item.heroPic)}}")
+      div.row.ng-repeat-grid.responsive-sm
+        div.col.col-33(
+          ng-repeat="item in vm.cards"
+          )
+          div.card.dark-bg
+            a.item.item-bg-image.waves-effect.waves-button.waves-light.has-mask(
+              class="{{item.color}}-bg"
+              ui-sref="{{item.target}}"
+              ) 
+              div.has-mask-wrap(
+                ng-class="item.layout"
+                )
+                h2 {{item.title}}
+                p {{item.description}}
+              img.hero.retro(ng-style="{{vm.imgAsBg(item.heroPic)}}")
+    ion-infinite-scroll(on-infinite="vm.on.loadMore()" ng-if="vm.settings.loadMore")

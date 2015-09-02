@@ -173,7 +173,7 @@ $RobotoDraftFontVersion: "1.0.0";
 .has-mask {
   &:after {
     content: '';
-    background: -webkit-linear-gradient(top, transparent 20%, rgba(0, 0, 0, 0.8) 100%);
+    background: -webkit-linear-gradient(top, transparent 20%, rgba(0, 0, 0, 0.6) 100%);
     height: 100%;
     left: 0;
     position: absolute;
@@ -184,7 +184,7 @@ $RobotoDraftFontVersion: "1.0.0";
 }
 .has-mask-reverse:after {
   @extend .has-mask:after;
-  background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.8) 0%, transparent 80%);
+  background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.6) 0%, transparent 80%);
 }
 
 .blur {
@@ -206,6 +206,7 @@ $RobotoDraftFontVersion: "1.0.0";
   }
 }
 
+
 #discover {  
   /*unused*/
   @media(min-width: 750px) {
@@ -218,6 +219,33 @@ $RobotoDraftFontVersion: "1.0.0";
     margin-left: 20%;
   }
 }
+
+#home {
+  .tile-center {
+    @extend .text-center;
+    height: 50%;
+  }
+  .tile-right {
+    @extend .text-right;
+  }
+}
+
+.ng-repeat-grid {
+  &.row {
+    flex-wrap: wrap;
+    .col {
+     flex:none;
+     margin-bottom: inherit;
+    }
+  }
+  @media(min-width: 750px) {
+    .card a {
+      max-height: 320px;
+      height: 320px;
+    }
+  } 
+}
+
 
 #profile {
   .hero-a {
@@ -243,6 +271,25 @@ $RobotoDraftFontVersion: "1.0.0";
     .face {
       border-radius: 50%;
       border: 2px solid white;
+    }
+  }
+}
+
+#how-it-works {
+  .slider, .scroll, .box, .row {
+    height: 100%;
+  }
+  .slider-pager {
+    @extend .light;
+    & * {
+      @extend .light;
+    }
+  }
+  .slider-slides .slide-content {
+    min-height: 240px; 
+    p {
+      padding-left: 20px; 
+      padding-right: 20px;  
     }
   }
 }

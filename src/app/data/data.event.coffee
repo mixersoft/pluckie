@@ -14,16 +14,16 @@ EventsResource = (Resty, amMoment) ->
       inspiration: "Just because I miss my days in Tokyo"
       aspiration: 2           # 0-3 stars
 
-      heroPic: "https://noisynoodler.files.wordpress.com/2013/06/tonkotsu-ramen.jpg"
+      heroPic: "http://danielfooddiary.com/wp-content/uploads/2013/09/ippudosg3.jpg"
 
       # when: 4=Thur
-      startTime: moment().weekday(4).add(7,'d').hour(20).startOf('hour').toJSON() # search/filter
+      startTime: moment().weekday(7).add(14,'d').hour(20).startOf('hour').toJSON() # search/filter
       duration: moment.duration(3, 'hours').asMilliseconds()
 
       # where:
-      neighborhood: "Lozenets, Sofia"
-      address: 'Blvd "James Bourchier" 83'
-      location: [42.671027, 23.316299] # search/filter
+      neighborhood: "Dragalevtsi, Sofia"
+      address: '23b Dragalevtsi'
+      location: [42.629065, 23.316999] # search/filter
       seatsTotal: 12
       seatsOpen: 12
 
@@ -80,14 +80,15 @@ EventsResource = (Resty, amMoment) ->
       heroPic: "http://slice.seriouseats.com/images/20111208-basil-duo.jpg"
 
       # when: 4=Thur
-      startTime: moment().weekday(6).add(7,'d').hour(17).startOf('hour').toJSON() # search/filter
+      startTime: moment().weekday(6).add(14,'d').hour(17).startOf('hour').toJSON() # search/filter
       duration: moment.duration(3, 'hours').asMilliseconds()
 
       # where:
       neighborhood: "Lozenets, Sofia"
       address: 'ul. "Neofit Rilski" 18'
       location: [42.690626, 23.316678] # search/filter
-      seats: 8
+      seatsTotal: 12
+      seatsOpen: 12
 
       # host:
       ownerId: "1" # belongsTo Users
@@ -115,33 +116,36 @@ EventsResource = (Resty, amMoment) ->
       # what
       title: "American BBQ"
       description: """
-        We've got the BBQ and smoker fired up for some amazing pork cooked low 'n slow!'
-        """
+      Join us for a quick a cultural tour of American-a - with a sampling of my favorite regional BBQs
+      """
       category: "Potluck"     # [Potluck|Popup]
       cusine: "American"      # [American|Japanese|California|Seafood|etc.]
-      inspiration: "Everything Pork"
-      aspiration: 1           # 0-3 stars
+      style: 'Casual'         # [Seated|Casual|Grazing|Picnic]
+      inspiration: "здравей софия"
+      aspiration: 3           # 0-3 stars
       price: null             # guest can contribute money?
 
-      heroPic: "http://www.foodpeoplewant.com/wp-content/uploads/2010/06/Peach-BBQ-Spare-Ribs.jpg"
+      heroPic: "http://whatscookingamerica.net/Beef/Beef-Brisket/Brisket-final2.jpg"
 
       # when: 4=Thur
-      startTime: moment().weekday(7).add(7,'d').hour(13).startOf('hour').toJSON() # search/filter
-      duration: moment.duration(3, 'hours').asMilliseconds()
+      startTime: moment(new Date('2015-09-12')).hour(16).startOf('hour').toJSON() # search/filter
+      duration: moment.duration(5, 'hours').asMilliseconds()
 
       # where:
-      neighborhood: "Dragalevtsi, Sofia"
-      address: '23b Dragalevtsi'
-      location: [42.629065, 23.316999] # search/filter
-      seats: 16
+      neighborhood: "Lozenets, Sofia"
+      address: 'Ulitsa Bogatitsa'
+      location: [42.671027, 23.316299] # search/filter
+
+      seatsTotal: 20
+      seatsOpen: null
 
       # host:
-      ownerId: "2" # belongsTo Users
+      ownerId: "0" # belongsTo Users
       isPublic: true # searchable
 
       # guests:  # habtm Users
       # menu:    # menu ideas
-      menuItemIds: [4..9]    # TODO: use habtm Contribution
+      menuItemIds: [20,21,22]
 
       setting:
         isExclusive: false   # invite Only

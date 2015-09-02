@@ -24,4 +24,5 @@ angular
     'starter.home'
     'starter.events'
     'starter.profile'
+    'starter.onboard'
   ]

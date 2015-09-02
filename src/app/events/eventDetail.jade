@@ -2,6 +2,7 @@
 ion-view(view-title="{{vm.title}}")
   // hide ion-navicon???
   ion-content.has-header.light-bg {{item=vm.event;""}}
+    ion-refresher(pulling-text="Pull to refresh..." on-refresh="vm.on.refresh()")
 
     //- 
     //- Hero 
@@ -39,7 +40,7 @@ ion-view(view-title="{{vm.title}}")
             div.col
               dt aspiration
               dd
-                pl-star-ratings(value="item.aspiration" read-only="!vm.acl.isOwner()")
+                pl-star-ratings(value="item.aspiration" max-value="3" read-only="!vm.acl.isOwner()")
                 //- ionic-ratings(ratingsobj="vm.ionicRating.aspirationRating")
 
 
@@ -78,8 +79,8 @@ ion-view(view-title="{{vm.title}}")
                 div.item(ng-class="host.face ? 'item-avatar' : 'item-icon-left'")
                   img(ng-src="{{host.face}}" ui-sref="app.profile({id:'{{host.id}}'})")
                   i.icon.ion-person(ng-show="!host.face")
-                  {{ [host.firstname,host.lastname].join(' ')  || item.ownerId }}
-                div.item.item-icon-left
+                  div Hosted by #[b {{ [host.firstname,host.lastname].join(' ')  || item.ownerId }}]
+                div.item.item-icon-left.item-text-wrap
                   i.icon.ion-ios-lightbulb
                   {{ item.inspiration }}
                 div.item.item-icon-left 
@@ -89,18 +90,20 @@ ion-view(view-title="{{vm.title}}")
             // event: when/where attr
             div.col
               div.list
-                div.item.item-icon-left
+                div.item.item-icon-left.item-text-wrap
                   i.icon.ion-ios-calendar-outline
-                  {{ item.startTime | amCalendar }} 
-                  span.dark ( {{item.summary.countdown}} )
-                div.item.item-icon-left
+                  {{ item.startTime | amDateFormat:'ddd, MMM Do' }} 
+                  span.nowrap ( {{item.summary.countdown}} )
+                div.item.item-icon-left.item-text-wrap
                   i.icon.ion-ios-clock-outline
-                  {{ item.duration | amDurationFormat:'milliseconds' }}
-                div.item.item-icon-left
+                  span. 
+                    at {{ item.startTime | amDateFormat:'h:mm a'}} for
+                    {{ item.duration | amDurationFormat:'milliseconds' }}
+                div.item.item-icon-left.item-text-wrap
                   i.icon.ion-ios-location
                   //- feastly: Exact addr will be shared upon purchase
                   //- eatwith: exact location provided upon booking
-                  {{vm.getLabel_Location(item)}}
+                  {{item['locationLabel']}}
 
       // 100% iphone, 50% ipad
       //- 
@@ -251,7 +254,7 @@ ion-view(view-title="{{vm.title}}")
                 div.item.item-text-wrap
                   p(ng-if="item.summary.myParticipation.isFullyParticipating==false"). 
                     You are contributing a total of {{item.summary.myParticipation.portions}} portions 
-                    ( {{item.summary.myParticipation.portionsPct}}% )
+                    #[span.nowrap ( {{item.summary.myParticipation.portionsPct }}% )]
                     based on your participation of {{myPart.seats}} seats. 
                   p(ng-if="item.summary.myParticipation.isFullyParticipating").
                     You are already contributing to this event, but feel free to sign-up for more if you like.
@@ -322,19 +325,6 @@ ion-view(view-title="{{vm.title}}")
 
 
 
-
-      //- 
-      //- More/Other/Upcoming/Similar Meals
-      //- 
-      div.content.row.responsive-sm(ng-if="vm.acl.isVisitor()")
-        div.col.col-offset-25.col-50
-          div.row
-            div.col.text-left.rounded.item-divider
-              h4 Other Upcoming Meals
-              i.icon.ion-more
-
-
-
       div#admin-change-user.content.row.responsive-sm
         div.col.col-offset-25.col-50
           div.row(ng-hide="dev.settings.show=='admin'")
@@ -357,6 +347,21 @@ ion-view(view-title="{{vm.title}}")
                   img(ng-src="{{person.face}}")
                   b {{[person.firstname,person.lastname].join(' ') }}
                   p id = {{person.id}}
+
+
+      //- 
+      //- More/Other/Upcoming/Similar Meals
+      //- 
+      div.content.row.responsive-sm(
+        ng-if="vm.acl.isVisitor()"
+        ng-hide="true"
+      )
+        div.col.col-offset-25.col-50
+          div.row
+            div.col.text-left.rounded.item-divider
+              h4 Other Upcoming Meals
+              i.icon.ion-more
+
 
 
 

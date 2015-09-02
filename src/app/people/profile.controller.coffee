@@ -33,10 +33,6 @@ ProfileCtrl = (
         next = if vm.settings.show == 'less' then 'more' else 'less'
         return vm.settings.show = next
       return vm.settings.show = value
-
-    
-        
-
   }
 
   $scope.dev = {

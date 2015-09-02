@@ -4,7 +4,7 @@ HomeCtrl = (
   $scope, $rootScope, $q, $location, $timeout
   $ionicScrollDelegate
   $log, toastr
-  HomeResource
+  HomeResource, EventsResource, MenuItemsResource
   ionicMaterialMotion, ionicMaterialInk
   utils, devConfig, exportDebug
   )->
@@ -21,6 +21,7 @@ HomeCtrl = (
   }
   vm.settings = {
     show: 'less'
+    loadMore: false
   }
   vm.on = {
     scrollTo: (anchor)->
@@ -36,11 +37,45 @@ HomeCtrl = (
 
     click: (ev)->
       toastr.info("something was clicked")
+
+    loadMore: ()->
+      vm.cards = vm.cards.concat( angular.copy vm.all )
+      startMaterialEffects()
+      vm.settings.more = false if vm.cards > 12
+
   }
+
+  appendCardClasses = (items)->
+    promises = []
+    events = _.filter items, {class:'event'}
+    promises.push EventsResource.get( _.pluck( events, 'classId')).then (classItems)->
+      _.each events, (item)->
+        event = _.find classItems, {id: item.classId}
+        if event
+          item.title = event['title']
+          item.heroPic = event['heroPic']
+          item.target = 'app.event-detail({id:' + event.id + '})'
+          item.description = 'Event'
+        return
+      return classItems
+
+    menuItems = _.filter items, {class:'menuItem'}
+    promises.push MenuItemsResource.get( _.pluck( menuItems, 'classId')).then (classItems)->
+      _.each menuItems, (item)->
+        mitem = _.find classItems, {id: item.classId}
+        if mitem
+          item.title = mitem['title']
+          item.heroPic = mitem['pic']
+          item.target = 'app.menu-item({id:' + mitem.id + '})'
+          item.description = 'Menu Item'
+        return
+      return classItems
+    return $q.all promises
+
 
   getData = () ->
     HomeResource.query().then (cards)->
-      vm.cards = cards
+      vm.cards = angular.copy( vm.all = cards )
       exportDebug.set( 'home', vm['cards'] )
       # toastr.info JSON.stringify( cards)[0...50]
       return cards
@@ -73,6 +108,11 @@ HomeCtrl = (
 
   initialize = ()->
     getData()
+    .then (cards)->
+      appendCardClasses(cards)
+    .then ()->
+      vm.cards = angular.copy( vm.all )
+
 
     # dev
     DEV_USER_ID = '3'
@@ -93,6 +133,10 @@ HomeCtrl = (
     $log.info "viewEnter for HomeCtrl"
     activate()
 
+  $rootScope.$on '$stateNotFound', (ev, toState)->
+    ev.preventDefault()
+    toastr.info "Sorry, that option is not ready."
+
   return # end HomeCtrl
 
 
@@ -100,7 +144,7 @@ HomeCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$location', '$timeout'
   '$ionicScrollDelegate'
   '$log', 'toastr'
-  'HomeResource'
+  'HomeResource', 'EventsResource','MenuItemsResource'
   'ionicMaterialMotion', 'ionicMaterialInk'
   'utils', 'devConfig', 'exportDebug'
 ]

@@ -2,6 +2,7 @@
 
 MenuItemsResource = (Resty, amMoment) ->
   # Event hasMany MenuItems
+  # coffeelint: disable=max_line_length
   data = {
     0:
       title   : "Tomatoes and Foccacia with Tomatoes"
@@ -101,12 +102,80 @@ MenuItemsResource = (Resty, amMoment) ->
       category: "Dessert"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
       pic     : Resty.lorempixel 200, 200, 'food'
       link    :   null
+    20:
+      title   : "Barbecue Beef Brisket Texas Style"
+      detail  : """
+      Brisket is the national food of the Republic of Texas and a whole brisket is a great excuse for a party.
+      A whole barbecue beef brisket is a huge clod of cow that can come off the pit almost black, looking more like a meteorite than a meal. But it is not burnt, and beneath the crust is the most tender, juicy, smoky meat.
+      Join me as I try to replicate this recipe.
+      """
+      category: "Main"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
+      pic     : "http://amazingribs.com/images/beef/brisket_sandwich2.jpg"
+      link    : "http://amazingribs.com/recipes/beef/texas_brisket.html"
+    21:
+      title   : "Disney-Style Smoked Turkey Legs"
+      detail  : """
+      Amusement parks and fairs have given smoked turkey legs a cult-like following,
+      with some people offering money online for a recipe that mimics the legs sold at Disneyland.
+      The secret is to soak the legs in brine for 24 hours, then smoke them low and slow. The flavor is ham-like, and very addictive.
+      """
+      category: "Main"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.traegergrills.com/Content/images/recipes/turkey-legs.jpg"
+      link    : "http://www.traegergrills.com/recipes/detail/82#.VeVUn9OqpBc"
+      # http://amazingribs.com/recipes/chicken_turkey_duck/disney_smoked_turkey_legs.html
+    22:
+      title   : "Carolina Pulled Pork"
+      detail  : """
+      The sandwich — drizzled with a bit of the vinegary sauce, which cuts the richness of the meat — is the ultimate in Carolina barbecue.
+      A "dry rub" of brown sugar, pepper, paprika and salt flavors the meat before it is cooked,
+      and a vinegary "mop" is brushed onto the pork to add more taste as it is smoked.
+      Once cooked, the meat is "pulled," that is, shredded into slivers that are just the right size for piling onto a bun.
+      """
+      category: "Main"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.epicurious.com/images/recipesmenus/1999/1999_july/101803.jpg"
+      link    : "http://www.epicurious.com/recipes/food/views/carolina-pulled-pork-sandwiches-101803g"
+    23:
+      title   : "Creamy Cole Slaw"
+      detail  : """
+      This coleslaw is AMAZING and is a far cry from the limp, sugary, slop that is on most menus.
+      It pairs perfectly on top of a pulled pork sandwich or as a side dish with any other BBQ or picnic fare.
+      """
+      category: "Side"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
+      pic     : "http://img.sndimg.com/food/image/upload/w_555,h_416,c_fit,fl_progressive,q_95/v1/img/recipes/11/38/41/picVCNd5Q.jpg"
+      link    : "http://www.epicurious.com/recipes/food/views/barbecue-turkey-burgers-with-creamy-cole-slaw-holden-13254"
+    24:
+      title   : "Grilled Corn with Chili Lime Butter"
+      detail  : """
+      Grilled corn is it essence of Summer - but Chili Lime makes it better!
+      """
+      category: "Side"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.seriouseats.com/recipes/assets_c/2010/08/20100810-corn-with-chili-lime-butter-thumb-625xauto-105225.jpg"
+      link    : "http://www.seriouseats.com/recipes/2010/08/grilling-corn-with-chili-lime-butter-recipe.html"
+    25:
+      title   : "бира от България"
+      detail  : """
+      Bring your favorite local beers (and wine)
+      """
+      category: "Drinks"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
+      pic     : "http://s3.amazonaws.com/foodspotting-ec2/reviews/3960046/thumb_600.jpg?1377190710"
+      link    : ""
+    26:
+      title   : "Juices, Smoothies, & Soft Drinks "
+      detail  : """
+      And something for the деца
+      """
+      category: "Drinks"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.h2o2.com/images/drinking-water.jpg"
+      link    : ""
+
+   
+
 
   }
-
+  # coffeelint: enable=max_line_length
   # add id to lorempixel urls
   _.each data, (v,k)->
-    v.pic += k % 10
+    v.pic += k % 10 if !v.pic
     return
 
   return service = new Resty(data)

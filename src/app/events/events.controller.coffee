@@ -35,8 +35,16 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
     ionicMaterialInk.displayEffect()
     setMaterialEffects()
 
+  sortEvents = (items, filter)->
+    switch filter
+      when 'comingSoon'
+        _.sortBy items, 'startTime'
+      else
+        return items
+
   getData = () ->
     EventsResource.query().then (events)->
+      events = sortEvents(events, $stateParams.filter)
       vm.events = events
       # toastr.info JSON.stringify( events)[0...50]
       return events

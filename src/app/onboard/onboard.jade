@@ -1,0 +1,28 @@
+// home/home.jade
+ion-view(view-title="{{vm.title}}")
+  ion-content#how-it-works.has-header(
+    ng-init="colors=['positive-bg','balanced-bg','assertive-bg','royal-bg']"
+    )
+    ion-slide-box(
+      on-slide-changed="vm.on.slideChanged($index)"
+      auto-play="true"
+      show-pager="true"
+      slide-interval="5000"
+      pager-click="vm.on.pagerClick(index)"
+      )
+      ion-slide(ng-repeat="slide in vm.cards") 
+        div.box.text-center.content(
+          ng-click="vm.on.slideClick()"
+          ) 
+          div.row.light(
+            class="{{colors[$index % colors.length]}}"
+            )
+            div.col.col-center
+              div.slide-content
+                h1 {{slide.title}}
+                h3(ng-bind-html="slide.subTitle")
+                p.larger(ng-bind-html="slide.content")
+                div(ng-show='slide.title=="Elevate"')
+                  button.button.button-balanced(ng-click="vm.on.getStarted()") Get Started
+
+

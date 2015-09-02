@@ -49,7 +49,7 @@ Resty = ($q) ->
 
   RestyClass::post = (o)->
     return $q.reject false if `o==null`
-    id = _.keys( @_data ).length + ''
+    id = Date.now() # _.keys( @_data ).length + ''
     o['id'] = id
     o['updatedAt'] = o['createdAt'] = new Date()
     o = _.pick o, @fields
