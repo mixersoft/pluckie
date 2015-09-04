@@ -1,0 +1,39 @@
+// home/home.jade
+ion-view(view-title="{{vm.title}}")
+  ion-content#how-it-works.has-header(
+    ng-init="colors=['positive-bg','balanced-bg','assertive-bg','royal-bg']"
+    )
+    ion-slide-box(
+      on-slide-changed="vm.on.slideChanged($index)"
+      auto-play="true"
+      show-pager="false"
+      slide-interval="5000"
+      pager-click="vm.on.pagerClick(index)"
+      )
+      ion-slide
+        div.box.text-center.content(
+          
+          ) 
+          div.row.light(
+            class="royal-bg"
+            )
+            div.col.col-center
+              div.slide-content
+                divrow.responsive-sm
+                  div.col.col-offset-25.col-50
+                    h1 What's the Big Idea?
+                    h3(ng-bind-html="slide.subTitle")
+                    div.text-center.padding
+                      p.larger Think #[b AirBnb for dinners], or #[b.nowrap eVite with Menus].
+                      div.text-left
+                        p.
+                          Thanks for taking a moment to look at this app. 
+                          It's only a mockup so not everything works, and nothing is saved.
+                          But there should be enough to give you a feel for what it could be.
+                        p.  
+                          Also you can change users to get a different view of the event.
+                        p.text-right &mdash; michael@snaphappi
+
+                        
+                    div.padding
+                      button.button.button-balanced(ng-click="vm.on.welcomeDone()") Get Started

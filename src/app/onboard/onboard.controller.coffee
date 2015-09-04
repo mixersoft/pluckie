@@ -41,9 +41,13 @@ OnboardCtrl = (
       $state.transitionTo('app.home')
       $timeout ()->
         $ionicSlideBoxDelegate.slide(0, 0)
+    welcomeDone: ()->
+      $rootScope['welcomeDone'] = true
+      $state.transitionTo('app.home')
+
   }
 
-  vm.cards = [
+  vm.cards = cards_onboard = [
     title   : "Community Meals"
     subTitle: "from the humble to exhalted"
     content : """
@@ -77,6 +81,7 @@ OnboardCtrl = (
     subTitle: "the Community Meal"
   ]
 
+
   initialize = ()->
     # dev
     DEV_USER_ID = '3'
@@ -85,6 +90,11 @@ OnboardCtrl = (
 
 
   activate = ()->
+    # switch $state.current.name
+    #   when 'app.onboard'
+    #     vm.cards = cards_onboard
+    #   when 'app.welcome'
+    #     vm.cards = cards_onboard
     return
 
   $scope.$on '$ionicView.loaded', (e)->

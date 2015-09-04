@@ -12,6 +12,14 @@ getStates = ->
         'menuContent':
           templateUrl: 'onboard/onboard.html'
           controller: 'OnboardCtrl as vm'
+  ,
+    state: 'app.welcome'
+    config:
+      url: '/welcome'
+      views:
+        'menuContent':
+          templateUrl: 'onboard/welcome.html'
+          controller: 'OnboardCtrl as vm'
   ]
 
 appRun.$inject = ['routerHelper']
