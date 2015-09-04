@@ -704,6 +704,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
           activate()
           vm.on.scrollTo()
           return
+      getRoleLabel: (person)->
+        return 'Host' if person.id == vm.event.ownerId
+        return 'Contributor' if ~vm.event.contributorIds.indexOf person.id
+        return 'Participant' if ~vm.event.participantIds.indexOf person.id
+        return 'Visitor'
   }
    
   return vm # # end EventDetailCtrl,  return is required for controllerAs syntax

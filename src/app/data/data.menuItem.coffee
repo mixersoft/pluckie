@@ -133,7 +133,7 @@ MenuItemsResource = (Resty, amMoment) ->
       """
       category: "Main"    # [Starter|Side|Main|Dessert|Setting|Serving|Resource]
       pic     : "http://www.epicurious.com/images/recipesmenus/1999/1999_july/101803.jpg"
-      link    : "http://www.epicurious.com/recipes/food/views/carolina-pulled-pork-sandwiches-101803g"
+      link    : "http://www.epicurious.com/recipes/food/views/carolina-pulled-pork-sandwiches-101803"
     23:
       title   : "Creamy Cole Slaw"
       detail  : """

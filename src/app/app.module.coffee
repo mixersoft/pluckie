@@ -26,4 +26,5 @@ angular
     'starter.events'
     'starter.profile'
     'starter.onboard'
+    'starter.menu'
   ]

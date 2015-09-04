@@ -1,18 +1,20 @@
 'use strict'
 
-ProfileCtrl = (
-  $scope, $rootScope, $location, $stateParams
+MenuItemCtrl = (
+  $scope, $rootScope, $q, $location, $stateParams
   $ionicScrollDelegate
   $log, toastr
-  UsersResource
+  MenuItemsResource
   appModalSvc
   utils, devConfig, exportDebug
   )->
 
   vm = this
-  vm.title = "Profile"
+  vm.title = "Menu"
   vm.me = null      # current user, set in initialize()
+  vm.menuItem = null
   vm.imgAsBg = utils.imgAsBg
+  vm.openExternalLink = utils.openExternalLink
   vm.acl = {
     isVisitor: ()->
       return true if !$rootScope.user
@@ -40,9 +42,9 @@ ProfileCtrl = (
       show: 'less'
     on:
       selectUser: ()->
-        UsersResource.query()
+        MenuItemsResource.query()
         .then (result)->
-          vm.people = _.indexBy result, 'id'
+          vm.menu = _.indexBy result, 'id'
           $scope.dev.settings.show = 'admin'
           vm.on.scrollTo('admin-change-user')
       loginUser: (person)->
@@ -51,11 +53,20 @@ ProfileCtrl = (
           vm.me = $rootScope.user
           toastr.info "You are now " + person.displayName
           $scope.dev.settings.show = 'less'
-          activate()
           return user
   }
 
+  getMenuItem = (id)->
+    MenuItemsResource.get( id )
+    .then (result)->
+      # ownerId => host
+      vm.menuItem =  result
+      # vm.lookup['MenuItems'][id] = result
+      # toastr.info JSON.stringify( result )[0...50]
+      return vm.menuItem
+
   initialize = ()->
+    getData()
     # dev
     DEV_USER_ID = '0'
     devConfig.loginUser( DEV_USER_ID , false)
@@ -65,35 +76,36 @@ ProfileCtrl = (
       vm.on.scrollTo()
 
   activate = ()->
-    userid = $stateParams.id
-    if !userid || userid == vm.me.id
-      vm.person = vm.me
-    else
-      UsersResource.get(userid)
-      .then (user)->
-        vm.person = user
-        return
-    return
+    menuItemId = $stateParams.id
+    if menuItemId != vm.menuItem?.id
+      return getMenuItem(menuItemId)
+    return $q.when vm.menuItem
+
+  getData = ()->
+    $ionicHistory.goBack() if !$stateParams.id
+    id = $stateParams.id
+    getMenuItem(id)
+
 
   $scope.$on '$ionicView.loaded', (e)->
-    $log.info "viewLoaded for ProfileCtrl"
+    $log.info "viewLoaded for MenuItemCtrl"
     initialize()
 
   $scope.$on '$ionicView.enter', (e)->
-    $log.info "viewEnter for ProfileCtrl"
+    $log.info "viewEnter for MenuItemCtrl"
     activate()
 
-  return # end ProfileCtrl
+  return # end MenuItemCtrl
 
 
-ProfileCtrl.$inject = [
-  '$scope', '$rootScope', '$location','$stateParams'
+MenuItemCtrl.$inject = [
+  '$scope', '$rootScope', '$q', '$location','$stateParams'
   '$ionicScrollDelegate'
   '$log', 'toastr'
-  'UsersResource'
+  'MenuItemsResource'
   'appModalSvc'
   'utils', 'devConfig', 'exportDebug'
 ]
 
 angular.module 'starter.home'
-  .controller 'ProfileCtrl', ProfileCtrl
+  .controller 'MenuItemCtrl', MenuItemCtrl

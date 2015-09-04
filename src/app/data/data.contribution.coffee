@@ -77,31 +77,34 @@ ContributionsResource = (Resty, amMoment) ->
       menuItemId: "22"
       contributorId: "0"
       portions: 20
+      portionsRequired: 20
       sort: 20
     23:
       eventId: "2"
       menuItemId: "23"
       contributorId: "0"
       portions: 20
+      portionsRequired: 20
       sort: 20
     24:
       eventId: "2"
       menuItemId: "24"
       contributorId: "0"
       portions: 20
+      portionsRequired: 20
       sort: 20
     25:
       eventId: "2"
       menuItemId: "25"
       contributorId: null
-      portions: 40
+      portions: 0
       portionsRequired: 40
       sort: 20
     26:
       eventId: "2"
       menuItemId: "26"
       contributorId: null
-      portions: 40
+      portions: 0
       portionsRequired: 40
       sort: 20
 

@@ -140,7 +140,7 @@ EventsResource = (Resty, amMoment) ->
       seatsOpen: null
 
       # host:
-      ownerId: "0" # belongsTo Users
+      ownerId: "10" # belongsTo Users
       isPublic: true # searchable
 
       # guests:  # habtm Users

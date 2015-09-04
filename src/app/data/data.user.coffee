@@ -1,7 +1,14 @@
 'use strict'
 
 UsersResource = (Resty, amMoment) ->
+  # coffeelint: disable=max_line_length
   data = {
+    10:
+      firstname  : 'Michael'
+      lastname   : 'Lin'
+      username   : 'mixersoft'
+      displayName: 'Michael'
+      face       : "http://snappi.snaphappi.com/svc/storage/DEQBCEektV/.thumbs/bm~me-2015.jpg"
     0:
       firstname  : 'Masie'
       lastname   : 'May'
@@ -28,9 +35,10 @@ UsersResource = (Resty, amMoment) ->
       face       : Resty.lorempixel 200, 200, 'people'
 
   }
+  # coffeelint: enable=max_line_length
   # add id to lorempixel urls
   _.each data, (v,k)->
-    v.face += k
+    v.face += k if /lorempixel/.test v.face
     return
 
     

@@ -121,6 +121,16 @@ $RobotoDraftFontVersion: "1.0.0";
   }  
 }
 
+/*# use inline label css for table display*/
+label.item.inline-field {
+  @extend .item-input;
+  span.label {
+    @extend .input-label;
+  }
+  input {
+    @extend .cloned-text-input;
+  }
+}
 
 
 .muted {
@@ -247,7 +257,7 @@ $RobotoDraftFontVersion: "1.0.0";
 }
 
 
-#profile {
+#profile, #menu-item {
   .hero-a {
     .hero-wrap {
       overflow: hidden;
@@ -271,7 +281,16 @@ $RobotoDraftFontVersion: "1.0.0";
     .face {
       border-radius: 50%;
       border: 2px solid white;
+      width: 200px;
+      height: 200px;
     }
+  }
+}
+
+#menu-item {
+  .hero-a img.face {
+    width: 200px;
+    height: 200px;
   }
 }
 
