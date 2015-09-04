@@ -6,6 +6,7 @@
   "dev": [
     "ionic/js/ionic.bundle.js", 
     "ionic/fonts/*", 
+    "ngCordova/dist/ng-cordova.js",
     "lodash/lodash.min.js",
     "angular-toastr/dist/angular-toastr.tpls.min.js",
     "angular-toastr/dist/angular-toastr.min.css",
@@ -15,7 +16,7 @@
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.css",
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.js",
     "moment/min/moment.min.js",
-    "angular-moment/angular-moment.js"
-
+    "angular-moment/angular-moment.js",
+    "angular-google-maps/dist/angular-google-maps.js"
   ]
 }
