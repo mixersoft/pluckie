@@ -1,14 +1,14 @@
 
 ion-side-menus(
-  enable-menu-with-back-views="true"
+  enable-menu-with-back-views="false"
   )
 
   // Menu Content
   ion-side-menu-content(edge-drag-threshold="true")
     ion-nav-bar.bar-positive
+      ion-nav-back-button.button-clear
       ion-nav-buttons(side="primary")
-        //- ion-nav-back-button.flat
-        button.button.button-icon.icon.ion-navicon.flat(menu-toggle="primary")
+        button.button.button-icon.icon.ion-navicon.back-button.flat(menu-toggle="primary")
     ion-nav-view(name="menuContent")
       ion-view
         ion-content

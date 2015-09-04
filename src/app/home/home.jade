@@ -1,5 +1,8 @@
 // home/home.jade
-ion-view(view-title="{{vm.title}}")
+ion-view(view-title="{{vm.title}}" hide-back-button="true")
+  ion-nav-bar.bar-positive
+    ion-nav-buttons(side="primary")
+      button.button.button-icon.icon.ion-navicon.back-button.flat(menu-toggle="primary")
   ion-content#home.has-header.dark-bg
     div.list.condensed-space.no-padding.animate-fade-slide-in-right(
       ng-init="colors=['', 'dark-bg','energized-bg','assertive-bg','balanced-bg','royal-bg']"

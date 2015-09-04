@@ -1,5 +1,6 @@
 // home/home.jade
 ion-view(view-title="{{vm.title}}")
+  ion-nav-back-button.button-clear
   // hide ion-navicon???
   ion-content.has-header.light-bg {{item=vm.event;""}}
     ion-refresher(pulling-text="Pull to refresh..." on-refresh="vm.on.refresh()")

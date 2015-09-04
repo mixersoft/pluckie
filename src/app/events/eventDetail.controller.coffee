@@ -1,6 +1,6 @@
 'use strict'
 
-EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
+EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   $ionicHistory, $location, $ionicScrollDelegate, $ionicModal
   $log, toastr, exportDebug
   EventsResource, UsersResource, MenuItemsResource, ParticipationsResource
@@ -59,10 +59,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
       
 
-
-
-
-
   vm.acl = {
     isVisitor: ()->
       return true if !$rootScope.user
@@ -106,7 +102,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       $ionicScrollDelegate.anchorScroll(true)
       return
 
-    menuView: (value)->
+    notReady: (value)->
+      toastr.info "Sorry, " + value + " is not available yet"
+      return
+
+    menuView: (value, peek=false)->
       values = ['less','more','contribute','less']
       
       switch value
@@ -120,14 +120,23 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       next = i + 1
       if values[next] == 'contribute'
         if vm.acl.isParticipant() == false
-          return vm.on.menuView(next) # skip
+          return vm.on.menuView(next, peek) # skip
         if vm.event.summary.myParticipation.isFullyParticipating
           if value == 'next'
-            return vm.on.menuView(next) # skip unless forced
+            return vm.on.menuView(next, peek) # skip unless forced
+      return values[next] if peek
+
       vm.on.scrollTo('menu')
       if value == 'contribute'
         toastr.info "Contribute a suggested Menu Item or add a new one."
       return vm.settings.view.menu = values[next]
+
+    gotoState : (state, field, obj)->
+      return if !obj
+      params = {}
+      params[field] = obj[field]
+      $state.transitionTo state, params
+
 
     beginBooking: (person, event)->
       appModalSvc.show('events/booking.modal.html', vm, {
@@ -701,7 +710,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
 
 EventDetailCtrl.$inject = [
-  '$scope', '$rootScope', '$q', '$timeout', '$stateParams'
+  '$scope', '$rootScope', '$q', '$timeout', '$state', '$stateParams'
   '$ionicHistory', '$location', '$ionicScrollDelegate', '$ionicModal'
   '$log', 'toastr', 'exportDebug'
   'EventsResource', 'UsersResource', 'MenuItemsResource', 'ParticipationsResource'

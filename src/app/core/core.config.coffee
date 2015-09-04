@@ -14,6 +14,13 @@ appRun = ($ionicPlatform) ->
 
   return # appRun
 
+ionicConfig = ($ionicConfigProvider)->
+  $ionicConfigProvider.backButton
+    .text('')
+    .icon('ion-ios-arrow-back')
+    .previousTitleText(false)
+  return
+
 toastrConfig = (toastrConfig) ->
   angular.extend toastrConfig, {
     timeOut: 4000
@@ -29,6 +36,7 @@ appRun.$inject = ['$ionicPlatform']
 angular
   .module 'starter.core'
   .config toastrConfig
+  .config ionicConfig
   .run appRun
 
 

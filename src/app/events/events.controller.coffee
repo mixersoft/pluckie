@@ -1,7 +1,7 @@
 'use strict'
 
 EventsCtrl = ($scope, $q, $timeout, $stateParams
-  $log, toastr,
+  $log, toastr, $ionicHistory
   EventsResource, utils
   ionicMaterialMotion, ionicMaterialInk
   ) ->
@@ -28,6 +28,7 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
     getData()
 
   activate = ()->
+    $ionicHistory.clearHistory()
     vm.filter = _filters[ $stateParams.filter ] || _filters[ 'all' ]
     vm.title = vm.filter.label
 
@@ -101,7 +102,7 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
 
 EventsCtrl.$inject = [
   '$scope', '$q', '$timeout', '$stateParams'
-  '$log', 'toastr'
+  '$log', 'toastr', '$ionicHistory'
   'EventsResource', 'utils'
   'ionicMaterialMotion', 'ionicMaterialInk'
 ]

@@ -2,7 +2,7 @@
 
 HomeCtrl = (
   $scope, $rootScope, $q, $location, $timeout
-  $ionicScrollDelegate
+  $ionicScrollDelegate, $ionicHistory
   $log, toastr
   HomeResource, EventsResource, MenuItemsResource
   ionicMaterialMotion, ionicMaterialInk
@@ -54,6 +54,7 @@ HomeCtrl = (
         if event
           item.title = event['title']
           item.heroPic = event['heroPic']
+          # TODO: use gotoState()
           item.target = 'app.event-detail({id:' + event.id + '})'
           item.description = 'Event'
         return
@@ -66,6 +67,7 @@ HomeCtrl = (
         if mitem
           item.title = mitem['title']
           item.heroPic = mitem['pic']
+          # TODO: use gotoState()
           item.target = 'app.menu-item({id:' + mitem.id + '})'
           item.description = 'Menu Item'
         return
@@ -121,6 +123,7 @@ HomeCtrl = (
 
 
   activate = ()->
+    $ionicHistory.clearHistory()
     ionicMaterialInk.displayEffect()
     startMaterialEffects()
     return
@@ -142,7 +145,7 @@ HomeCtrl = (
 
 HomeCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$location', '$timeout'
-  '$ionicScrollDelegate'
+  '$ionicScrollDelegate', '$ionicHistory'
   '$log', 'toastr'
   'HomeResource', 'EventsResource','MenuItemsResource'
   'ionicMaterialMotion', 'ionicMaterialInk'

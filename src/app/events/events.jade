@@ -1,6 +1,7 @@
 // home/home.jade
-ion-view(view-title="{{vm.title}}")
-  // hide ion-navicon???
+ion-view(view-title="{{vm.title}}" hide-back-button="true")
+  ion-nav-buttons(side="primary")
+    button.button.button-icon.icon.ion-navicon.back-button.flat(menu-toggle="primary")
   ion-content#events.has-header.dark-bg
     div.list.condensed-space.no-padding.animate-blinds(
       ng-init="colors=['dark-bg','energized-bg','assertive-bg','balanced-bg','royal-bg']"
