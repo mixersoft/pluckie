@@ -559,10 +559,48 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     ionicMaterialInk.displayEffect()
     setMaterialEffects()
 
+  getMap = (event)->
+    if event.location?
+      $timeout ()->
+        latlon = {
+          latitude: event.location[0]
+          longitude: event.location[1]
+        }
+        event.map = {
+          center: latlon
+            # latitude: Math.round((event.location[0]*1000000)/1000000)
+            # longitude: Math.round((event.location[1]*1000000)/1000000)
+          zoom: 14
+          # event.map.options
+          options:
+            map:
+              options:
+                draggable: false
+            circle:
+              center: latlon
+              stroke:
+                color: '#FF0000'
+                weight: 1
+              radius: 500
+              fill:
+                color: '#FF0000'
+                opacity: '0.2'
+            marker:
+              idKey: event.id
+              coords: latlon
+        }
+
+        return
+       , 3000
+    return event
+
   getData = () ->
     $ionicHistory.goBack() if !$stateParams.id
     id = $stateParams.id
     getEvent(id)
+    .then (event)->
+      getMap(event)
+      return event
     .then (event)->
       getEventUsers(event)
     .then (event)->

@@ -77,7 +77,10 @@ ion-view(view-title="{{vm.title}}")
             div.col
               div.list {{host=vm.lookup['host'];''}}
                 div.item(ng-class="host.face ? 'item-avatar' : 'item-icon-left'")
-                  img(ng-src="{{host.face}}" ui-sref="app.profile({id:'{{host.id}}'})")
+                  img(
+                    ng-src="{{host.face}}" 
+                    ng-click="vm.on.gotoState('app.profile','id',host)"
+                  )
                   i.icon.ion-person(ng-show="!host.face")
                   div Hosted by #[b {{ [host.firstname,host.lastname].join(' ')  || item.ownerId }}]
                 div.item.item-icon-left.item-text-wrap
@@ -99,7 +102,9 @@ ion-view(view-title="{{vm.title}}")
                   span. 
                     at {{ item.startTime | amDateFormat:'h:mm a'}} for
                     {{ item.duration | amDurationFormat:'milliseconds' }}
-                div.item.item-icon-left.item-text-wrap
+                div.item.item-icon-left.item-text-wrap(
+                  ng-click="vm.on.scrollTo('map')"
+                )
                   i.icon.ion-ios-location
                   //- feastly: Exact addr will be shared upon purchase
                   //- eatwith: exact location provided upon booking
@@ -113,8 +118,10 @@ ion-view(view-title="{{vm.title}}")
         div.col.col-offset-25.col-50
           div.row
             div.col.text-center(ng-switch="vm.settings.view.menu") 
-              h2
-                button.overlay-right.button.button-clear.icon.ion-more.positive(ng-click="vm.on.menuView('next')")
+              h2 {{nextMenu=vm.on.menuView('next','peek');''}}
+                button.overlay-right.button.button-clear.icon.dark(
+                  ng-click="vm.on.menuView('next')"
+                  ng-class="{'ion-arrow-up-b':nextMenu=='less', 'ion-arrow-right-b':nextMenu=='contribute', 'ion-arrow-down-b':nextMenu=='more' }")
                 span Menu
                 
               div.list.menu-item.text-center(ng-switch-when="less") 
@@ -124,7 +131,10 @@ ion-view(view-title="{{vm.title}}")
                   
               div.list.menu-item(ng-switch-when="more")
                 div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  img(ng-src="{{mitem.pic}}")
+                  img(
+                    ng-src="{{mitem.pic}}"
+                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                    )
                   div.pull-right
                     span.muted {{ mitem.category }}
                     
@@ -136,14 +146,20 @@ ion-view(view-title="{{vm.title}}")
                       ng-repeat="contrib in vm.getContributionsByMenuItem(mitem)"
                       ng-if="contrib.contributorId"
                     ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
-                      img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
+                      img(
+                        ng-src="{{person.face}}" 
+                        ng-click="vm.on.gotoState('app.profile','id',host)"
+                        )
                       div.pull-right {{contrib.portions}} portions
                       b {{[person.firstname,person.lastname].join(' ') }}
                       p.muted {{contrib.comment}}
 
               div.list.menu-item(ng-switch-when="contribute")
                 div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  img(ng-src="{{mitem.pic}}")
+                  img(
+                    ng-src="{{mitem.pic}}"
+                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                    )
                   div.muted.pull-right {{ mitem.category }}
                   b.title {{ mitem.title  }} 
                   div.detail {{ mitem.detail  }}
@@ -152,7 +168,8 @@ ion-view(view-title="{{vm.title}}")
                       ng-repeat="contrib in vm.getContributionsByMenuItem(mitem)"
                       ng-if="contrib.contributorId"
                     ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
-                      img(ng-src="{{person.face}}")
+                      img(
+                        ng-src="{{person.face}}")
                       div.pull-right {{contrib.portions}} portions
                       b {{[person.firstname,person.lastname].join(' ') }}
                       p.muted {{contrib.comment}}
@@ -212,7 +229,10 @@ ion-view(view-title="{{vm.title}}")
               div.list.condensed.participants
                 div(ng-repeat="particip in vm.getParticipationsByEvent(item)")
                   div.item.item-avatar.participation {{person=vm.lookup['Users'][particip.participantId];''}}
-                    img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
+                    img(
+                      ng-src="{{person.face}}" 
+                      ng-click="vm.on.gotoState('app.profile','id',host)"
+                      )
                     b {{[person.firstname,person.lastname].join(' ') }}
                     div.seats.pull-right(ng-if="particip.seats > 1") + {{particip.seats - 1}} other{{particip.seats>2 ? 's' : ''}}
                     div.comment.muted {{particip.comment}}
@@ -233,7 +253,10 @@ ion-view(view-title="{{vm.title}}")
                 h5.balanced.padding-horizontal Booking
                 {{person = vm.me;''}}
                 div.item.item-avatar.participation 
-                  img(ng-src="{{person.face}}" ui-sref="app.profile({id:'{{person.id}}'})")
+                  img(
+                    ng-src="{{person.face}}" 
+                    ng-click="vm.on.gotoState('app.profile','id',host)"
+                    )
                   div
                     b.name {{[person.firstname,person.lastname].join(' ') }}
                     &nbsp;
@@ -244,7 +267,10 @@ ion-view(view-title="{{vm.title}}")
                 {{ myContribs=vm.lookupByClass(item, 'Contributions', myPart.contributionIds);''}}
                 div.item.item-avatar(ng-repeat="contrib in myContribs")
                   {{contrib.menuItem=vm.lookup['MenuItems'][contrib.menuItemId];''}}
-                  img(ng-src="{{contrib.menuItem.pic}}")
+                  img(
+                    ng-src="{{contrib.menuItem.pic}}"
+                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                    )
                   div
                     div.muted.pull-right {{ contrib.menuItem.category }}
                     b.title.wrap {{ contrib.menuItem.title  }} 
@@ -299,6 +325,29 @@ ion-view(view-title="{{vm.title}}")
                     div.royal {{item.summary.participation.menuItemContributions}} Menu Contributions ({{item.summary.participation.menuItemContributionsPct}}%)
                     div.royal {{item.summary.participation.portions}} Portions ({{item.summary.participation.portionsPct}}%)
 
+      //- 
+      //- Map
+      //- 
+      div#map.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div(ng-if="item.map")
+            {{opt = item.map.options;''}}
+            ui-gmap-google-map( 
+              center='item.map.center' 
+              zoom='item.map.zoom'
+              options='opt.map.options'
+            )
+              ui-gmap-circle(
+                ng-if="vm.acl.isVisitor()"
+                center="opt.circle.center"
+                radius="opt.circle.radius"
+                stroke="opt.circle.stroke"
+                )
+              ui-gmap-marker(
+                ng-if="vm.acl.isParticipant()"
+                idKey="opt.marker.idKey"
+                coords="opt.marker.coords"
+                )
 
 
 
@@ -344,9 +393,10 @@ ion-view(view-title="{{vm.title}}")
                   ng-repeat="person in vm.people"
                   ng-click="dev.on.loginUser(person)"
                 )
-                  img(ng-src="{{person.face}}")
+                  img(
+                    ng-src="{{person.face}}")
                   b {{[person.firstname,person.lastname].join(' ') }}
-                  p id = {{person.id}}
+                  p role: {{dev.on.getRoleLabel(person)}}
 
 
       //- 

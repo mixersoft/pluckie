@@ -10,8 +10,9 @@ html
         link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
 
         // cordova script (this will be a 404 during development)
-        script(src='cordova.js')
         script(src='lib/ionic/js/ionic.bundle.js')  // load angular first
+        script(src='lib/ngCordova/dist/ng-cordova.js')
+        script(src='cordova.js')
         script(src="lib/moment/min/moment.min.js")  // load before angularMoment
         script(src="https://storage.googleapis.com/code.getmdl.io/1.0.0/material.js")
 

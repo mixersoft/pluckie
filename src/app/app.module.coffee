@@ -12,6 +12,7 @@ angular
   .module 'starter', [
     # Shared modules
     'ionic'
+    'ngCordova'
     'ionic-material'
     'starter.core'
     'starter.layout'

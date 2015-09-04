@@ -294,3 +294,12 @@ $RobotoDraftFontVersion: "1.0.0";
   }
 }
 
+
+#map .angular-google-map-container {
+  /*width: 360px;*/
+  height: 360px;
+  @extend .positive-bg;
+  @media(max-width: $grid-responsive-sm-break) {
+    height: 240px;
+  }
+}
