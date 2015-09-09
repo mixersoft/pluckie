@@ -275,7 +275,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     MenuItemsResource.get( event.menuItemIds )
     .then (result)->
       # ownerId => host
-      event.menuItemIds = _.pluck result, 'id'
+      sortedMenuItems = MenuItemsResource.sortByCategory(result)
+      event.menuItemIds = _.pluck sortedMenuItems, 'id'
       vm.lookup['MenuItems'] = _.indexBy result, 'id'
       # toastr.info JSON.stringify( result )[0...50]
       return event
