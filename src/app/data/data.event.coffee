@@ -45,7 +45,6 @@ EventsResource = (Resty, amMoment) ->
 
       # contributors: {}      # see vm.lookup['Contributions']
       # menu:    # menu ideas
-      menuItemIds: [10..14]   # TODO: use habtm Contribution
       # menuItems: {}         # see vm.lookup['MenuItems']
 
       setting:
@@ -95,7 +94,6 @@ EventsResource = (Resty, amMoment) ->
 
       # guests:  # habtm Users
       # menu:    # menu ideas
-      menuItemIds: [0..3]    # TODO: use habtm Contribution
 
       setting:
         isExclusive: false   # invite Only
@@ -145,7 +143,6 @@ EventsResource = (Resty, amMoment) ->
 
       # guests:  # habtm Users
       # menu:    # menu ideas
-      menuItemIds: [20,21,22]
 
       setting:
         isExclusive: false   # invite Only

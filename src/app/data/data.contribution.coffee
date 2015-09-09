@@ -61,35 +61,35 @@ ContributionsResource = (Resty, amMoment) ->
     20:
       eventId: "2"
       menuItemId: "20"
-      contributorId: "0"
+      contributorId: "10"
       portions: 16
       portionsRequired: 16
       sort: 20
     21:
       eventId: "2"
       menuItemId: "21"
-      contributorId: "0"
+      contributorId: "10"
       portions: 4
       portionsRequired: 6
       sort: 20
     22:
       eventId: "2"
       menuItemId: "22"
-      contributorId: "0"
+      contributorId: "10"
       portions: 20
       portionsRequired: 20
       sort: 20
     23:
       eventId: "2"
       menuItemId: "23"
-      contributorId: "0"
+      contributorId: "10"
       portions: 20
       portionsRequired: 20
       sort: 20
     24:
       eventId: "2"
       menuItemId: "24"
-      contributorId: "0"
+      contributorId: "10"
       portions: 20
       portionsRequired: 20
       sort: 20
@@ -103,6 +103,13 @@ ContributionsResource = (Resty, amMoment) ->
     26:
       eventId: "2"
       menuItemId: "26"
+      contributorId: null
+      portions: 0
+      portionsRequired: 40
+      sort: 20
+    27:
+      eventId: "2"
+      menuItemId: "27"
       contributorId: null
       portions: 0
       portionsRequired: 40

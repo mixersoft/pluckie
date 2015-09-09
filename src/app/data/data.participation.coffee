@@ -25,7 +25,7 @@ ParticipationsResource = (Resty, amMoment) ->
       comment: 'Your host'
     20:
       eventId: '2'
-      participantId: '0'
+      participantId: '10'
       seats: 3
       comment: 'Your host'
   }
