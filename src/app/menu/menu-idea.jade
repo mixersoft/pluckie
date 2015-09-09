@@ -1,0 +1,18 @@
+// menu-ideas/menu-ideas.jade
+ion-view(view-title="{{vm.title}}" hide-back-button="true")
+  ion-nav-buttons(side="primary")
+    button.button.button-icon.icon.ion-navicon.back-button.flat(menu-toggle="primary")
+  ion-content#menu-ideas.has-header.dark-bg
+    div.list.condensed-space.no-padding.xxx-animate-blinds
+      div.row.ng-repeat-grid.responsive-sm
+        div.col.col-33(
+          ng-repeat="item in vm.filtered"
+          )
+          div.card.dark-bg
+            a.item.item-bg-image.xxx-waves-effect.xxx-waves-button.xxx-waves-light.has-mask(
+              ui-sref="app.menu-item({id: {{item.id}}  })"
+              ) 
+              div.has-mask-wrap
+                h2 {{item.title}}
+                p {{item.category}}
+              img.hero(ng-style="{{vm.imgAsBg(item.pic)}}")

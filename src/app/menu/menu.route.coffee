@@ -5,6 +5,14 @@ appRun = (routerHelper) ->
 
 getStates = ->
   [
+    state: 'app.menu-ideas'
+    config:
+      url: '/ideas/:filter'
+      views:
+        'menuContent':
+          templateUrl: 'menu/menu-idea.html'
+          controller: 'MenuIdeasCtrl as vm'
+  ,
     state: 'app.menu-item'
     config:
       url: '/menu-item/:id'

@@ -41,9 +41,9 @@ HomeResource = (Resty, amMoment) ->
     16:
       layout: "tile-left"
       color: ""
-      title: "Popular Menus"
+      title: "Menu Ideas"
       heroPic: "http://lorempixel.com/400/200/food/4"
-      target: "app.menu({filter:'popular'})"
+      target: "app.menu-ideas({filter:'all'})"
     17:
       layout: "tile-right"
       color: ""
@@ -61,6 +61,18 @@ HomeResource = (Resty, amMoment) ->
       class: "event"
       classId: 0
       target: 'app.className'
+    20:
+      layout: "tile-left"
+      color: ""
+      title: "Mains"
+      heroPic: "http://lorempixel.com/400/200/food/7"
+      target: "app.menu-ideas({filter:'main'})"
+    26:
+      layout: "tile-left"
+      color: ""
+      title: "Sides"
+      heroPic: "http://lorempixel.com/400/200/food/8"
+      target: "app.menu-ideas({filter:'side'})"
   }
   # coffeelint: enable=max_line_length
   return service = new Resty(data)
