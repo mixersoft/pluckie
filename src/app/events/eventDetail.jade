@@ -181,13 +181,21 @@ ion-view(view-title="{{vm.title}}")
                       i.icon.ion-android-add-circle.balanced
                       p.label.dark Contribute
                       span.pull-right {{mitem.summary.portionsRemaining}} portions
-                div.item.button-full(
+                
+                div.card.list.condensed(
                   ng-if="vm.acl.isParticipant() && item.setting.fixedMenu==false"
                 )
-                  div.button.button-balanced.icon.ion-android-add-circle(
-                    ng-click="vm.on.beginContribute()"
-                    ).
-                    Add Menu Item
+                  div.item.button-full
+                    div.button.button-balanced.icon.ion-android-add-circle(
+                      ng-click="vm.on.beginContribute()"
+                      ).
+                      Add Menu Item
+                  div.item.item-icon-left.balanced {{distr = item.summary.distribution;''}}
+                    i.icon.ion-pie-graph
+                    div.balanced(ng-repeat="(cat,count) in distr.count") 
+                      label.inline-field {{value = count + ' (' + distr.pct[cat] + '%)';''}}
+                        span.label.balanced {{vm.getLabel_MenuItemCategory(cat)}}
+                        input.balanced(type="text" ng-model="value" readonly)
 
       // 100% iphone, 50% ipad
       //- 
@@ -325,6 +333,15 @@ ion-view(view-title="{{vm.title}}")
                     i.icon.ion-pizza
                     div.royal {{item.summary.participation.menuItemContributions}} Menu Contributions ({{item.summary.participation.menuItemContributionsPct}}%)
                     div.royal {{item.summary.participation.portions}} Portions ({{item.summary.participation.portionsPct}}%)
+
+                  div.item.item-icon-left.royal {{distr = item.summary.distribution;''}}
+                    i.icon.ion-pie-graph
+                    div.royal(ng-repeat="(cat,count) in distr.count") 
+                      label.inline-field {{value = count + ' (' + distr.pct[cat] + '%)';''}}
+                        span.label.royal {{vm.getLabel_MenuItemCategory(cat)}}
+                        input.royal(type="text" ng-model="value" readonly)
+
+
 
       //- 
       //- Map

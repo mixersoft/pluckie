@@ -202,11 +202,27 @@ MenuItemsResource = (Resty, amMoment) ->
       Serving   : 70
       Resource  : 80
   }
+  _labels = {
+    Starter   : 'Starters'
+    Side      : 'Sides'
+    Main      : 'Mains'
+    SmallPlate: 'Small Plates'
+    Dessert   : 'Desserts'
+    Setting   : 'Settings'
+    Serving   : 'Serving Utentils'
+    Resource  : 'Resources'
+  }
 
   service.sortByCategory = (data)->
     data = this._data if `data==null`
     return _.sortBy data, (o)-> return _sortOrder['category'][ o['category'] ]
 
+  service.getCategoryLabel = (menuItem)->
+    cat =
+      if angular.isString menuItem
+      then menuItem
+      else menuItem.category
+    return _labels[cat]
 
   return service
 

@@ -22,6 +22,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     if userid && ~event.participantIds?.indexOf(userid)
       event.locationLabel = [event.address, event.neighborhood].join(', ')
     return event.locationLabel
+  vm.getLabel_MenuItemCategory = MenuItemsResource.getCategoryLabel
 
 
   ###
@@ -386,6 +387,10 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     _.extend event.summary, summary
     return event
 
+  ###
+  @description summarize portions & contribution status for each MenuItem
+  @return distribution of portions by MenuItem.category
+  ###
   getDerivedValues_MenuItems = (event)->
     # TODO: move to a better location
     # Contributions indexBy MenuItemId
@@ -405,6 +410,12 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     #   return result
     # , {}
 
+    distribution = {
+      total: 0
+      count: {}
+      pct: {}
+    }
+
     _.each event.menuItemIds, (id)->
       required = _.reduce vm.lookup['Contributions'], (result, o)->
         return result if o.menuItemId != id || !o.portionsRequired
@@ -419,11 +430,18 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         portionsRemaining: null  # derived below
         isContributed: false
       }
-      # mi.summary['portions'] = portionsByMenuItemId[mi.id] || 0
+
       mi.summary['portions'] = _.reduce vm.lookup['MenuItemContributions'][mi.id]
       , (result, contrib)->
         return result += parseInt contrib.portions
       , 0
+
+      # summary portions by menuItem.category, i.e. Starter, Main, etc.
+      if mi.summary['portions']
+        distribution.count[mi['category']] = 0 if `distribution.count[mi['category']]==null`
+        distribution.count[mi['category']] += mi.summary['portions']
+        distribution.total += mi.summary['portions']
+
       mi.summary['portionsRemaining'] =
         Math.max(mi.summary['portionsRequired'] - mi.summary['portions'], 0)
       mi.summary['portionsPct'] =
@@ -433,7 +451,10 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       if mi.summary['portionsPct'] > 85
         mi.summary['isContributed'] = true
       return
-    return
+
+    _.each distribution.count, (v,k)->
+      distribution.pct[k] = Math.round( v / distribution.total * 100 )
+    return distribution
 
   createBooking = (options)->
     booking = options.booking
@@ -624,7 +645,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     #   return event
     .then (event)->
       getDerivedValues_Event(event)
-      getDerivedValues_MenuItems(event)
+      event.summary['distribution'] = getDerivedValues_MenuItems(event)
       
 
 
@@ -679,6 +700,10 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   $scope.$on '$ionicView.enter', (e) ->
     $log.info "viewEnter for EventDetailCtrl"
     activate()
+
+  $rootScope.$on '$stateChangeStart', (ev, to, toParams)->
+    check = toParams
+    return
 
 
   $scope.dev = {

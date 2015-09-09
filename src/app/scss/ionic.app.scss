@@ -119,10 +119,21 @@ $RobotoDraftFontVersion: "1.0.0";
       };
     }
   }  
+  label.inline-field {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
 }
 
 /*# use inline label css for table display*/
-label.item.inline-field {
+label.inline-field {
+  > * {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    line-height: inherit !important;
+    height: inherit !important;
+    color: inherit !important;
+  }
   @extend .item-input;
   span.label {
     @extend .input-label;
@@ -314,11 +325,19 @@ label.item.inline-field {
 }
 
 
-#map .angular-google-map-container {
-  /*width: 360px;*/
-  height: 360px;
-  @extend .positive-bg;
+#map {
+  $map-height: 360px;
+  $map-height-sm: 240px;
+  height: $map-height;
   @media(max-width: $grid-responsive-sm-break) {
-    height: 240px;
+    height: $map-height-sm;
+  }
+  .angular-google-map-container {
+    /*width: 360px;*/
+    height: $map-height;
+    @extend .positive-bg;
+    @media(max-width: $grid-responsive-sm-break) {
+      height: $map-height-sm;
+    }
   }
 }
