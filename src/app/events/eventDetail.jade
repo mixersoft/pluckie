@@ -238,10 +238,11 @@ ion-view(view-title="{{vm.title}}")
               div.list.condensed.participants
                 div(ng-repeat="particip in vm.getParticipationsByEvent(item)")
                   div.item.item-avatar.participation {{person=vm.lookup['Users'][particip.participantId];''}}
-                    img(
+                    img.muted(
                       ng-src="{{person.face}}" 
                       ng-click="vm.on.gotoState('app.profile','id',host)"
                       )
+                    span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
                     b {{[person.firstname,person.lastname].join(' ') }}
                     div.seats.pull-right(ng-if="particip.seats > 1") + {{particip.seats - 1}} other{{particip.seats>2 ? 's' : ''}}
                     div.comment.muted {{particip.comment}}
@@ -266,6 +267,7 @@ ion-view(view-title="{{vm.title}}")
                     ng-src="{{person.face}}" 
                     ng-click="vm.on.gotoState('app.profile','id',host)"
                     )
+                  span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
                   div
                     b.name {{[person.firstname,person.lastname].join(' ') }}
                     &nbsp;
@@ -346,9 +348,9 @@ ion-view(view-title="{{vm.title}}")
       //- 
       //- Map
       //- 
-      div#map.content.row.responsive-sm
+      div.content.row.responsive-sm
         div.col.col-offset-25.col-50
-          div(ng-if="item.map")
+          div#map(ng-if="item.map")
             {{opt = item.map.options;''}}
             ui-gmap-google-map( 
               center='item.map.center' 
@@ -411,8 +413,8 @@ ion-view(view-title="{{vm.title}}")
                   ng-repeat="person in vm.people"
                   ng-click="dev.on.loginUser(person)"
                 )
-                  img(
-                    ng-src="{{person.face}}")
+                  img(ng-src="{{person.face}}")
+                  span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
                   b {{[person.firstname,person.lastname].join(' ') }}
                   p role: {{dev.on.getRoleLabel(person)}}
 

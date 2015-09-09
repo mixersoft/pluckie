@@ -8,7 +8,7 @@ ion-modal-view
       div.list.padding {{contribution = myContribution.contribution;''}}
         div.item.item-avatar 
           img(ng-src="{{me.face}}")
-          b {{[me.firstname,me.lastname].join(' ') }} - You are about to create a new Menu Item.
+          div.wrap #[b{{[me.firstname,me.lastname].join(' ') }}]: You are about to contribute a new Menu Item.
         label.item.item-input.item-floating-label
           span.input-label Title
           input(type="text" name="Title" placeholder="Title" ng-model="mitem.title")

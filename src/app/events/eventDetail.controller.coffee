@@ -337,7 +337,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       return
     summary.booking['parties'] = event.participationIds.length
     summary.booking['seatsPct'] = Math.round( summary.booking['seats']/event.seatsTotal * 100 )
-    event.seatsOpen = event.seatsTotal - summary.booking['seats']
+    event.seatsOpen = Math.max(0, event.seatsTotal - summary.booking['seats'])
 
     if vm.acl.isParticipant()
       # event.myParticipation = vm.getParticipationByUser(vm.me)

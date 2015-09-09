@@ -267,6 +267,32 @@ label.inline-field {
   } 
 }
 
+.item-avatar {
+  .face-overlay {
+    border-radius: 50%;
+    max-height: 40px;
+    max-width: 40px;
+    position: absolute;
+    font-size: 2em;
+    font-weight: bold;
+    top: 10px;
+    left: 16px;
+    line-height: 40px;
+    background-color: #BBB;
+    width: 40px;
+    height: 40px;
+    color: white;
+    text-align: center;
+  }
+}
+
+#participants {
+  .item-avatar.participation {
+    min-height: 56px;
+  }
+  .participants .comment {
+  }
+}
 
 #profile, #menu-item {
   .hero-a {
@@ -326,9 +352,11 @@ label.inline-field {
 
 
 #map {
+
   $map-height: 360px;
   $map-height-sm: 240px;
   height: $map-height;
+  margin-bottom: 40px;
   @media(max-width: $grid-responsive-sm-break) {
     height: $map-height-sm;
   }
