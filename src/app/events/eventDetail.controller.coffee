@@ -136,7 +136,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       return if !obj
       params = {}
       params[field] = obj[field]
+      switch state
+        when 'app.menu-item'
+          params['menu'] = vm.event.menuItemIds.join(',')
       $state.transitionTo state, params
+      return
 
 
     beginBooking: (person, event)->
@@ -700,10 +704,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   $scope.$on '$ionicView.enter', (e) ->
     $log.info "viewEnter for EventDetailCtrl"
     activate()
-
-  $rootScope.$on '$stateChangeStart', (ev, to, toParams)->
-    check = toParams
-    return
 
 
   $scope.dev = {

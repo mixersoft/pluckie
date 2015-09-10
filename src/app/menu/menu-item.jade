@@ -1,27 +1,34 @@
 // menu/menu.jade
 ion-view(view-title="{{vm.title}}")
-  ion-content#menu-item.has-header.light-bg {{item=vm.menuItem;''}}
-    div.hero-a
-      div.content
-        div.hero-wrap.has-mask-reverse
-          div.hero-bg.blur(ng-style="vm.imgAsBg(item.pic)")
-        div.hero-toolbar.padding
-          i.padding-left.icon.ion-heart.dark
-          i.padding-left.icon.ion-ios-upload.dark
-        div.text-center.padding
-          h2.light.text-center {{item.title}}
-          img.face(ng-src="{{item.pic}}")
-    div#menu-item.content.row.responsive-sm
-      div.col.col-offset-25.col-50
-        div.list
-          h2.padding-horizontal.capitalize {{item.title}}
-          label.item.inline-field
-            span.label Category
-            input(type="text" ng-model="item.category" readonly)
-          div.item.item-text-wrap {{item.detail}}
-          div.padding-horizontal(ng-if="item.link")
-            a(ng-href="{{item.link}}" ng-click="vm.openExternalLink($event, item.link)" target="_blank")
-              button.button.button-positive see more
+  ion-content#menu-item.has-header.light-bg 
+    div.menu-item(ng-repeat="id in vm.listIds")
+      div.hero-a
+        div.content {{item=vm.lookup['MenuItems'][id];''}}
+          div.hero-wrap.has-mask-reverse
+            div.hero-bg.blur(ng-style="vm.imgAsBg(item.pic)")
+          div.hero-toolbar.padding
+            i.padding-left.icon.ion-heart.dark
+            i.padding-left.icon.ion-ios-upload.dark
+          div.text-center.padding
+            h2.light.text-center {{item.title}}
+            img.face(ng-src="{{item.pic}}")
+      div.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div.list
+            h2.padding-horizontal.capitalize {{item.title}}
+            label.item.inline-field
+              span.label Category
+              input(type="text" ng-model="item.category" readonly)
+            div.item.item-text-wrap {{item.detail}}
+            div.padding-horizontal(ng-if="item.link")
+              a(ng-href="{{item.link}}" ng-click="vm.openExternalLink($event, item.link)" target="_blank")
+                button.button.button-positive see more
+            div.last-row
+
+
+
+
+
 
 
 

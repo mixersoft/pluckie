@@ -15,7 +15,7 @@ getStates = ->
   ,
     state: 'app.menu-item'
     config:
-      url: '/menu-item/:id'
+      url: '/menu-item/:id?menu'
       views:
         'menuContent':
           templateUrl: 'menu/menu-item.html'

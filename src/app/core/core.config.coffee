@@ -1,6 +1,6 @@
 'use strict'
 
-appRun = ($ionicPlatform) ->
+appRun = ($ionicPlatform, $rootScope, $location) ->
 
   $ionicPlatform.ready ->
     # Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -11,6 +11,19 @@ appRun = ($ionicPlatform) ->
     if window.StatusBar
       # org.apache.cordova.statusbar required
       StatusBar.styleLightContent()
+
+
+  locationSearch = null
+  $rootScope.$on '$stateChangeStart', (ev, toState, toParams, fromState, fromParams)->
+    # save $location.search and add back after transition
+    locationSearch = $location.search()
+    return
+
+  $rootScope.$on '$stateChangeSucess', (ev, toState, toParams, fromState, fromParams)->
+    # addback $location.search  after transition
+    $location.search( angular.extend(locationSearch, $location.search()) )
+    return
+
 
   return # appRun
 
@@ -31,7 +44,7 @@ toastrConfig = (toastrConfig) ->
 
 
 
-appRun.$inject = ['$ionicPlatform']
+appRun.$inject = ['$ionicPlatform', '$rootScope', '$location']
 
 angular
   .module 'starter.core'

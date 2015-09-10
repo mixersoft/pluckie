@@ -134,7 +134,7 @@ ion-view(view-title="{{vm.title}}")
                 div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
                   img(
                     ng-src="{{mitem.pic}}"
-                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                    ng-click="vm.on.gotoState('app.menu-item','id', mitem)"
                     )
                   div.pull-right
                     span.muted {{ mitem.category }}

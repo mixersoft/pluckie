@@ -49,7 +49,6 @@ MenuIdeasCtrl = ($scope, $q, $timeout, $stateParams
     setMaterialEffects()
 
   sortMenus = (items, filter)->
-    items = _.sortBy items, 'title'
     items = MenuItemsResource.sortByCategory(items)
 
     switch filter
