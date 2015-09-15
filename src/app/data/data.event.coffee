@@ -11,6 +11,8 @@ EventsResource = (Resty, amMoment) ->
         """
       category: "Potluck"     # [Potluck|Popup]
       cusine: "Japanese"      # [American|Japanese|California|Seafood|etc.]
+      style: 'Seated'         # [Seated|Casual|Grazing|Picnic]
+      attire: 'Casual'        # [Casual|Cocktail|Business|Formal|Fun]
       inspiration: "Just because I miss my days in Tokyo"
       aspiration: 2           # 0-3 stars
 
@@ -30,18 +32,6 @@ EventsResource = (Resty, amMoment) ->
       # host:
       ownerId: "0" # belongsTo Users
       isPublic: true # searchable
-
-      participants: {  # indexBy userId
-        # add host participation record in controller
-        '1':
-          userId: '1'
-          seats: 1
-          comment: 't-shirt ramen!'
-        '2':
-          userId: '2'
-          seats: 3
-          comment: 'the whole family is excited!!!'
-      }        # habtm Users
 
       # contributors: {}      # see vm.lookup['Contributions']
       # menu:    # menu ideas
@@ -72,6 +62,8 @@ EventsResource = (Resty, amMoment) ->
         """
       category: "Potluck"     # [Potluck|Popup]
       cusine: "Italian"      # [American|Japanese|California|Seafood|etc.]
+      style: 'Seated'         # [Seated|Casual|Grazing|Picnic]
+      attire: 'Casual'        # [Casual|Cocktail|Business|Formal|Fun]
       inspiration: "just because"
       aspiration: 1           # 0-3 stars
       price: null             # guest can contribute money?
@@ -119,6 +111,7 @@ EventsResource = (Resty, amMoment) ->
       category: "Potluck"     # [Potluck|Popup]
       cusine: "American"      # [American|Japanese|California|Seafood|etc.]
       style: 'Casual'         # [Seated|Casual|Grazing|Picnic]
+      attire: 'Casual'        # [Casual|Cocktail|Business|Formal|Fun]
       inspiration: "здравей софия"
       aspiration: 3           # 0-3 stars
       price: null             # guest can contribute money?

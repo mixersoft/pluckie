@@ -73,7 +73,7 @@ ion-view(view-title="{{vm.title}}")
           //- div(style="position:absolute;right:0")
           //-   div.larger.pull-right.positive Details
           h2.text-center Details
-          div.row.responsive-sm
+          div.row.responsive-sm.last-row
             // event: host attr
             div.col
               div.list {{host=vm.lookup['host'];''}}
@@ -87,6 +87,9 @@ ion-view(view-title="{{vm.title}}")
                 div.item.item-icon-left.item-text-wrap
                   i.icon.ion-ios-lightbulb
                   {{ item.inspiration }}
+                div.item.item-icon-left.item-text-wrap
+                  i.icon.ion-tshirt
+                  {{ item.attire }}
                 div.item.item-icon-left 
                   i.icon.ion-ios-people
                   {{ item.seatsTotal }} seats / {{ item.seatsOpen }} open
@@ -127,7 +130,9 @@ ion-view(view-title="{{vm.title}}")
                 
               div.list.menu-item.text-center(ng-switch-when="less") 
                 div.item(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  b.title {{ mitem.title  }} 
+                  b.title(
+                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                    ) {{ mitem.title  }} 
                   div.muted {{ mitem.category }}
                   
               div.list.menu-item(ng-switch-when="more")
@@ -163,7 +168,7 @@ ion-view(view-title="{{vm.title}}")
                     )
                   div.muted.pull-right {{ mitem.category }}
                   b.title {{ mitem.title  }} 
-                  div.detail {{ mitem.detail  }}
+                  p.detail(ng-class="{'wrap':!mitem.summary.isContributed}"){{ mitem.detail  }}
                   div.list.participation(ng-if="vm.acl.isParticipant()")
                     div.item.item-avatar.contribution(
                       ng-repeat="contrib in vm.getContributionsByMenuItem(mitem)"
@@ -230,7 +235,7 @@ ion-view(view-title="{{vm.title}}")
       //- 
       div#participants.content.row.responsive-sm
         div.col.col-offset-25.col-50
-          div.row
+          div.row.last-row
             div.col.text-center
               h2 Participants
               //- eatWith: Guest List, x of y seats booked, show face icon or empty faces
@@ -348,26 +353,25 @@ ion-view(view-title="{{vm.title}}")
       //- 
       //- Map
       //- 
-      div.content.row.responsive-sm
-        div.col.col-offset-25.col-50
-          div#map(ng-if="item.map")
-            {{opt = item.map.options;''}}
-            ui-gmap-google-map( 
-              center='item.map.center' 
-              zoom='item.map.zoom'
-              options='opt.map.options'
-            )
-              ui-gmap-circle(
-                ng-if="vm.acl.isVisitor()"
-                center="opt.circle.center"
-                radius="opt.circle.radius"
-                stroke="opt.circle.stroke"
-                )
-              ui-gmap-marker(
-                ng-if="vm.acl.isParticipant()"
-                idKey="opt.marker.idKey"
-                coords="opt.marker.coords"
-                )
+      div.content.last-row
+        div#map(ng-if="item.map")
+          {{opt = item.map.options;''}}
+          ui-gmap-google-map( 
+            center='item.map.center' 
+            zoom='item.map.zoom'
+            options='opt.map.options'
+          )
+            ui-gmap-circle(
+              ng-if="vm.acl.isVisitor()"
+              center="opt.circle.center"
+              radius="opt.circle.radius"
+              stroke="opt.circle.stroke"
+              )
+            ui-gmap-marker(
+              ng-if="vm.acl.isParticipant()"
+              idKey="opt.marker.idKey"
+              coords="opt.marker.coords"
+              )
 
 
 

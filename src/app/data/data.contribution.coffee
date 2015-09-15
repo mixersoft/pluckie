@@ -114,6 +114,20 @@ ContributionsResource = (Resty, amMoment) ->
       portions: 0
       portionsRequired: 40
       sort: 20
+    28:
+      eventId: "2"
+      menuItemId: "28"
+      contributorId: "10"
+      portions: 20
+      portionsRequired: 20
+      sort: 20
+    29:
+      eventId: "2"
+      menuItemId: "29"
+      contributorId: "10"
+      portions: 20
+      portionsRequired: 20
+      sort: 20
 
   }
   return service = new Resty(data)

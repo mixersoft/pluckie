@@ -175,9 +175,21 @@ MenuItemsResource = (Resty, amMoment) ->
       category: "Drinks"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
       pic     : "http://www.h2o2.com/images/drinking-water.jpg"
       link    : ""
-
-   
-
+    28:
+      title   : "The Best Barbecue Beans"
+      detail  : """
+      For the absolute best barbecue beans, it's hard to beat the deep flavor of dried beans slowly cooked in sauce for many hours.
+      """
+      category: "Side"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.seriouseats.com/recipes/assets_c/2014/05/20140530-294420-best-bbq-beans-thumb-625xauto-404009.jpg"
+      link    : "http://www.seriouseats.com/recipes/2014/06/best-barbecue-beans-recipe.html"
+    29:
+      title   : "Watermelon"
+      detail  : """
+      """
+      category: "Dessert"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.time2saveworkshops.com/wp-content/uploads/2012/08/watermelon.jpg"
+      link    : null
 
   }
   # coffeelint: enable=max_line_length
@@ -215,6 +227,7 @@ MenuItemsResource = (Resty, amMoment) ->
 
   service.sortByCategory = (data)->
     data = this._data if `data==null`
+    data = _.sortBy data, 'title'
     return _.sortBy data, (o)-> return _sortOrder['category'][ o['category'] ]
 
   service.getCategoryLabel = (menuItem)->
