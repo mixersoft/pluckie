@@ -16,12 +16,30 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   vm.lookup = {}
   exportDebug.set( 'lookup', vm['lookup'] )
   vm.imgAsBg = utils.imgAsBg
-  vm.setLabel_Location = (event, user) ->
+
+  ###
+  # @description set address & location labels by ACL, mask values for visitors
+  # @param event object
+  # @param user object
+  # @return event.object with the following fields
+  #         event.visibleAddress
+  #         event.visibleLocation
+  # # TODO: hide event.address, event.location from JS introspection,
+  #         reload values on `event:participant-changed`
+  ###
+  vm.setVisibleLocation = (event, user) ->
     userid = (user || vm.me || {}).id
-    event.locationLabel = event.neighborhood
-    if userid && ~event.participantIds?.indexOf(userid)
-      event.locationLabel = [event.address, event.neighborhood].join(', ')
-    return event.locationLabel
+    event.visibleAddress = event.neighborhood
+    participantIds = _.pluck vm.lookup['Participations'], 'participantId'
+    showExactLocation = userid && ~participantIds?.indexOf(userid)
+    if showExactLocation
+      # add complete address
+      event['visibleAddress'] = [event.address, event.neighborhood].join(', ')
+    else
+      # mask event.location
+      event['visibleLocation'] = utils.maskLatLon(event.location, event.title)
+    return event
+
   vm.getLabel_MenuItemCategory = MenuItemsResource.getCategoryLabel
 
 
@@ -307,9 +325,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     NOTE: remember to update vm.lookup cached values on Resty.put()/post()
   ###
   getDerivedValues_Event = (event)->
-    # neighborhood or address
-    vm.setLabel_Location(event)
-
     summary = {
       countdown: ''
       booking:
@@ -595,11 +610,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     setMaterialEffects()
 
   getMap = (event)->
-    if event.location?
+    if event.visibleLocation?
       $timeout ()->
         latlon = {
-          latitude: event.location[0]
-          longitude: event.location[1]
+          latitude: event.visibleLocation[0]
+          longitude: event.visibleLocation[1]
         }
         event.map = {
           center: latlon
@@ -634,9 +649,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     id = $stateParams.id
     getEvent(id)
     .then (event)->
-      getMap(event)
-      return event
-    .then (event)->
       getEventUsers(event)
     .then (event)->
       getParticipations(event)
@@ -644,12 +656,15 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       getContributions(event)
     .then (event)->
       getMenuItems(event)
-    # .then (event)->
-    #   mergeContributions(event)
-    #   return event
     .then (event)->
       getDerivedValues_Event(event)
       event.summary['distribution'] = getDerivedValues_MenuItems(event)
+      return event
+    .then (event)->
+      # TODO: reset on 'event:participant-changed'
+      vm.setVisibleLocation(event)
+      getMap(event)
+      return event
       
 
 
