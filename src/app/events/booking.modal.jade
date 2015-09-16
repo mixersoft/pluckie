@@ -35,7 +35,8 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
           i.icon.ion-ios-person.positive
           input(type="range" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="booking.seats")
           i.icon.ion-ios-people.positive
-        label.item.item-input
+        label.item.item-input.item-stacked-label
+          span.input-label Comment
           textarea(ng-model="booking.comment" placeholder="Add a message to announce your participation!" maxlength="165")
 
         //- div.item.item-text-wrap.button-full
@@ -44,9 +45,10 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
         //-     ng-click="vm.on.menuView('contribute')"
         //-   ).
         //-     Contribute
-        div.item.button-bar
-          button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
-          button.button.button-positive(type="submit") Join
+        div.item
+          div.button-bar
+            button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
+            button.button.button-positive(type="submit") Join
 
 
 

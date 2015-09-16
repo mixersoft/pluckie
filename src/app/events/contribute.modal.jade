@@ -36,13 +36,14 @@ ion-modal-view
           i.icon.ion-ios-person.positive
           input(type="range" name="portions" min="1" max="{{mitem.summary.portionsRemaining}}" ng-model="contribution.portions")
           i.icon.ion-ios-people.positive
-        label.item.item-input.item-floating-label
+        label.item.item-input.item-stacked-label
           span.input-label Comment
           textarea(ng-model="contribution.comment" placeholder="Add a message to announce your contribution!" maxlength="165")
 
-        div.item.button-bar
-          button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
-          button.button.button-positive(type="submit") Contribute
+        div.item
+          div.button-bar
+            button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
+            button.button.button-positive(type="submit") Contribute
 
 
 
