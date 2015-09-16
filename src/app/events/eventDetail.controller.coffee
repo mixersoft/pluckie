@@ -66,7 +66,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     .compact().value()
 
   vm.lookupByClass = (event, className, idOrArray)->
-    if !event
+    if !(event?.id?) || !idOrArray
       return if _.isArray idOrArray then [] else false
     if _.isArray idOrArray
       check = _.chain( idOrArray )
@@ -80,25 +80,25 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   vm.acl = {
     isVisitor: ()->
-      return true if !$rootScope.user
+      return true if _.isEmpty $rootScope.user
       return !vm.acl.isParticipant()
     
     isParticipant: ()->
-      return false if !$rootScope.user
+      return false if _.isEmpty $rootScope.user
       participantIds = _.pluck vm.lookup['Participations'], 'participantId'
       return true if ~participantIds.indexOf($rootScope.user.id)
       return true if vm.acl.isOwner()
       return false
 
     isContributor: ()->
-      return false if !$rootScope.user
+      return false if _.isEmpty $rootScope.user
       return true if _.pluck(vm.lookup['Contributions'],'contributorId')
       .indexOf($rootScope.user.id) > -1
       # return vm.event?.contributorIds?.indexOf($rootScope.user.id) > -1
       return false
 
     isOwner: ()->
-      return false if !$rootScope.user
+      return false if _.isEmpty $rootScope.user
       return vm.event?.ownerId == $rootScope.user.id
   }
 
@@ -138,6 +138,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
       next = i + 1
       if values[next] == 'contribute'
+        if !vm.event.summary # not ready
+          return vm.on.menuView(next, peek) # skip
         if vm.acl.isParticipant() == false
           return vm.on.menuView(next, peek) # skip
         if vm.event.summary.myParticipation.isFullyParticipating
