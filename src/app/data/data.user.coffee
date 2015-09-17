@@ -9,6 +9,7 @@ UsersResource = (Resty, amMoment) ->
       username   : 'mixersoft'
       displayName: 'Michael'
       face       : "http://snappi.snaphappi.com/svc/storage/DEQBCEektV/.thumbs/bm~me-2015.jpg"
+      about      : ""
     0:
       firstname  : 'Masie'
       lastname   : 'May'
@@ -34,6 +35,50 @@ UsersResource = (Resty, amMoment) ->
       displayName: 'chuchu'
       face       : Resty.lorempixel 200, 200, 'people'
 
+    21:
+      firstname  : 'Jordan'
+      lastname   : ''
+      username   : ''
+      displayName: ''
+      face       : null
+    22:
+      firstname  : 'Katerina'
+      lastname   : ''
+      username   : ''
+      displayName: ''
+      face       : null
+    23:
+      firstname  : 'Martin'
+      lastname   : ''
+      username   : ''
+      displayName: ''
+      face       : null
+    24:
+      firstname  : 'Misho'
+      lastname   : ''
+      username   : ''
+      displayName: ''
+      face       : null
+    25:
+      firstname  : 'Pamela'
+      lastname   : ''
+      username   : ''
+      displayName: ''
+      face       : null
+    26:
+      firstname  : 'Stassos'
+      lastname   : ''
+      username   : ''
+      displayName: ''
+      face       : null
+    27:
+      firstname  : 'Tony'
+      lastname   : ''
+      username   : ''
+      displayName: ''
+      face       : null
+
+
   }
   # coffeelint: enable=max_line_length
   # add id to lorempixel urls
@@ -41,8 +86,15 @@ UsersResource = (Resty, amMoment) ->
     v.face += k if /lorempixel/.test v.face
     return
 
+
     
-  return service = new Resty(data)
+  service = new Resty(data)
+
+  service.randomFaceUrl = (id)->
+    id = Date.now() if `id==null`
+    return Resty.lorempixel( 200, 200, 'people') + (id % 11)
+
+  return service
 
 
 UsersResource.$inject = ['Resty','amMoment']

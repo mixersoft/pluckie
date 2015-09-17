@@ -25,7 +25,8 @@ Resty = ($q) ->
 
 
   RestyClass::get = (id) ->
-    if id=='all' || `id==null`
+    return $q.when {} if `id==null`
+    if id=='all'
       result = _.chain( @_data )
       .each (v,k)-> v.id = k
       .value()

@@ -1,0 +1,28 @@
+//- people/sign-up.modal.html
+ion-modal-view
+  ion-content
+    form(name="registerForm" novalidate="" ng-submit="vm.on.register(person, closeModal)")
+      div.list.card 
+        div.item
+          button.button.button-block.button-positive.light.icon.ion-social-facebook(
+            ng-click="vm.on.notReady('Facebook Connect')"
+            ) &nbsp; Sign-up with Facebook
+        div.item
+          div.text-center.larger &mdash; or &mdash;
+        div.padding-horizontal
+          label.item.item-input
+            i.icon.ion-person.padding-horizontal.larger
+            input(type="text" name="Username" placeholder="Username" ng-model="person.username" required)
+          label.item.item-input
+            i.icon.ion-email.padding-horizontal.larger
+            input(type="text" name="Email" placeholder="Email" ng-model="person.email" required)
+          label.item.item-input
+            i.icon.ion-locked.padding-horizontal.larger
+            input(type="password" name="Password" placeholder="Password" ng-model="person.password" required)
+          label.item.item-input.hide
+            i.icon.ion-locked.padding-horizontal.larger
+            input(type="password" name="PasswordRepeat" placeholder="Again" ng-model="person.passwordRepeat")
+          div.item
+            div.button-bar
+              button.button.button-balanced.button-outline(ng-click="closeModal('CANCELED')") Cancel
+              button.button.button-balanced(type="submit") Sign up

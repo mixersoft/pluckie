@@ -16,7 +16,7 @@ ion-modal-view
           div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
             img(ng-src="{{contrib.contributor.face}}")
             div.pull-right {{contrib.portions}} portions
-            b(ng-init="person = contrib.contributor") {{[person.firstname,person.lastname].join(' ') }}
+            b(ng-init="person = contrib.contributor") {{person.displayName || [person.firstname,person.lastname].join(' ') }}
             a(ng-if="mitem.link" ng-href="mitem.link")
       div.item.item-icon-left
         i.icon.ion-fork 
@@ -28,7 +28,7 @@ ion-modal-view
       div.list {{contribution = myContribution.contribution;''}}
         div.item.item-avatar 
           img(ng-src="{{me.face}}")
-          b {{[me.firstname,me.lastname].join(' ') }} - You are about to contribute this {{mitem.category}}.
+          b {{me.displayName }} - You are about to contribute this {{mitem.category}}.
         label.item.item-input
           span.input-label Number of Portions
           input(type="text" name="portions" min="1" max="{{mitem.summary.portionsRemaining}}" ng-model="contribution.portions")
@@ -42,7 +42,7 @@ ion-modal-view
 
         div.item
           div.button-bar
-            button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
+            button.button.button-positive.button-outline(ng-click="closeModal('CANCELED')") Cancel
             button.button.button-positive(type="submit") Contribute
 
 

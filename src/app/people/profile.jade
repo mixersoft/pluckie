@@ -15,11 +15,9 @@ ion-view(view-title="{{vm.title}}")
         div.text-center.padding
           h2.light.text-center {{person.displayName}}
           img.face(ng-src="{{person.face}}")
-    div.text-center 
+    div.text-center(ng-if="vm.me != person") 
       h2.capitalize {{person.firstname}} {{person.lastname}}
       button.button.icon-left.icon.ion-chatbox Contact Me
-
-    
 
     div#admin-change-user.content.row.responsive-sm
       div.col.col-offset-25.col-50
@@ -41,7 +39,7 @@ ion-view(view-title="{{vm.title}}")
                 ng-click="dev.on.loginUser(person)"
               )
                 img(ng-src="{{person.face}}")
-                b {{[person.firstname,person.lastname].join(' ') }}
+                b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
                 p id = {{person.id}}
 
 

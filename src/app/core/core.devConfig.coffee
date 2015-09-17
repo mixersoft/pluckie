@@ -8,8 +8,15 @@ DevConfig = ($rootScope, UsersResource, $q, $log)->
       return $q.when( $rootScope.user ) if $rootScope.user? && !force
       return UsersResource.get( id ).then (user)->
         $log.info "Sign-in for id=" + user.id
-        return $rootScope['user'] = user
-
+        if !_.isEmpty(user) && !user.displayName
+          displayName = []
+          displayName.push user.firstname if user.firstname
+          displayName.push user.lastname if user.lastname
+          displayName = [user.username] if user.username
+          user.displayName = displayName.join(' ')
+        $rootScope['user'] = user
+        $rootScope.$emit 'user:sign-in', $rootScope['user']
+        return $rootScope['user']
   }
   
   return self # DevConfig

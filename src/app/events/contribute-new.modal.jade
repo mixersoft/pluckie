@@ -8,7 +8,7 @@ ion-modal-view
       div.list.padding {{contribution = myContribution.contribution;''}}
         div.item.item-avatar 
           img(ng-src="{{me.face}}")
-          div.wrap #[b{{[me.firstname,me.lastname].join(' ') }}]: You are about to contribute a new Menu Item.
+          div.wrap #[b{{me.displayName }}]: You are about to contribute a new Menu Item.
         label.item.item-input.item-floating-label
           span.input-label Title
           input(type="text" name="Title" placeholder="Title" ng-model="mitem.title")
@@ -43,7 +43,7 @@ ion-modal-view
           textarea(ng-model="contribution.comment" placeholder="Add a message to announce your contribution!" maxlength="165")
         div.item
           div.button-bar
-            button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
+            button.button.button-positive.button-outline(ng-click="closeModal('CANCELED')") Cancel
             button.button.button-positive(type="submit") Contribute
 
 

@@ -157,7 +157,7 @@ ion-view(view-title="{{vm.title}}")
                         ng-click="vm.on.gotoState('app.profile','id',host)"
                         )
                       div.pull-right {{contrib.portions}} portions
-                      b {{[person.firstname,person.lastname].join(' ') }}
+                      b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
                       p.muted {{contrib.comment}}
 
               div.list.menu-item(ng-switch-when="contribute")
@@ -177,7 +177,7 @@ ion-view(view-title="{{vm.title}}")
                       img(
                         ng-src="{{person.face}}")
                       div.pull-right {{contrib.portions}} portions
-                      b {{[person.firstname,person.lastname].join(' ') }}
+                      b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
                       p.muted {{contrib.comment}}
                     div.item.btn-contribute(
                       ng-if="vm.acl.isParticipant() && !mitem.summary.isContributed" 
@@ -248,7 +248,7 @@ ion-view(view-title="{{vm.title}}")
                       ng-click="vm.on.gotoState('app.profile','id',host)"
                       )
                     span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
-                    b {{[person.firstname,person.lastname].join(' ') }}
+                    b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
                     div.seats.pull-right(ng-if="particip.seats > 1") + {{particip.seats - 1}} other{{particip.seats>2 ? 's' : ''}}
                     div.comment.muted {{particip.comment}}
                   
@@ -274,7 +274,7 @@ ion-view(view-title="{{vm.title}}")
                     )
                   span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
                   div
-                    b.name {{[person.firstname,person.lastname].join(' ') }}
+                    b.name {{ person.displayName }}
                     &nbsp;
                     b.seats ({{myPart.seats}} seat{{myPart.seats>1 ? 's' : ''}})
                   div.comment.muted {{myPart.comment}}
@@ -419,7 +419,7 @@ ion-view(view-title="{{vm.title}}")
                 )
                   img(ng-src="{{person.face}}")
                   span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
-                  b {{[person.firstname,person.lastname].join(' ') }}
+                  b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
                   p role: {{dev.on.getRoleLabel(person)}}
 
 

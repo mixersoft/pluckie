@@ -79,6 +79,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       
 
   vm.acl = {
+    isAnonymous: ()->
+      return true if _.isEmpty $rootScope.user
+      return false
     isVisitor: ()->
       return true if _.isEmpty $rootScope.user
       return !vm.acl.isParticipant()
@@ -123,7 +126,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     notReady: (value)->
       toastr.info "Sorry, " + value + " is not available yet"
-      return
+      return false
 
     menuView: (value, peek=false)->
       values = ['less','more','contribute','less']
@@ -162,20 +165,112 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       $state.transitionTo state, params
       return
 
+    showSignIn: ()->
+      slideCtrl = {
+        index: null
+        slideLabels: ['signup', 'signin']
+        initialSlide: 'signin'
+        setSlide: (label)->
+          if slideCtrl.index==null
+            $timeout ()->
+              # ionSlideBox not yet initialized/compiled, wrap in $timeout
+              # $log.info "timeout(0)"
+              label = slideCtrl.initialSlide if !label
+              return slideCtrl.setSlide(label)
+            return slideCtrl.index = 0
+
+          return slideCtrl.index if `label==null` # for active-slide watch
+
+          label = slideCtrl.initialSlide if label == 'initial'
+          i = slideCtrl.slideLabels.indexOf(label)
+          next = if i >= 0 then i else slideCtrl.index
+          return slideCtrl.index = next
+      }
+      return $q.when()
+      .then ()->
+        return appModalSvc.show('people/sign-in-sign-up.modal.html', vm, {
+          person: {}
+          slideCtrl: slideCtrl
+        })
+      .then (result)-> # closeModal(result)
+        return $q.reject('CANCELED') if `result==null` || result == 'CANCELED'
+        return $q.reject(result) if result?['isError']
+        return result
+
+    signIn: (person, fnComplete)->
+      return $q.when()
+      .then (result)->
+        # TODO: do password sign-in
+        return UsersResource.query({username:person.username})
+      .then (results)->
+        if results.length
+          return person = results.shift()
+        return $q.reject("NOT FOUND")
+      .then (person)->
+        return devConfig.loginUser( person.id , true)
+        .then (user)->
+          return fnComplete?(user) || user
+      .catch (err)->
+        if err == 'NOT FOUND'
+          toastr.warning "The Username/password combination was not found. Please try again."
+          return false # try again
+
+        if _.isString err
+          err = {
+            message: err
+          }
+        err['isError'] = true
+        return fnComplete?(err) || err
+
+    register: (person, fnComplete)->
+      return $q.when()
+      .then (result)->
+        return $q.reject('REQUIRED VALUE') if !person.username
+        return UsersResource.query({username:person.username})
+      .then (results)->
+        if results.length
+          return $q.reject('DUPLICATE USERNAME')
+        person.face = UsersResource.randomFaceUrl()
+        return UsersResource.post(person)
+      .then (person)->
+        return devConfig.loginUser( person.id , true)
+        .then (user)->
+          return fnComplete?(user) || user
+      .catch (err)->
+        if err == 'REQUIRED VALUE'
+          toastr.warning "Expecting a useranme. Please try again."
+          return false # try again
+        if err == 'DUPLICATE USERNAME'
+          toastr.warning "That username was already taken. Please try again."
+          return false # try again
+
+        if _.isString err
+          err = {
+            message: err
+          }
+        err['isError'] = true
+        return fnComplete?(err) || err
 
     beginBooking: (person, event)->
-      appModalSvc.show('events/booking.modal.html', vm, {
-        myBooking :
-          person: person
-          event: event
-          booking:
-            userId: person.id
-            seats: 1
-            comment: null
-      })
+      return $q.when()
+      .then ()->
+        if _.isEmpty person
+          return vm.on.showSignIn()
+          .then (result)->
+            return person = result
+      .then ()->
+        return appModalSvc.show('events/booking.modal.html', vm, {
+          myBooking :
+            person: person
+            event: event
+            booking:
+              userId: person.id
+              seats: 1
+              comment: null
+        })
       .then (result)->
         $log.info "Contribute Modal resolved, result=" + JSON.stringify result
-      return
+
     submitBooking: (booking, onSuccess)->
       # some sanity checks
       if vm.event.id != booking.event.id
@@ -698,15 +793,13 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   # toastr.info "Creating EventDetailCtrl"
 
   $scope.$on 'event:participant-changed', (ev, options)->
-    check = options
     event = vm.event
     getDerivedValues_Event(event)
-    getDerivedValues_MenuItems(event)
+    # getDerivedValues_MenuItems(event)
     # push notification to host + participants
     return
 
   $scope.$on 'event:contribution-changed', (ev, options)->
-    check = options
     event = vm.event
     getDerivedValues_Event(event)
     getDerivedValues_MenuItems(event)
@@ -721,6 +814,26 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   $scope.$on '$ionicView.enter', (e) ->
     $log.info "viewEnter for EventDetailCtrl"
     activate()
+
+  $rootScope.$on 'user:sign-in', (ev, user)->
+    return if _.isEmpty( vm.event )
+
+    #ready
+    vm.me = $rootScope.user
+
+    # TODO: fire 'event:participant-changed'
+    vm.lookup['Users'][vm.me.id] = vm.me
+
+    $q.when(vm.event)
+    .then (event)->
+      getDerivedValues_Event(event)
+      return event
+    .then (event)->
+      # TODO: reset on 'event:participant-changed'
+      vm.setVisibleLocation(event)
+      getMap(event)
+      return event
+
 
 
   $scope.dev = {

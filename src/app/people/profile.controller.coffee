@@ -1,7 +1,7 @@
 'use strict'
 
 ProfileCtrl = (
-  $scope, $rootScope, $location, $stateParams
+  $scope, $rootScope, $q, $location, $timeout, $state, $stateParams
   $ionicScrollDelegate
   $log, toastr
   UsersResource
@@ -21,6 +21,8 @@ ProfileCtrl = (
   }
   vm.settings = {
     show: 'less'
+    editing: false
+    changePassword: false
   }
   vm.on = {
     scrollTo: (anchor)->
@@ -33,6 +35,11 @@ ProfileCtrl = (
         next = if vm.settings.show == 'less' then 'more' else 'less'
         return vm.settings.show = next
       return vm.settings.show = value
+    resetForm: ()->
+      vm.person = angular.copy(vm.me)
+      $timeout ()->
+        vm.settings.editing = false
+      return
   }
 
   $scope.dev = {
@@ -53,6 +60,22 @@ ProfileCtrl = (
           $scope.dev.settings.show = 'less'
           activate()
           return user
+      updateProfile: (person, changePassword)->
+        if changePassword.new?
+          # validate changePassword.old
+          promise = $q.when changePassword
+        else
+          promise = $q.when()
+        promise
+        .catch (o)->
+          # error updating password
+          return o
+        .then ()->
+          # update profile attributions
+          id = vm.me.id
+          return UsersResource.put(id, person)
+
+
   }
 
   initialize = ()->
@@ -65,15 +88,26 @@ ProfileCtrl = (
       vm.on.scrollTo()
 
   activate = ()->
+    vm.settings.editing = false
+    vm.settings.changePassword = false
     userid = $stateParams.id
-    if !userid || userid == vm.me.id
+    if !userid
+      # me, copy in case we need to reset
+      vm.person = angular.copy(vm.me)
+      promise = $q.when vm.person
+    else if userid == vm.me.id
       vm.person = vm.me
+      promise = $q.when vm.person
     else
-      UsersResource.get(userid)
+      promise = UsersResource.get(userid)
       .then (user)->
-        vm.person = user
-        return
-    return
+        return vm.person = user
+    return promise
+
+  $scope.$watch 'vm.person', (newV, oldV)->
+    vm.settings.editing = true if $state.is('app.me')
+  , true
+
 
   $scope.$on '$ionicView.loaded', (e)->
     $log.info "viewLoaded for ProfileCtrl"
@@ -87,7 +121,7 @@ ProfileCtrl = (
 
 
 ProfileCtrl.$inject = [
-  '$scope', '$rootScope', '$location','$stateParams'
+  '$scope', '$rootScope', '$q', '$location', '$timeout', '$state', '$stateParams'
   '$ionicScrollDelegate'
   '$log', 'toastr'
   'UsersResource'

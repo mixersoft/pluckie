@@ -27,7 +27,7 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
       div.list {{ booking = myBooking.booking;'' }}
         div.item.item-avatar
           img(ng-src="{{me.face}}")
-          b {{[me.firstname,me.lastname].join(' ') }} - You are about to join this event.
+          b {{me.displayName }} - You are about to join this event.
         label.item.item-input
           span.input-label Number of People
           input(type="text" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="booking.seats")
@@ -47,7 +47,7 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
         //-     Contribute
         div.item
           div.button-bar
-            button.button.button-positive.button-outline(ng-click="closeModal()") Cancel
+            button.button.button-positive.button-outline(ng-click="closeModal('CANCELED')") Cancel
             button.button.button-positive(type="submit") Join
 
 

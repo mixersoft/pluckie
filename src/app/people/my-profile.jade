@@ -1,0 +1,103 @@
+// people/profile.jade
+ion-view(view-title="{{vm.title}}")
+  //- ion-nav-bar.bar-balanced
+  //-   button.button.back-button.button-clear.header-item.icon.ion-ios-arrow-back(
+  //-     ng-click="$ionicGoBack()"
+  //-     ) Back
+  ion-content#profile.has-header.light-bg {{me=vm.me;''}}
+    div.hero-a
+      div.content
+        div.hero-wrap.has-mask-reverse
+          div.hero-bg.blur(ng-style="vm.imgAsBg(me.face)")
+        div.hero-toolbar.padding
+          i.padding-left.icon.ion-heart.dark
+          i.padding-left.icon.ion-ios-upload.dark
+        div.text-center.padding
+          h2.light.text-center {{me.displayName}}
+          img.face(ng-src="{{me.face}}")
+
+    div#description.content.row.responsive-sm
+      div.col.col-offset-25.col-50 {{person=vm.person;''}}
+        form(name="updateProfile" novalidate="" ng-submit="vm.on.updateProfile(person, changePass);")
+          div.list
+            label.item.item-input
+              i.icon.ion-person.padding-horizontal.larger
+              input(type="text" name="Username" placeholder="Username" ng-model="person.username")
+            label.item.item-input
+              i.icon.ion-email.padding-horizontal.larger
+              input(type="text" name="Email" placeholder="Email" ng-model="person.email")    
+
+            div.change-password
+              div.item(
+                ng-hide="vm.settings.changePassword"
+                )
+                div.text-center
+                  button.button.button-positive.button-small(
+                    ng-click="vm.settings.changePassword = true"
+                  ) Change Password
+              div(
+                ng-show="vm.settings.changePassword"
+                ) {{ changePass = {};'' }}  
+                label.item.item-input
+                  i.icon.ion-locked.padding-horizontal.larger
+                  input(type="password" name="Password" placeholder="Current Password" ng-model="changePass.old")
+                label.item.item-input
+                  i.icon.ion-locked.padding-horizontal.larger
+                  input(type="password" name="Password" placeholder="New Password" ng-model="changePass.new")
+                label.item.item-input
+                  i.icon.ion-locked.padding-horizontal.larger
+                  input(type="password" name="Password" placeholder="Password (Again)" ng-model="changePass.again")  
+            
+            label.item.item-input
+              span.input-label First Name
+              input(type="text" name="First" placeholder="First" ng-model="person.firstname")
+            label.item.item-input
+              span.input-label Last Name
+              input(type="text" name="Last" placeholder="Last" ng-model="person.lastname")
+            label.item.item-input
+              span.input-label Face
+              input(type="text" name="Last" placeholder="http://..." ng-model="person.face")
+            label.item.item-input.item-stacked-label.padding-right
+              span.input-label About Me
+              textarea(ng-model="person.about" placeholder="Tell us about yourself..." maxlength="1024")
+            div.item
+              div.button-bar
+                button.button.button-positive.button-outline(
+                  ng-click="vm.on.resetForm();closeModal('CANCELED')"
+                  ng-class="{disabled:vm.settings.editing==false}"
+                  ) Cancel
+                button.button.button-positive(
+                  type="submit"
+                  ng-class="{disabled:vm.settings.editing==false}"
+                  ) Update
+
+        
+
+        div#admin-change-user.content.row.responsive-sm
+          div.col.col-offset-25.col-50
+            div.row(ng-hide="dev.settings.show=='admin'")
+              div.col
+                div.padding.text-center
+                  button.button.button-assertive.icon.ion-gear-b(
+                    ng-click="dev.on.selectUser()"
+                    )
+                    span.padding-left Change User
+            div.row(ng-show="dev.settings.show=='admin'")
+              div.col
+                div.list.card.condensed
+                  div.item.item-assertive.item-icon-right
+                    h2.title.light Select User for Testing
+                    i.light.icon.ion-close(ng-click="dev.settings.show='less'")
+                  a.item.item-avatar(
+                    ng-repeat="person in vm.people"
+                    ng-click="dev.on.loginUser(person)"
+                  )
+                    img(ng-src="{{person.face}}")
+                    b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
+                    p id = {{person.id}}
+
+
+
+
+
+
