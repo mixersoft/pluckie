@@ -238,6 +238,22 @@ label.inline-field {
 }
 
 
+
+.item-input {
+  input.selectable {
+    cursor: default !important;
+    background-color: #EEE;
+    padding-left: 10px;
+    padding-right: 10px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &.item-icon-right {
+    padding-right: 54px
+  }
+}
+
+
 #discover {  
   /*unused*/
   @media(min-width: 750px) {
@@ -380,5 +396,12 @@ $hero-wrap-bg-height: 170px;
     @media(max-width: $grid-responsive-sm-break) {
       height: $map-height-sm;
     }
+  }
+}
+
+
+#sign-in-sign-up {
+  .slider, .scroll, .box, .row {
+    height: 100%;
   }
 }

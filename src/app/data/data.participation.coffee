@@ -23,6 +23,11 @@ ParticipationsResource = (Resty, amMoment) ->
       participantId: '1'
       seats: 1
       comment: 'Your host'
+    11:
+      eventId: '1'
+      participantId: '0'
+      seats: 1
+      comment: 'MasieMay in the house!'
     20:
       eventId: '2'
       participantId: '10'

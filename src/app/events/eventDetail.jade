@@ -304,7 +304,14 @@ ion-view(view-title="{{vm.title}}")
                   div.button.button-balanced.icon.ion-android-add-circle(
                     ng-click="vm.on.menuView('contribute')"
                   ).
-                    Contribute
+                    &nbsp; Contribute
+                h5.balanced.padding-horizontal Share
+                div.item.button-full
+                  div.button.button-balanced.icon.ion-ios-upload(
+                    ng-click="vm.on.showShareLink(item)"
+                  ).
+                    &nbsp; Share
+
 
 
 

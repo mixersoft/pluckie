@@ -38,12 +38,23 @@ EventsResource = (Resty, amMoment) ->
       # menuItems: {}         # see vm.lookup['MenuItems']
 
       setting:
+        # isExclusive: false   # invite Only
+        # canForward: true     # guests can forward invites
+        # hideAddress: true    # only guests see address
+        # hasWaitlist: true    # use waitlist if full
+        # feedVisibility: "public"  # [public|guests|none]
+        # fixedMenu: false    # only host can update menu Items
         isExclusive: false   # invite Only
-        canForward: true     # guests can forward invites
-        hideAddress: true    # only guests see address
-        hasWaitlist: true    # use waitlist if full
+        denyForward: false     # guests can forward invites
+        denyGuestShare: false # guests can share event, same as denyForward
+        denyRsvpFriends: false # guests can rsvp friends
+        rsvpFriendsLimit: 12 # guests rsvp limit for friends
+        allowSuggestedFee: false # monentary fee in lieu of donation
+        allowPublicAddress: false    # only guests see address
+        denyParticipantList: false # guests can see Participants
+        denyWaitlist: true    # use waitlist if full
         feedVisibility: "public"  # [public|guests|none]
-        fixedMenu: false    # only host can update menu Items
+        denyAddMenu: false    # only host can update menu Items
 
       wrapUp:
         rating: null          # guest ratings
@@ -89,11 +100,16 @@ EventsResource = (Resty, amMoment) ->
 
       setting:
         isExclusive: false   # invite Only
-        canForward: true     # guests can forward invites
-        hideAddress: true    # only guests see address
-        hasWaitlist: true    # use waitlist if full
-        feedVisibility: "public"  # [public|participants|host]
-        fixedMenu: false    # only host can update menu Items
+        denyForward: false     # guests can forward invites
+        denyGuestShare: false # guests can share event, same as denyForward
+        denyRsvpFriends: false # guests can rsvp friends
+        rsvpFriendsLimit: 12 # guests rsvp limit for friends
+        allowSuggestedFee: false # monentary fee in lieu of donation
+        allowPublicAddress: false    # only guests see address
+        denyParticipantList: false # guests can see Participants
+        denyWaitlist: true    # use waitlist if full
+        feedVisibility: "public"  # [public|guests|none]
+        denyAddMenu: true    # only host can update menu Items
 
       wrapUp:
         rating: null          # guest ratings
@@ -138,12 +154,17 @@ EventsResource = (Resty, amMoment) ->
       # menu:    # menu ideas
 
       setting:
-        isExclusive: false   # invite Only
-        canForward: true     # guests can forward invites
-        hideAddress: true    # only guests see address
-        hasWaitlist: true    # use waitlist if full
+        isExclusive: true   # invite Only
+        denyForward: false     # guests can forward invites
+        denyGuestShare: false # guests can share event, same as denyForward
+        denyRsvpFriends: false # guests can rsvp friends
+        rsvpFriendsLimit: 12 # guests rsvp limit for friends
+        allowSuggestedFee: false # monentary fee in lieu of donation
+        allowPublicAddress: false    # only guests see address
+        denyParticipantList: false # guests can see Participants
+        denyWaitlist: true    # use waitlist if full
         feedVisibility: "public"  # [public|guests|none]
-        fixedMenu: false    # only host can update menu Items
+        denyAddMenu: false    # only host can update menu Items
 
       wrapUp:
         rating: null          # guest ratings

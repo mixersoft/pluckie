@@ -3,8 +3,9 @@
 EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   $ionicHistory, $location, $ionicScrollDelegate, $ionicModal
   $log, toastr, exportDebug
-  EventsResource, UsersResource, MenuItemsResource, ParticipationsResource
-  ContributionsResource
+  EventsResource, UsersResource, MenuItemsResource
+  EventActionHelpers
+  ParticipationsResource, ContributionsResource, TokensResource
   appModalSvc
   utils, devConfig
   ionicMaterialMotion, ionicMaterialInk
@@ -165,6 +166,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       $state.transitionTo state, params
       return
 
+    'getShareLink': ()->EventActionHelpers.getShareLink.apply(vm, arguments)
+    'showShareLink': ()->EventActionHelpers.showShareLink.apply(vm, arguments)
+
     showSignIn: ()->
       slideCtrl = {
         index: null
@@ -253,6 +257,15 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     beginBooking: (person, event)->
       return $q.when()
+      .then ()->
+        if event.setting.isExclusive
+          return TokensResource.isValid($stateParams.invitation, 'Event', event.id)
+      .catch (result)->
+        $log.info "Token check, value="+result
+        toastr.info "Sorry, this event is by invitation only." if result=='INVALID'
+        if result=='EXPIRED'
+          toastr.warning "Sorry, this invitation has expired. Please contact the host for another."
+        return $q.reject(result)
       .then ()->
         if _.isEmpty person
           return vm.on.showSignIn()
@@ -742,9 +755,22 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     return event
 
   getData = () ->
-    $ionicHistory.goBack() if !$stateParams.id
-    id = $stateParams.id
-    getEvent(id)
+    return $q.when()
+    .then ()->
+      if !$stateParams.id
+        return $q.reject('MISSING_ID') if !$stateParams.invitation
+        return TokensResource.get($stateParams.invitation)
+        .then (token)->
+          return $q.reject('INVALID') if TokensResource.isTokenValid(token) == false
+          [className, eventId] = token.target.split(':')
+          return $q.reject('INVALID') if className != 'Event'
+          return eventId
+      return eventId = $stateParams.id
+    .catch (err)->
+      $ionicHistory.goBack()
+      return $q.reject()
+    .then (eventId)->
+      return getEvent(eventId)
     .then (event)->
       getEventUsers(event)
     .then (event)->
@@ -874,8 +900,9 @@ EventDetailCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$timeout', '$state', '$stateParams'
   '$ionicHistory', '$location', '$ionicScrollDelegate', '$ionicModal'
   '$log', 'toastr', 'exportDebug'
-  'EventsResource', 'UsersResource', 'MenuItemsResource', 'ParticipationsResource'
-  'ContributionsResource'
+  'EventsResource', 'UsersResource', 'MenuItemsResource'
+  'EventActionHelpers'
+  'ParticipationsResource', 'ContributionsResource', 'TokensResource'
   'appModalSvc'
   'utils', 'devConfig'
   'ionicMaterialMotion', 'ionicMaterialInk'
