@@ -28,7 +28,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   # # TODO: hide event.address, event.location from JS introspection,
   #         reload values on `event:participant-changed`
   ###
-  vm.setVisibleLocation = (event, user) ->
+  setVisibleLocation = (event, user) ->
     userid = (user || vm.me || {}).id
     event.visibleAddress = event.neighborhood
     participantIds = _.pluck vm.lookup['Participations'], 'participantId'
@@ -47,7 +47,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   ###
   # these are hasMany or belongsTo lookups
   ###
-  vm.getParticipationByUser = (user)->
+  getParticipationByUser = (user)->
     # TODO: memo result in vm.lookup
     return false if !user
     participation = _.find vm.lookup['Participations'], {participantId: user.id}
@@ -470,8 +470,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     event.seatsOpen = Math.max(0, event.seatsTotal - summary.booking['seats'])
 
     if vm.acl.isParticipant()
-      # event.myParticipation = vm.getParticipationByUser(vm.me)
-      vm.lookup['MyParticipation'] = vm.getParticipationByUser(vm.me)
+      # event.myParticipation = getParticipationByUser(vm.me)
+      vm.lookup['MyParticipation'] = getParticipationByUser(vm.me)
       myParticipation = summary['myParticipation']
       myParticipation['isFullyParticipating'] = false
 
@@ -606,7 +606,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         vm.event['participantIds'].push result.participantId
       vm.lookup['Participations'][result.id] = result
       vm.lookup['Users'][result.participantId] = person
-      vm.lookup['MyParticipation'] = vm.getParticipationByUser(person)
+      vm.lookup['MyParticipation'] = getParticipationByUser(person)
       $scope.$broadcast 'lookup-data:changed', {className:'Participations'}
       return result
     .then (participation)->
@@ -788,7 +788,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       return event
     .then (event)->
       # TODO: reset on 'event:participant-changed'
-      vm.setVisibleLocation(event)
+      setVisibleLocation(event)
       getMap(event)
       return event
 
@@ -858,7 +858,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       return event
     .then (event)->
       # TODO: reset on 'event:participant-changed'
-      vm.setVisibleLocation(event)
+      setVisibleLocation(event)
       getMap(event)
       return event
 
