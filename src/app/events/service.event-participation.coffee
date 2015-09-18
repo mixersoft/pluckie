@@ -15,12 +15,11 @@ EventActionHelpers = ($rootScope, $q, $location, $stateParams
         target = ['Event', event.id].join(':')
         return TokensResource.query({target: target})
       .then (results)->
-        # TODO: check invitation for expiration
-        # use first invitation
-        if results.length
-          token = results.shift()
-          return token if TokensResource.isTokenValid(token)
-        return $q.reject('NONE')
+        # return token if TokensResource.isTokenValid(token)
+        tokens = _.filter results, (token)->
+          return TokensResource.isTokenValid(token)
+        return $q.reject('NONE') if _.isEmpty tokens
+        return tokens
       .catch (err)->
         return $q.reject(err) if /EXPIRED|INVALID|NONE/.test(err) == false
         # TODO: check permission to create new Token
@@ -32,17 +31,25 @@ EventActionHelpers = ($rootScope, $q, $location, $stateParams
           expireDate: event.startTime
           accessors:[]
         }
-        return TokensResource.post(token)
-      .then (token)->
+        return TokensResource.post(token).then (token)->
+          return [tokens]
+      .then (tokens)->
         path = $location.path()
         origin = $location.absUrl().slice(0, -1*path.length)
         eventLink = origin + '/app/event-detail/' + event.id
-        invitationLink = origin + '/app/invitation/' + token.id
         shareLinks = {
           'event': if event.setting.isExclusive then false else eventLink
-          'invitation': if event.setting.denyForward then false else invitationLink
-          # 'token': if event.setting.denyForward then false else token
         }
+        if event.setting.denyForward && vm.me.id != vm.event.ownerId
+          shareLinks['invitations'] = false
+        else
+          shareLinks['invitations'] = _.map tokens, (token)->
+            return {
+              link: origin + '/app/invitation/' + token.id
+              views: token.views
+              remaining: token.expireCount - token.views
+              expires: moment(token.expireDate).fromNow()
+            }
         return shareLinks
 
     showShareLink: (event)->

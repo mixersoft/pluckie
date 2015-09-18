@@ -15,7 +15,7 @@ getStates = ->
   ,
     state: 'app.event-detail'
     config:
-      url: '/event-detail/:id?:invitation'
+      url: '/event-detail/:id'
       views:
         'menuContent':
           templateUrl: 'events/eventDetail.html'

@@ -758,17 +758,18 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   getData = () ->
     return $q.when()
     .then ()->
-      if !$stateParams.id
+      if !$state.params.id
         eventId = null
-        return $q.reject('MISSING_ID') if !$stateParams.invitation
-        return TokensResource.get($stateParams.invitation)
+        # BUG: $stateParams.invitation != $state.params.invitation
+        return $q.reject('MISSING_ID') if !$state.params.invitation
+        return TokensResource.get($state.params.invitation)
         .then (token)->
           # return $q.reject('INVALID') if !token
           [className, eventId] = token?.target.split(':')
           return TokensResource.isValid(token, 'Event', eventId)
         .then ()->
           return eventId
-      return eventId = $stateParams.id
+      return eventId = $state.params.id
     .catch (err)->
       $ionicHistory.goBack()
       return $q.reject()

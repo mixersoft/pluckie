@@ -17,6 +17,13 @@ TokensResource = (Resty, amMoment, $q) ->
       expireCount: 100
       expireDate: moment().weekday(4).add(14,'d').hour(20).startOf('hour').toJSON()
       accessors: []
+    '1234567':
+      ownerId: '1'
+      target: 'Event:1'  # ClassName:id
+      views: 3
+      expireCount: 10
+      expireDate: moment().weekday(4).add(7,'d').hour(20).startOf('hour').toJSON()
+      accessors: []
 
   }
   service = new Resty(data)
@@ -30,13 +37,12 @@ TokensResource = (Resty, amMoment, $q) ->
     .then (result)->
       target = [className,id].join(':')
       return $q.reject('INVALID') if result.target != target
-      return $q.reject('EXPIRED') if service.isTokenValid(result) == false
-      # save after incrementing token.views
+      result.views++  # increment views before checking validity
       skip = nakedPut.call(service, result.id, _.pick(result, ['views','accessors']))
+      return $q.reject('EXPIRED') if service.isTokenValid(result) == false
       return 'VALID'
 
   service.isTokenValid = (token)->
-    token.views++
     return false if token.views > token.expireCount
     return false if new Date() > new Date(token.expireDate)
     return true

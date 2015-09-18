@@ -19,17 +19,20 @@ ion-modal-view {{item=mm.item;''}}
           i.icon.ion-ios-upload
 
       //- # Share Invitation
-      div(ng-hide="mm.links.invitation")  
+      div(ng-hide="mm.links.invitations")  
         div.item
           div.larger Share Event
           p.wrap The host has asked that you not share invitations to this event.
-      div(ng-show="mm.links.invitation") 
+      div(ng-show="mm.links.invitations") 
         div.item
           div.larger Share Invitation
           p.wrap Share an invitation to this event and track responses, including 'no' and 'maybe'.
-        div.item.item-input.item-icon-right.item-stacked-label
+        div.item.item-input.item-icon-right.item-stacked-label(ng-repeat="invite in mm.links.invitations")
           i.icon.ion-ios-upload
-          input.selectable(type="text" name="share" ng-model="mm.links.invitation" onclick="this.select()" readonly)
+          input.selectable(type="text" name="share" ng-model="invite.link" onclick="this.select()" readonly)
+          div.row.fine.
+            Views: {{invite.views}}. Expires {{invite.expires}} or {{invite.remaining}} views.
+
 
       //- close
       div.item
