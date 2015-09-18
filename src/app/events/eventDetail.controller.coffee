@@ -258,7 +258,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     beginBooking: (person, event)->
       return $q.when()
       .then ()->
-        if event.setting.isExclusive
+        return true if $state.is('app.event-detail.invitation')
+        if event.setting.isExclusive || $stateParams.invitation
           return TokensResource.isValid($stateParams.invitation, 'Event', event.id)
       .catch (result)->
         $log.info "Token check, value="+result
@@ -758,12 +759,14 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     return $q.when()
     .then ()->
       if !$stateParams.id
+        eventId = null
         return $q.reject('MISSING_ID') if !$stateParams.invitation
         return TokensResource.get($stateParams.invitation)
         .then (token)->
-          return $q.reject('INVALID') if TokensResource.isTokenValid(token) == false
-          [className, eventId] = token.target.split(':')
-          return $q.reject('INVALID') if className != 'Event'
+          # return $q.reject('INVALID') if !token
+          [className, eventId] = token?.target.split(':')
+          return TokensResource.isValid(token, 'Event', eventId)
+        .then ()->
           return eventId
       return eventId = $stateParams.id
     .catch (err)->
@@ -788,7 +791,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       vm.setVisibleLocation(event)
       getMap(event)
       return event
-      
 
 
   setMaterialEffects = () ->
@@ -806,7 +808,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     #   })
     #   return
     # , 700
-    
+   
     # $timeout () ->
     #   ionicMaterialMotion.blinds({
     #     startVelocity: 3000

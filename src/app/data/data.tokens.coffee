@@ -25,12 +25,14 @@ TokensResource = (Resty, amMoment, $q) ->
     return $q.reject('INVALID') if !token
     return $q.when()
     .then ()->
-      return service.get(token)
+      return service.get(token) if _.isString token
+      return token
     .then (result)->
       target = [className,id].join(':')
       return $q.reject('INVALID') if result.target != target
-      skip = nakedPut.call(service, result.id, _.pick(result, ['views','accessors']))
       return $q.reject('EXPIRED') if service.isTokenValid(result) == false
+      # save after incrementing token.views
+      skip = nakedPut.call(service, result.id, _.pick(result, ['views','accessors']))
       return 'VALID'
 
   service.isTokenValid = (token)->
