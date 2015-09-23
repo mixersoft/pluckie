@@ -1,5 +1,5 @@
 //- people/sign-up.modal.html
-ion-modal-view#XXXsign-in-sign-up {{slideCtrl.setSlide();''}}
+ion-modal-view#sign-in-sign-up {{slideCtrl.setSlide();''}}
   ion-slide-box(
     delegate-handle="sign-in-sign-up"
     active-slide="slideCtrl.index"
@@ -17,7 +17,7 @@ ion-modal-view#XXXsign-in-sign-up {{slideCtrl.setSlide();''}}
               ng-click="vm.on.notReady('Facebook Connect')"
               ) &nbsp; Sign-up with Facebook
           div.item
-            div.text-center.larger &mdash; or &mdash;
+            div.text-center.muted.larger &mdash; or &mdash;
           div.padding-horizontal
             form(name="registerForm" novalidate="" ng-submit="vm.on.register(person, closeModal)")
               label.item.item-input

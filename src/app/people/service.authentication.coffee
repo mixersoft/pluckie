@@ -5,7 +5,7 @@
 AAAHelpers = ($rootScope, $q, $location, $stateParams
   UsersResource
   appModalSvc
-  devConfig, $log)->
+  devConfig, $log, toastr)->
   self = {
     signIn: (person, fnComplete)->
       return $q.when()
@@ -72,7 +72,7 @@ AAAHelpers = ($rootScope, $q, $location, $stateParams
 AAAHelpers.$inject = ['$rootScope', '$q', '$location', '$stateParams'
 'UsersResource'
 'appModalSvc'
-'devConfig', '$log']
+'devConfig', '$log', 'toastr']
 
 
 angular.module 'starter.profile'
