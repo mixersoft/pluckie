@@ -43,6 +43,22 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   vm.getLabel_MenuItemCategory = MenuItemsResource.getCategoryLabel
 
+  vm.isInvitation = ()->
+    return !!$state.params.invitation
+
+  isInvitationRequired = (event)->
+    return $q.when()
+    .then ()->
+      return true if $state.is('app.event-detail.invitation')
+      if event.setting.isExclusive || $state.params.invitation
+        return TokensResource.isValid($state.params.invitation, 'Event', event.id)
+    .catch (result)->
+      $log.info "Token check, value="+result
+      toastr.info "Sorry, this event is by invitation only." if result=='INVALID'
+      if result=='EXPIRED'
+        toastr.warning "Sorry, this invitation has expired. Please contact the host for another."
+      return $q.reject(result)
+
 
   ###
   # these are hasMany or belongsTo lookups
@@ -207,25 +223,48 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     register: (person, fnComplete)->
       return AAAHelpers.register.apply(vm, arguments)
 
+    'beginResponse': ()->
+      return EventActionHelpers.beginResponse.apply(vm, arguments)
+    
+
     beginBooking: (person, event)->
       return $q.when()
       .then ()->
-        return true if $state.is('app.event-detail.invitation')
-        if event.setting.isExclusive || $stateParams.invitation
-          return TokensResource.isValid($stateParams.invitation, 'Event', event.id)
-      .catch (result)->
-        $log.info "Token check, value="+result
-        toastr.info "Sorry, this event is by invitation only." if result=='INVALID'
-        if result=='EXPIRED'
-          toastr.warning "Sorry, this invitation has expired. Please contact the host for another."
-        return $q.reject(result)
-      .then ()->
-        if _.isEmpty person
-          return vm.on.showSignIn()
-          .then (result)->
-            return person = result
+        return isInvitationRequired(event)
+      # .then ()->
+      #   if _.isEmpty person
+      #     return vm.on.showSignIn()
+      #     .then (result)->
+      #       return person = result
       .then ()->
         return appModalSvc.show('events/booking.modal.html', vm, {
+          mm:   # mm == "modal model" instead of view model
+            isValidated: (booking)->
+              return false if vm.acl.isAnonymous()
+              return false if booking.seats < 1
+              return true
+            signInRegister: (action, person)->
+              # update booking user after sign in/register
+              return vm.on.showSignIn(action)
+              .then (result)->
+                _.extend person, result
+                return
+            submitBooking: (booking, onSuccess)->
+              # some sanity checks
+              if vm.event.id != booking.event.id
+                toastr.warning("You are booking for a different event. title=" +
+                  booking.event.title)
+              if vm.me.id != booking.person.id
+                toastr.warning("You are booking for a different person. name=" +
+                  booking.person.displayName)
+              if vm.event.participantIds[booking.booking.userId]
+                toastr.warning("You are replacing an existing booking for this userId")
+
+              vm.createBooking(booking).then (result)->
+                onSuccess?(result)
+                return result
+              return
+
           myBooking :
             person: person
             event: event
@@ -237,19 +276,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       .then (result)->
         $log.info "Contribute Modal resolved, result=" + JSON.stringify result
 
-    submitBooking: (booking, onSuccess)->
-      # some sanity checks
-      if vm.event.id != booking.event.id
-        toastr.warning("You are booking for a different event. title="+booking.event.title)
-      if vm.me.id != booking.person.id
-        toastr.warning("You are booking for a different person. name="+booking.person.displayName)
-      if vm.event.participantIds[booking.booking.userId]
-        toastr.warning("You are replacing an existing booking for this userId")
-
-      createBooking(booking).then (result)->
-        onSuccess?(result)
-        return result
-      return
+    
 
 
     beginContribute: (mitem)->
@@ -538,7 +565,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       distribution.pct[k] = Math.round( v / distribution.total * 100 )
     return distribution
 
-  createBooking = (options)->
+  vm.createBooking = (options)->
     booking = options.booking
     person = options.person
 
@@ -723,7 +750,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
           return eventId
       return eventId = $state.params.id
     .catch (err)->
-      $ionicHistory.goBack()
+      if $ionicHistory.backView()
+        $ionicHistory.goBack()
+      else
+        $state.transitionTo('app.events')
+        toastr.info "Oops, that invitation was not found."
       return $q.reject()
     .then (eventId)->
       return getEvent(eventId)

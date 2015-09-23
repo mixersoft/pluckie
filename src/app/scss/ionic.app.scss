@@ -405,3 +405,14 @@ $hero-wrap-bg-height: 170px;
     height: 100%;
   }
 }
+
+#invitation-response-modal {
+  .anonymous-response-card {
+    .input-label {
+      width: 25%;
+    }
+    .item.item-input input {
+      padding-right: 10px;
+    }
+  }
+}

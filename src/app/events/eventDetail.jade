@@ -211,20 +211,29 @@ ion-view(view-title="{{vm.title}}")
       div.larger.pull-right.positive Actions
       div#cp-booking.content.row.responsive-sm
         div.col.col-offset-25.col-50
-          div.row
-            div.col.text-left
-              div.list.booking
-                div.item.button-full(ng-if="vm.acl.isVisitor()")
-                  div.button.button-balanced.icon.ion-android-add-circle(
-                    ng-click="vm.on.beginBooking(vm.me, vm.event)"
-                  ).
-                    Join Event
+          div.list(ng-show="vm.isInvitation()")
+            div.item.button-full
+              div.button.button-balanced.icon.ion-chatbox(
+                ng-click="vm.on.beginResponse(vm.me, item)"
+              )
+                span.padding-left Respond
 
-                div.item.text-center
-                  div.button-bar
-                    div.button.icon.xxx-icon-left.ion-thumbsup Like
-                    div.button.icon.xxx-icon-left.ion-heart Favorite
-                    div.button.icon.xxx-icon-left.ion-ios-upload Share
+          div.list.booking(
+            ng-if="vm.acl.isVisitor()"
+            ng-hide="vm.isInvitation()"
+            )
+            div.item.button-full
+              div.button.button-balanced.icon.ion-android-add-circle(
+                ng-click="vm.on.beginBooking(vm.me, item)"
+              )
+                span.padding-left Join Event
+          
+
+            div.item.text-center(ng-show="false")
+              div.button-bar
+                div.button.icon.xxx-icon-left.ion-thumbsup Like
+                div.button.icon.xxx-icon-left.ion-heart Favorite
+                div.button.icon.xxx-icon-left.ion-ios-upload Share
 
 
 

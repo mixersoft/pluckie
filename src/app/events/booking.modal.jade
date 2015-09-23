@@ -3,14 +3,14 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
   ion-header-bar.bar-balanced
     h1.title Join {{ item.title }}
   ion-content
-    div.list.card.condensed
+    div.list.card.condensed {{host=vm.lookup['host'];''}}
       div.item.item-divider.item-positive
         div.light.larger {{item.title}}
-      div.item(ng-class="item.host.face ? 'item-avatar' : 'item-icon-left'")
-        img(ng-src="{{item.host.face}}" ui-sref="app.profile({id:'{{item.host.id}}'})")
-        i.icon.ion-person(ng-show="!item.host.face")
+      div.item.item-avatar
+        img(ng-src="{{host.face}}" ui-sref="app.profile({id:'{{host.id}}'})")
+        span.face-overlay(ng-if="!host.face" ng-bind="host.firstname[0]")
         h2 Hosted by 
-          b {{ [item.host.firstname,item.host.lastname].join(' ')  || item.ownerId }}
+          b {{ host.displayName }}
         p {{ item.startTime | amCalendar }} 
           span.dark ( {{item.summary.countdown}} )
       div.item.item-text-wrap
@@ -22,33 +22,46 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
         {{ item.seatsTotal }} seats / {{ item.seatsOpen }} open
 
 
-    form(name="bookingForm" novalidate="" ng-submit="vm.on.submitBooking(myBooking, closeModal)")
+    form(name="bookingForm" novalidate="" ng-submit="mm.submitBooking(myBooking, closeModal)")
 
       div.list {{ booking = myBooking.booking;'' }}
-        div.item.item-avatar
+        div.item.item-avatar(ng-if="vm.acl.isAnonymous()==false")
           img(ng-src="{{me.face}}")
+          span.face-overlay(ng-if="!me.face" ng-bind="me.firstname[0]")
           b {{me.displayName }} - You are about to join this event.
+
         label.item.item-input
           span.input-label Number of People
           input(type="text" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="booking.seats")
         div.item.range.range-positive
           i.icon.ion-ios-person.positive
-          input(type="range" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="booking.seats")
+          input(type="range" name="seats" min="0" max="{{item.seatsOpen}}" ng-model="booking.seats")
           i.icon.ion-ios-people.positive
         label.item.item-input.item-stacked-label
           span.input-label Comment
           textarea(ng-model="booking.comment" placeholder="Add a message to announce your participation!" maxlength="165")
 
-        //- div.item.item-text-wrap.button-full
-        //-   b Guests are asked to make a contribution to the event
-        //-   div.button.button-balanced.icon.ion-android-add-circle(
-        //-     ng-click="vm.on.menuView('contribute')"
-        //-   ).
-        //-     Contribute
+        div(ng-show="vm.acl.isAnonymous()")  
+          //- sign-in register joining
+          div.list.card.condensed.anonymous-response-card
+            div.item.item-divided.item-positive.
+              How You'll Appear
+            div.item.item-text-wrap.text-left.
+              You must sign-in or sign-up to join this event. 
+              This will allow us to manage your contribution to this event and also send notifications & messages.
+            div.item.positive.text-left.sign-in-sign-up
+              a.pull-right(ng-click="mm.signInRegister('signin', me)"). 
+                Have an account? Sign in
+              a(ng-click="mm.signInRegister('signup', me)").
+                Sign up
+
         div.item
           div.button-bar
             button.button.button-positive.button-outline(ng-click="closeModal('CANCELED')") Cancel
-            button.button.button-positive(type="submit") Join
+            button.button.button-positive(
+              type="submit"
+              ng-class="{disabled:mm.isValidated(booking)==false}"
+              ) Join
 
 
 

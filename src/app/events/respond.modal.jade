@@ -1,0 +1,115 @@
+//- event/respond.modal.html
+ion-modal-view#invitation-response-modal {{item=myResponse.event; me=myResponse.person;''}}
+  ion-header-bar.bar-balanced
+    h1.title Join {{ item.title }}
+  ion-content(
+    delegate-handle="invitation-response-modal"
+    )
+    div.list.card.condensed {{host=vm.lookup['host'];''}}
+      div.item.item-divider.item-positive
+        div.light.larger {{item.title}}
+      div.item(ng-class="host.face ? 'item-avatar' : 'item-icon-left'")
+        img(ng-src="{{host.face}}" ui-sref="app.profile({id:'{{host.id}}'})")
+        i.icon.ion-person(ng-show="!host.face")
+        h2 Hosted by 
+          b {{ [host.firstname,host.lastname].join(' ')  || item.ownerId }}
+        p {{ item.startTime | amCalendar }} 
+          span.dark ( {{item.summary.countdown}} )
+      div.item.item-text-wrap
+        p 
+          b {{item.title}} 
+          {{ item.description }}
+      div.item.item-icon-left 
+        i.icon.ion-ios-people
+        {{ item.seatsTotal }} seats / {{ item.seatsOpen }} open
+
+    div.list.inset.response {{ response = myResponse.response;'' }}
+      div.item.item-balanced
+        h2.text-center Will you join this event?
+      div.item.item-balanced
+        div.button-bar
+          button.button(
+            ng-class="{'button-assertive': mm.isActive('No')}" ng-click="mm.setActive('No')"
+            ) No
+          button.button(
+            ng-class="{'button-energized': mm.isActive('Maybe')}" ng-click="mm.setActive('Maybe')"
+            ) Maybe
+          button.button(
+            ng-class="{'button-positive': mm.isActive('Yes')}" ng-click="mm.setActive('Yes')"
+            ) Yes
+
+      form(name="bookingForm" novalidate="" ng-submit="mm.submitResponse($event, myResponse, closeModal)")
+        div(ng-show="mm.active")
+          div.item.item-avatar(ng-if="vm.acl.isAnonymous()==false")
+            img(ng-src="{{me.face}}")
+            span.face-overlay(ng-if="!me.face" ng-bind="me.firstname[0]")
+            b {{me.displayName }} - You are about to respond to this event.
+          label.item.item-input.item-stacked-label
+            span.input-label Comment
+            div.padding-right
+              textarea(ng-model="response.comment" placeholder="{{mm.placeholder}}" maxlength="165")
+
+        div(ng-show="mm.active=='Yes' || mm.active=='Maybe'")  
+          label.item.item-input
+            span.input-label Number of People
+            input(type="text" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="response.seats")
+          div.item.range.range-positive
+            i.icon.ion-ios-person.positive
+            input(type="range" name="seats" min="0" max="{{item.seatsOpen}}" ng-model="response.seats")
+            i.icon.ion-ios-people.positive
+
+        div(ng-show="mm.active=='Yes' && vm.acl.isAnonymous()")  
+          //- sign-in register response card for Yes 
+          div.list.card.condensed.anonymous-response-card
+            div.item.item-divided.item-positive.
+              How You'll Appear
+            div.item.item-text-wrap.text-left.
+              You must sign-in or sign-up to participate in this event. 
+              This will allow us to manage your contribution to this event and also send notifications & messages.
+            div.item.positive.text-left.sign-in-sign-up
+              a.pull-right(ng-click="mm.signInRegister('signin', me)"). 
+                Have an account? Sign in
+              a(ng-click="mm.signInRegister('signup', me)").
+                Sign up
+
+
+        div(ng-show="(mm.active=='No' || mm.active=='Maybe') && vm.acl.isAnonymous()") 
+          //- anonymous response card for No/Maybe 
+          div.list.card.condensed.anonymous-response-card
+            div.item.item-divided.item-positive.
+              How You'll Appear
+            div.item.positive.text-left.sign-in-sign-up
+              a.pull-right(ng-click="mm.signInRegister('signin', me)"). 
+                Have an account? Sign in
+              a(ng-click="mm.signInRegister('signup', me)").
+                Sign up
+            div.item
+              div.text-center.muted &mdash; or &mdash; 
+            label.item.item-input.item-label
+              span.input-label Name
+              input(type="text" name="displayName" 
+                placeholder="Your display name." 
+                ng-model="response.displayName")
+            label.item.item-input.item-label
+              span.input-label Passcode
+              input(type="text" name="passcode" 
+                placeholder="Required to change your response." 
+                ng-model="response.passcode")
+
+
+        //- common button bar for final action
+        div.item
+          div.button-bar
+            button.button.button-balanced.button-outline(ng-click="closeModal('CANCELED')") Cancel
+            button.button.button-balanced(
+              type="submit"
+              ng-class="{disabled:mm.isValidated(response)==false}"
+              ) Submit
+
+
+
+          
+
+
+
+
