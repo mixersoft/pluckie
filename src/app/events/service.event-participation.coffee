@@ -1,7 +1,8 @@
 'use strict'
 
 # helper functions for managing user actions on events
-EventActionHelpers = ($rootScope, $q, $location, $state, $stateParams
+EventActionHelpers = ($rootScope, $q, $timeout
+  $location, $state, $stateParams
   TokensResource
   appModalSvc
   $log, toastr)->
@@ -34,8 +35,12 @@ EventActionHelpers = ($rootScope, $q, $location, $state, $stateParams
         return TokensResource.post(token).then (token)->
           return [tokens]
       .then (tokens)->
-        path = $location.path()
-        origin = $location.absUrl().slice(0, $location.absUrl().indexOf(path))
+        if ionic.Platform.isWebView()
+          origin = "http://app.snaphappi.com/pluckie.App/#"
+        else
+          path = $location.path()
+          origin = $location.absUrl().slice(0, $location.absUrl().indexOf(path))
+
         eventLink = origin + '/app/event-detail/' + event.id
         shareLinks = {
           'event': if event.setting.isExclusive then false else eventLink
@@ -46,6 +51,7 @@ EventActionHelpers = ($rootScope, $q, $location, $state, $stateParams
           shareLinks['invitations'] = _.map tokens, (token)->
             return {
               link: origin + '/app/invitation/' + token.id
+              id: token.id
               views: token.views
               remaining: token.expireCount - token.views
               expires: moment(token.expireDate).fromNow()
@@ -62,6 +68,16 @@ EventActionHelpers = ($rootScope, $q, $location, $state, $stateParams
           mm:
             item: event
             links: shareLinks
+            goto: (type, id)->
+              if type == 'invitation' # goto Invite
+                state = 'app.event-detail.invitation'
+                params = {invitation: id}
+              if type == 'event' # goto Event
+                state = 'app.event-detail'
+                params = {id: id}
+              $log.info "TESTING: manually transition to state=" + JSON.stringify [state,id]
+              $state.transitionTo(state, params)
+
         })
       .then (result)-> # closeModal(result)
         return $q.reject('CANCELED') if `result==null` || result == 'CANCELED'
@@ -180,7 +196,8 @@ EventActionHelpers = ($rootScope, $q, $location, $state, $stateParams
   return self # EventActionHelpers
 
 
-EventActionHelpers.$inject = ['$rootScope', '$q', '$location', '$state', '$stateParams'
+EventActionHelpers.$inject = ['$rootScope', '$q', '$timeout'
+'$location', '$state', '$stateParams'
 'TokensResource'
 'appModalSvc'
 '$log', 'toastr']

@@ -39,6 +39,7 @@ ion-modal-view#invitation-response-modal {{item=myResponse.event; me=myResponse.
             ) Yes
 
       form(name="bookingForm" novalidate="" ng-submit="mm.submitResponse($event, myResponse, closeModal)")
+      
         div(ng-show="mm.active")
           div.item.item-avatar(ng-if="vm.acl.isAnonymous()==false")
             img(ng-src="{{me.face}}")
