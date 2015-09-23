@@ -136,6 +136,11 @@ HomeCtrl = (
     $log.info "viewEnter for HomeCtrl"
     activate()
 
+  $scope.$on '$ionicView.beforeEnter', (e)->
+    if $rootScope['welcomeDone']
+      _.remove vm.cards, {title:'Welcome'}
+
+
   $rootScope.$on '$stateNotFound', (ev, toState)->
     ev.preventDefault()
     toastr.info "Sorry, that option is not ready."

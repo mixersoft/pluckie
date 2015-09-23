@@ -50,6 +50,18 @@ ion-view(view-title="{{vm.title}}")
       // ACTIVE BLOCK
       // ***
 
+      div.list.card(ng-if="0")
+        div.item.button-full
+          div.button.button-balanced.icon.ion-ios-upload(
+            ng-click="vm.on.showShareLink(item)"
+          ).
+            &nbsp; Share
+        div.item.button-full
+          div.button.button-balanced.icon.ion-chatbox(
+            ng-click="vm.on.beginResponse(vm.me, item)"
+          )
+            span.padding-left Respond
+
 
 
 
@@ -83,16 +95,16 @@ ion-view(view-title="{{vm.title}}")
                     ng-click="vm.on.gotoState('app.profile','id',host)"
                   )
                   i.icon.ion-person(ng-show="!host.face")
-                  div Hosted by #[b {{ [host.firstname,host.lastname].join(' ')  || item.ownerId }}]
+                  div.wrap Hosted by #[b {{ [host.firstname,host.lastname].join(' ')  || item.ownerId }}]
                 div.item.item-icon-left.item-text-wrap
                   i.icon.ion-ios-lightbulb
                   {{ item.inspiration }}
                 div.item.item-icon-left.item-text-wrap
                   i.icon.ion-tshirt
                   {{ item.attire }}
-                div.item.item-icon-left 
+                div.item.item-icon-left.wrap 
                   i.icon.ion-ios-people
-                  {{ item.seatsTotal }} seats / {{ item.seatsOpen }} open
+                  {{ item.seatsTotal }} seats / #[span.nowrap {{ item.seatsOpen }} open]
 
             // event: when/where attr
             div.col
@@ -188,7 +200,7 @@ ion-view(view-title="{{vm.title}}")
                       span.pull-right {{mitem.summary.portionsRemaining}} portions
                 
                 div.card.list.condensed(
-                  ng-if="vm.acl.isParticipant() && item.setting.fixedMenu==false"
+                  ng-if="vm.acl.isParticipant() && item.setting.denyAddMenu==false"
                 )
                   div.item.button-full
                     div.button.button-balanced.icon.ion-android-add-circle(
@@ -207,8 +219,6 @@ ion-view(view-title="{{vm.title}}")
       //- Booking
       //- alt: Join Event, Actions, 
       //- 
-      div(style="position:absolute;right:0")
-      div.larger.pull-right.positive Actions
       div#cp-booking.content.row.responsive-sm
         div.col.col-offset-25.col-50
           div.list(ng-show="vm.isInvitation()")
