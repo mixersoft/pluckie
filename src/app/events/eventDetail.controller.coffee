@@ -4,7 +4,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   $ionicHistory, $location, $ionicScrollDelegate, $ionicModal
   $log, toastr, exportDebug
   EventsResource, UsersResource, MenuItemsResource
-  EventActionHelpers
+  EventActionHelpers, AAAHelpers
   ParticipationsResource, ContributionsResource, TokensResource
   appModalSvc
   utils, devConfig
@@ -169,11 +169,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     'getShareLink': ()->EventActionHelpers.getShareLink.apply(vm, arguments)
     'showShareLink': ()->EventActionHelpers.showShareLink.apply(vm, arguments)
 
-    showSignIn: ()->
+    showSignIn: (initialSlide)->
       slideCtrl = {
         index: null
         slideLabels: ['signup', 'signin']
-        initialSlide: 'signin'
+        initialSlide: initialSlide || 'signup'
         setSlide: (label)->
           if slideCtrl.index==null
             $timeout ()->
@@ -202,58 +202,10 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         return result
 
     signIn: (person, fnComplete)->
-      return $q.when()
-      .then (result)->
-        # TODO: do password sign-in
-        return UsersResource.query({username:person.username})
-      .then (results)->
-        if results.length
-          return person = results.shift()
-        return $q.reject("NOT FOUND")
-      .then (person)->
-        return devConfig.loginUser( person.id , true)
-        .then (user)->
-          return fnComplete?(user) || user
-      .catch (err)->
-        if err == 'NOT FOUND'
-          toastr.warning "The Username/password combination was not found. Please try again."
-          return false # try again
-
-        if _.isString err
-          err = {
-            message: err
-          }
-        err['isError'] = true
-        return fnComplete?(err) || err
+      return AAAHelpers.signIn.apply(vm, arguments)
 
     register: (person, fnComplete)->
-      return $q.when()
-      .then (result)->
-        return $q.reject('REQUIRED VALUE') if !person.username
-        return UsersResource.query({username:person.username})
-      .then (results)->
-        if results.length
-          return $q.reject('DUPLICATE USERNAME')
-        person.face = UsersResource.randomFaceUrl()
-        return UsersResource.post(person)
-      .then (person)->
-        return devConfig.loginUser( person.id , true)
-        .then (user)->
-          return fnComplete?(user) || user
-      .catch (err)->
-        if err == 'REQUIRED VALUE'
-          toastr.warning "Expecting a useranme. Please try again."
-          return false # try again
-        if err == 'DUPLICATE USERNAME'
-          toastr.warning "That username was already taken. Please try again."
-          return false # try again
-
-        if _.isString err
-          err = {
-            message: err
-          }
-        err['isError'] = true
-        return fnComplete?(err) || err
+      return AAAHelpers.register.apply(vm, arguments)
 
     beginBooking: (person, event)->
       return $q.when()
@@ -904,7 +856,7 @@ EventDetailCtrl.$inject = [
   '$ionicHistory', '$location', '$ionicScrollDelegate', '$ionicModal'
   '$log', 'toastr', 'exportDebug'
   'EventsResource', 'UsersResource', 'MenuItemsResource'
-  'EventActionHelpers'
+  'EventActionHelpers', 'AAAHelpers'
   'ParticipationsResource', 'ContributionsResource', 'TokensResource'
   'appModalSvc'
   'utils', 'devConfig'

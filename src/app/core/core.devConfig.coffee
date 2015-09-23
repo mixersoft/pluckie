@@ -7,8 +7,8 @@ DevConfig = ($rootScope, UsersResource, $q, $log)->
       # manually set current user for testing
       return $q.when( $rootScope.user ) if $rootScope.user? && !force
       return UsersResource.get( id ).then (user)->
-        $log.info "Sign-in for id=" + user.id
         if !_.isEmpty(user) && !user.displayName
+          $log.info "Sign-in for id=" + user.id
           displayName = []
           displayName.push user.firstname if user.firstname
           displayName.push user.lastname if user.lastname
