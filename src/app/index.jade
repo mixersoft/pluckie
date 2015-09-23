@@ -7,7 +7,7 @@ html
 
         // inject:css
         // endinject
-        link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
+        //- link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
 
         // cordova script (this will be a 404 during development)
         script(src='lib/ionic/js/ionic.bundle.js')  // load angular first
@@ -18,6 +18,13 @@ html
         script(src="//maps.googleapis.com/maps/api/js?sensor=false")
         // inject:js
         // endinject
+        // script(src="//maps.googleapis.com/maps/api/js?sensor=false")
+        // script(src="lib/angular-google-maps/dist/angular-google-maps.js")
+
+        meta(property="og:title" content="pluckie")
+        meta(property="og:url" content="http://app.snaphappi.com/pluckie.App/")
+        meta(property="og:image" content="http://snappi.snaphappi.com/svc/storage/DEQBCEektV/pluckie.PNG")
+
 
     body(ng-app="starter")
         // The nav bar that will be updated as we navigate between views.

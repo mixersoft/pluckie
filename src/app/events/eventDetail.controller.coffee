@@ -93,7 +93,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     else
       return vm.lookup[ className ][idOrArray]
 
-      
+     
 
   vm.acl = {
     isAnonymous: ()->
@@ -102,7 +102,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     isVisitor: ()->
       return true if _.isEmpty $rootScope.user
       return !vm.acl.isParticipant()
-    
+   
     isParticipant: ()->
       return false if _.isEmpty $rootScope.user
       participantIds = _.pluck vm.lookup['Participations'], 'participantId'
@@ -147,7 +147,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     menuView: (value, peek=false)->
       values = ['less','more','contribute','less']
-      
+     
       switch value
         when 'next'
           i = _.indexOf values, vm.settings.view.menu
@@ -339,7 +339,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   initialize = ()->
     # dev
-    DEV_USER_ID = '3'
+    DEV_USER_ID =  null # '0'
     devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
       vm.settings.view.menu = 'more' if vm.acl.isParticipant()
@@ -658,7 +658,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         else contrib.comment
       promise = ContributionsResource.put( updateObj.id, updateObj )
 
-    
+   
     else
       toastr.error "Error: no MenuItemContributions record for id="+menuItem.id
 

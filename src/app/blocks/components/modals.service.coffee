@@ -3,6 +3,7 @@
 ###
 # @description: reusable $ionicModal service
 # see: http://forum.ionicframework.com/t/ionic-modal-service-with-extras/15357
+# also: http://codepen.io/anon/pen/KdzawK?editors=101
 # usage: appModalSvc.show( <templateUrl>, "controller as vm", params )
 ###
 ReusableModal = ($ionicModal, $rootScope, $q, $injector, $controller) ->
