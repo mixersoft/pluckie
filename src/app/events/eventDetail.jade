@@ -374,7 +374,9 @@ ion-view(view-title="{{vm.title}}")
                     div.royal {{item.summary.participation.menuItemContributions}} Menu Contributions ({{item.summary.participation.menuItemContributionsPct}}%)
                     div.royal {{item.summary.participation.portions}} Portions ({{item.summary.participation.portionsPct}}%)
 
-                  div.item.item-icon-left.royal {{distr = item.summary.distribution;''}}
+                  div.item.item-icon-left.royal(
+                    ng-show="distr.total"
+                    ) {{distr = item.summary.distribution;''}}
                     i.icon.ion-pie-graph
                     div.royal(ng-repeat="(cat,count) in distr.count") 
                       label.inline-field {{value = count + ' (' + distr.pct[cat] + '%)';''}}

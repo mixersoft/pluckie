@@ -13,7 +13,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   vm = this
   vm.me = null
   vm.title = "Event Detail"
-  vm.event = {}
+  vm.event = { ready: false }
   vm.lookup = {}
   exportDebug.set( 'lookup', vm['lookup'] )
   vm.imgAsBg = utils.imgAsBg
@@ -348,6 +348,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   getEvent = (id) ->
     return EventsResource.get(id).then (result)->
       vm.event = result
+      vm.event['ready'] = false
       exportDebug.set( 'event', vm['event'] )
       # toastr.info JSON.stringify( result)[0...50]
       return result
@@ -768,6 +769,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       getMenuItems(event)
     .then (event)->
       getDerivedValues_Event(event)
+      vm.event['ready'] = true
       event.summary['distribution'] = getDerivedValues_MenuItems(event)
       return event
     .then (event)->
@@ -814,7 +816,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   $scope.$on 'event:contribution-changed', (ev, options)->
     event = vm.event
     getDerivedValues_Event(event)
-    getDerivedValues_MenuItems(event)
+    event.summary['distribution'] = getDerivedValues_MenuItems(event)
     # push notification to host + participants
     return
 
@@ -828,7 +830,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     activate()
 
   $rootScope.$on 'user:sign-in', (ev, user)->
-    return if _.isEmpty( vm.event )
+    return if vm.event.ready == false
 
     #ready
     vm.me = $rootScope.user
