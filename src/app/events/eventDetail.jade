@@ -264,7 +264,7 @@ ion-view(view-title="{{vm.title}}")
                   div.item.item-avatar.participation {{person=vm.lookup['Users'][particip.participantId];''}}
                     img.muted(
                       ng-src="{{person.face}}" 
-                      ng-click="vm.on.gotoState('app.profile','id',host)"
+                      ng-click="vm.on.gotoState('app.profile','id', person)"
                       )
                     span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
                     b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
@@ -289,7 +289,7 @@ ion-view(view-title="{{vm.title}}")
                 div.item.item-avatar.participation 
                   img(
                     ng-src="{{person.face}}" 
-                    ng-click="vm.on.gotoState('app.profile','id',host)"
+                    ng-click="vm.on.gotoState('app.profile','id', person)"
                     )
                   span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
                   div
