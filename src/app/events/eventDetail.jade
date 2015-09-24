@@ -324,12 +324,19 @@ ion-view(view-title="{{vm.title}}")
                     ng-click="vm.on.menuView('contribute')"
                   ).
                     &nbsp; Contribute
-                h5.balanced.padding-horizontal Share
-                div.item.button-full
-                  div.button.button-balanced.icon.ion-ios-upload(
-                    ng-click="vm.on.showShareLink(item)"
-                  ).
-                    &nbsp; Share
+                h5.balanced.padding-horizontal Actions
+                div.item
+                  div.button-bar
+                    button.button.item-icon-left.button-positive(
+                      ng-click="vm.on.showShareLink(item)"
+                    )
+                      i.icon.ion-ios-upload 
+                      &nbsp; Share
+                    button.button.item-icon-left.button-positive(
+                      ng-click="vm.on.beginResponse(vm.me, item)"
+                    )
+                      i.icon.ion-edit 
+                      &nbsp; Edit
 
 
 

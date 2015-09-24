@@ -16,9 +16,10 @@ ion-modal-view {{item=mm.item;''}}
           p.wrap Share a public link to this event and let others join.
         div.item.item-input.item-icon-right.item-stacked-label
           input.selectable(type="text" name="share" ng-model="mm.links.event" onclick="this.select()" readonly)
-          i.icon.ion-ios-upload(
-            on-hold="mm.goto( 'event', item.id );closeModal('CANCELED')"
-            )
+          a(ng-href="{{mm.links.event}}" target="_system" ng-click="mm.goto($event)")
+            i.icon.ion-ios-upload(
+              xxx-on-hold="mm.goto( 'event', item.id );closeModal('CANCELED')"
+              )
 
       //- # Share Invitation
       div(ng-hide="mm.links.invitations")  
@@ -30,9 +31,10 @@ ion-modal-view {{item=mm.item;''}}
           div.larger Share Invitation
           p.wrap Share an invitation to this event and track responses, including 'no' and 'maybe'.
         div.item.item-input.item-icon-right.item-stacked-label(ng-repeat="invite in mm.links.invitations")
-          i.icon.ion-ios-upload(
-            on-hold="mm.goto( 'invitation', invite.id );closeModal('CANCELED')"
-            )
+          a(ng-href="{{invite.link}}" target="_system" ng-click="mm.goto($event)")
+            i.icon.ion-ios-upload(
+              xxx-on-hold="mm.goto( 'invitation', invite.id );closeModal('CANCELED')"
+              )
           input.selectable(type="text" name="share" ng-model="invite.link" onclick="this.select()" readonly)
           div.row.fine.
             Views: {{invite.views}}. Expires {{invite.expires}} or {{invite.remaining}} views.
