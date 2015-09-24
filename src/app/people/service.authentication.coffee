@@ -2,6 +2,9 @@
 
 # helper functions for managing user Authentication, Authorization, & Accounting
 # works with sign-in-register directive
+# for more ideas
+# see: http://brewhouse.io/blog/2014/12/09/authentication-made-simple-in-single-page-angularjs-applications.html
+#
 AAAHelpers = ($rootScope, $q, $location, $stateParams
   UsersResource
   appModalSvc

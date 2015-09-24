@@ -71,7 +71,7 @@ MenuItemsResource = (Resty, amMoment) ->
     10:
       title   : "Crab Chawanmushi"
       detail  : "Steamed egg custard with crab and herbs."
-      category: "Small Plate"    # [Starter|Side|Small Plate|Main|Dessert|Setting|Serving|Resource]
+      category: "SmallPlate"    # [Starter|Side|Small Plate|Main|Dessert|Setting|Serving|Resource]
       pic     : Resty.lorempixel 200, 200, 'food'
       link    :   null
     11:
@@ -85,7 +85,7 @@ MenuItemsResource = (Resty, amMoment) ->
     12:
       title   : "Okonomiyaki"
       detail  : "Seafood pancake, cabbage, ginger, roasted seaweed, kewpie, tonkatsu sauce, bonito"
-      category: "Small Plate"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      category: "SmallPlate"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
       pic     : Resty.lorempixel 200, 200, 'food'
       link    :   null
     13:
@@ -93,7 +93,7 @@ MenuItemsResource = (Resty, amMoment) ->
       detail  : """
       Grilled filet of Guitarfish served on grilled bok choy flavored with kimchi & sweet, savory soy infused daikon noodles. Topped with ume (pickled plums) hollandaise sauce.
       """
-      category: "Small Plate"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      category: "SmallPlate"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
       pic     : Resty.lorempixel 200, 200, 'food'
       link    :   null
     14:
