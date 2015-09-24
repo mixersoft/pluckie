@@ -11,7 +11,7 @@ ion-modal-view
         div.muted.pull-right {{ mitem.category }}
         b.title {{ mitem.title  }} 
         div.detail {{ mitem.detail  }}
-        div.list.participation(ng-if="vm.acl.isParticipant()")
+        div.list.participation(ng-if="vm.acl.isParticipant('Yes')")
           //- ???: should we hide participation from visitors
           div.item.item-avatar.contribution(ng-repeat="contrib in mitem.contributions")
             img(ng-src="{{contrib.contributor.face}}")

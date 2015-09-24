@@ -3,7 +3,7 @@
 # helper functions for managing user actions on events
 EventActionHelpers = ($rootScope, $q, $timeout
   $location, $state, $stateParams
-  TokensResource
+  TokensResource, ParticipationsResource
   appModalSvc
   $log, toastr)->
   self = {
@@ -86,17 +86,36 @@ EventActionHelpers = ($rootScope, $q, $timeout
 
     ###
     # @description show invitation response modal and handle response
+    #     also use repsonse modal to update participation
     ###
     beginResponse: (person, event)->
       vm = this
-      invitation = $state.params.invitation
-      return $q.reject('INVALID') if $state.is('app.event-detail.invitation') == false
-      # assume invitation is valid if we got this far
       return $q.when()
       .then ()->
+        options = {}
+        participation = vm.getParticipationByUser(person)
+        if $state.is('app.event-detail.invitation')
+          # assume invitation is valid if we got this far
+          return $q.reject('INVALID') if !$state.params.invitation
+        if $state.is('app.event-detail')
+          # return OK if there is a No/Maybe response
+          return $q.reject('INVALID') if !participation
+
+        if participation
+          options['displayName'] = participation.responseName
+          options['active'] = participation.response
+          options['seats'] = participation.seats
+          options['comment'] = participation.comment
+          options['passcode'] = participation.responseId?.split('~').shift()
+        if person?.displayName # override
+          options['displayName'] = person.displayName
+        return options
+
+      .then (options={})->
+        $log.info options
         return appModalSvc.show('events/respond.modal.html', vm, {
           mm:   # mm == "modal model" instead of view model
-            active: null
+            active: options['active'] || null
             placeholder: ''
             isActive: (value)->
               return value == this.active if value
@@ -143,34 +162,29 @@ EventActionHelpers = ($rootScope, $q, $timeout
               if vm.event.id != myResponse.event.id
                 toastr.warning("You are booking for a different event. title=" +
                   myResponse.event.title)
-              if myResponse.person.id && myResponse.person.id != vm.me.id
+              if vm.me && myResponse.person?.id != vm.me.id
                 toastr.warning("You are booking for a different person. name=" +
                   myResponse.person.displayName)
-              if vm.event.participantIds[myResponse.person.id]
-                toastr.warning("You are replacing an existing booking for this userId")
+              if myResponse.person?.id
+                toastr.info("You are updating your response")
               if myResponse.response.seats < 1
                 toastr.warning("You must respond for at least 1 person")
 
-              myResponse.response['value']  = this.active  # [No|Maybe|Yes]
-              switch myResponse.response['value']
-                when 'Yes'
-                  myResponse['booking'] = myResponse.response
-                  return self.createBooking.call(vm, myResponse).then (result)->
-                    onSuccess?(result)
-                    return result
-                when 'Maybe', 'No'
-                  return self.createResponse.call(vm, myResponse.response)
-              return
+              return promise = self.saveResponse.call(vm, myResponse)
+              .then (result)->
+                onSuccess?(result)
+                return result
+
 
           myResponse :
             person: person
             event: event
             response:
-              value: null  # set in submitResponse(), [No|Maybe|Yes]
-              displayName: person.displayName || null
-              passcode: null
-              seats: 1
-              comment: null
+              value: options['active']  # set in submitResponse(), [No|Maybe|Yes]
+              displayName: options['displayName'] || person?.displayName
+              passcode: options['passcode']
+              seats: options['seats'] || 1
+              comment: options['comment']
         })
       .then (result)->
         $log.info "Contribute Modal resolved, result=" + JSON.stringify result
@@ -178,15 +192,47 @@ EventActionHelpers = ($rootScope, $q, $timeout
         toastr.warning "Expecting an invitation" if err == "INVALID"
 
 
-    createResponse: (response)->
+    ###
+    @description create/update an invitation response
+    applies to Yes|Maybe|No, save to ParticipationResource
+    ###
+    saveResponse: (myResponse)->
       vm = this
-      # alias, execute in Controller scope
-      return $log.info response
+      response = myResponse.response
+      participation = vm.getParticipationByUser(myResponse.person)
+      return $q.when()
+      .then ()->
+        data = {
+          eventId: myResponse.event.id
+          participantId: myResponse.person?.id || null
+          response: response.value
+          seats: response.seats
+          comment: response.comment
+          responseId: null  # set by ParticipationsResource.setResponseId()
+          responseName: response.displayName
+        }
+        switch response.value
+          when 'Yes'
+            # require valid user, anonymous response not allowed
+            toastr.warning "Expecting Yes response with valid user" if data.participantId==null
+          when 'Maybe','No'
+            ParticipationsResource.setResponseId( data, response.passcode) if !data.participantId
+        if data['participantId'] # final cleanup
+          data['responseName'] = data['responseId'] = null
+        if participation
+          return ParticipationsResource['put'](participation.id, data)
+        return ParticipationsResource['post'](data)
+      .then (result)->
+        # for anonymous responses, look for response in vm.me.participation, delete on sign-in
+        _.extend vm.me.participation, result if vm.me.participation?
+        vm.me['participation'] = result if _.isEmpty vm.me
 
-    createBooking: (booking)->
-      vm = this
-      # alias, execute in Controller scope
-      return vm.createBooking(booking)
+        if result.responseId
+          toastr.info "Please use passcode='" + response.passcode + "' to update your response."
+
+        $rootScope.$broadcast 'event:participant-changed', result
+        return $log.info result
+
 
 
 
@@ -198,7 +244,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
 
 EventActionHelpers.$inject = ['$rootScope', '$q', '$timeout'
 '$location', '$state', '$stateParams'
-'TokensResource'
+'TokensResource', 'ParticipationsResource'
 'appModalSvc'
 '$log', 'toastr']
 

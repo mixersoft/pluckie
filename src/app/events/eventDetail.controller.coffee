@@ -61,12 +61,15 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
 
   ###
-  # these are hasMany or belongsTo lookups
+  # @description get Participation in event from current user, vm.me == $rootScope.user
+  # @param user object, either user instanceOf UsersResource object, or
+  #         user.participation instanceOf ParticipationsResource
   ###
-  getParticipationByUser = (user)->
+  vm.getParticipationByUser = (user)->
     # TODO: memo result in vm.lookup
     return false if !user
     participation = _.find vm.lookup['Participations'], {participantId: user.id}
+    participation = user.participation if !participation  # the case of anonymous participation
     return false if !participation
     contributions = _.filter vm.lookup['Contributions'], {contributorId: user.id}
     participation.contributionIds = _.pluck contributions, 'id'
@@ -76,11 +79,17 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     return [] if !menuItem
     return contributions = _.filter vm.lookup['Contributions'], {menuItemId: menuItem.id}
 
-  vm.getParticipationsByEvent = (event)->
-    return [] if !event
-    return participations = _.chain(event.participationIds)
+  vm.getParticipationsByEvent = (event, response, sort)->
+    return [] if !event['ready']
+    participations = _.chain(event.participationIds)
     .map (id)-> return vm.lookup['Participations'][id]
-    .compact().value()
+    .compact()
+    participations = participations.filter({'response':response}) if /Yes|Maybe|No/.test response
+    if sort
+      sortOrder = {'Yes':0, 'Maybe':1, 'No':2}
+      participations = participations.sortBy (o)->
+        return sortOrder[o.response]
+    return participations.value()
 
   vm.lookupByClass = (event, className, idOrArray)->
     if !(event?.id?) || !idOrArray
@@ -97,17 +106,26 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   vm.acl = {
     isAnonymous: ()->
-      return true if _.isEmpty $rootScope.user
+      return true if !$rootScope.user.id
       return false
-    isVisitor: ()->
+
+    isVisitor: ()-> ## has not responded to or joined event
       return true if _.isEmpty $rootScope.user
-      return !vm.acl.isParticipant()
+      return vm.acl.isParticipant() == false
    
-    isParticipant: ()->
-      return false if _.isEmpty $rootScope.user
-      participantIds = _.pluck vm.lookup['Participations'], 'participantId'
-      return true if ~participantIds.indexOf($rootScope.user.id)
+    isParticipant: (responseType)->
+      # TODO debounce this function?
+      return false if _.isEmpty $rootScope['user']
+      # memoize?
+      participations = _.chain(vm.lookup['Participations'])
+      participations = participations.filter({response:responseType}) if responseType
+      participantIds = participations.pluck('participantId').compact().value()
+      return true if ~participantIds.indexOf($rootScope['user'].id)
       return true if vm.acl.isOwner()
+      # handle anonymous response participation
+      anonResp = $rootScope['user'].participation?.response
+      return true if anonResp && !responseType
+      return true if anonResp == responseType
       return false
 
     isContributor: ()->
@@ -119,12 +137,14 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     isOwner: ()->
       return false if _.isEmpty $rootScope.user
-      return vm.event?.ownerId == $rootScope.user.id
+      return false if vm.event.ready == false
+      return vm.event.ownerId == $rootScope.user.id
   }
 
   vm.settings = {
     view:
       menu: 'less'   # [less|more|contribute]
+      response: 'Yes'  # [Yes|Maybe|No]
   }
 
   vm.on = {
@@ -160,7 +180,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       if values[next] == 'contribute'
         if !vm.event.summary # not ready
           return vm.on.menuView(next, peek) # skip
-        if vm.acl.isParticipant() == false
+        if vm.acl.isParticipant('Yes') == false
           return vm.on.menuView(next, peek) # skip
         if vm.event.summary.myParticipation.isFullyParticipating
           if value == 'next'
@@ -171,6 +191,19 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       if value == 'contribute'
         toastr.info "Contribute a suggested Menu Item or add a new one."
       return vm.settings.view.menu = values[next]
+
+    participantView: (value, peek)->
+      values = ['Yes','Maybe','No','Yes']
+      switch value
+        when 'next'
+          i = _.indexOf values, vm.settings.view.response
+        else
+          i = value
+      next = i+1
+      return values[next] if peek
+      return vm.settings.view.response = values[next]
+
+
 
     gotoState : (state, field, obj)->
       return if !obj
@@ -257,8 +290,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
               if vm.me.id != booking.person.id
                 toastr.warning("You are booking for a different person. name=" +
                   booking.person.displayName)
-              if vm.event.participantIds[booking.booking.userId]
-                toastr.warning("You are replacing an existing booking for this userId")
 
               vm.createBooking(booking).then (result)->
                 onSuccess?(result)
@@ -342,14 +373,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     DEV_USER_ID =  null # '0'
     devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
-      vm.settings.view.menu = 'more' if vm.acl.isParticipant()
+      vm.settings.view.menu = 'more' if vm.acl.isParticipant('Yes')
     return
 
   getEvent = (id) ->
     return EventsResource.get(id).then (result)->
-      vm.event = result
-      vm.event['ready'] = false
-      exportDebug.set( 'event', vm['event'] )
       # toastr.info JSON.stringify( result)[0...50]
       return result
 
@@ -378,9 +406,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       participantIds = _.pluck vm.lookup['Participations'], 'participantId'
       error = _.difference(event.contributorIds, participantIds)
       toastr.warning "WARNING: found a contributor who is not a participant" if error.length
-      UsersResource.get( event.contributorIds )
-    .then (result)->
-      _.extend vm.lookup['Users'], _.indexBy result, 'id' # redundant, see getParticipations()
+    #   UsersResource.get( event.contributorIds )
+    # .then (result)->
+    #   _.extend vm.lookup['Users'], _.indexBy result, 'id' # redundant, see getParticipations()
       return event
 
   getMenuItems = (event)->
@@ -396,15 +424,15 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       return event
 
   getParticipations = (event)->
-    # using contributors join table
+    # Yes|Maybe|No participants
     ParticipationsResource.query({ 'eventId' : event.id })
     .then (result)->
       event.participationIds = _.pluck result, 'id'
       vm.lookup['Participations'] = _.indexBy result, 'id'
       return event
     .then (event)->
-      event.participantIds = _.pluck vm.lookup['Participations'], 'participantId'
-      UsersResource.get( event.participantIds )
+      participantIds = _.chain(vm.lookup['Participations']).pluck('participantId').compact().value()
+      UsersResource.get( participantIds )
     .then (result)->
       _.extend vm.lookup['Users'], _.indexBy result, 'id'
       return event
@@ -424,6 +452,10 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         parties: 0         # count of indivivdual parties aka participants        contributors: 0
       views:
         count: 0
+      response:
+        Yes: 0
+        Maybe: 0
+        No: 0
       participation:
         contributors: 0
         contributorsPct: 0
@@ -443,15 +475,16 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     _.each event.participationIds, (id)->
       o = vm.lookup['Participations'][id]
-      summary.booking['seats'] += parseInt o.seats
+      summary.response[o.response] += parseInt(o.seats || 1)
+      summary.booking['seats'] += parseInt o.seats if o.response == 'Yes'
       return
     summary.booking['parties'] = event.participationIds.length
     summary.booking['seatsPct'] = Math.round( summary.booking['seats']/event.seatsTotal * 100 )
     event.seatsOpen = Math.max(0, event.seatsTotal - summary.booking['seats'])
 
+    # myParticipation, any response
     if vm.acl.isParticipant()
-      # event.myParticipation = getParticipationByUser(vm.me)
-      vm.lookup['MyParticipation'] = getParticipationByUser(vm.me)
+      vm.lookup['MyParticipation'] = vm.getParticipationByUser(vm.me)
       myParticipation = summary['myParticipation']
       myParticipation['isFullyParticipating'] = false
 
@@ -467,7 +500,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       if myParticipation['portionsPct'] > 85
         myParticipation['isFullyParticipating'] = true
 
-    if vm.acl.isParticipant()
+    if vm.acl.isParticipant()  # any? or only 'Yes'
       contributors = []
       participation = summary['participation']
       participation['menuItems'] = _.chain(vm.lookup['Contributions'])
@@ -583,10 +616,10 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       # update lookups
       if !~vm.event['participationIds'].indexOf(result.id)
         vm.event['participationIds'].push result.id
-        vm.event['participantIds'].push result.participantId
+        # vm.event['participantIds'].push result.participantId
       vm.lookup['Participations'][result.id] = result
       vm.lookup['Users'][result.participantId] = person
-      vm.lookup['MyParticipation'] = getParticipationByUser(person)
+      vm.lookup['MyParticipation'] = vm.getParticipationByUser(person)
       $scope.$broadcast 'lookup-data:changed', {className:'Participations'}
       return result
     .then (participation)->
@@ -758,7 +791,13 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         toastr.info "Oops, that invitation was not found."
       return $q.reject()
     .then (eventId)->
+      vm.event['ready'] = false
+      vm.lookup['Participations']
+      vm.lookup['Contributions']
       return getEvent(eventId)
+    .then (event)->
+      vm.event = event
+      exportDebug.set( 'event', vm['event'] )
     .then (event)->
       getEventUsers(event)
     .then (event)->
@@ -806,7 +845,25 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   # toastr.info "Creating EventDetailCtrl"
 
-  $scope.$on 'event:participant-changed', (ev, options)->
+  $scope.$on 'event:participant-changed', (ev, participant)->
+    if participant && participant.eventId == vm.event.id
+      participation = vm.lookup['Participations'][participant.id]
+      isNewParticipant = !participation
+      # update lookups
+      if isNewParticipant
+        if !~vm.event['participationIds'].indexOf(participant.id)
+          vm.event['participationIds'].push participant.id
+        vm.lookup['Participations'][participant.id] = participant
+        if !vm.lookup['Users'][participant.participantId]
+          # load user data
+          skip = UsersResource.get(participant.participantId)
+          .then (user)->
+            vm.lookup['Users'][user.id] = user
+            return
+      else
+        _.extend participation, participant  # update lookup
+
+
     event = vm.event
     getDerivedValues_Event(event)
     # getDerivedValues_MenuItems(event)
@@ -877,7 +934,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       getRoleLabel: (person)->
         return 'Host' if person.id == vm.event.ownerId
         return 'Contributor' if ~vm.event.contributorIds.indexOf person.id
-        return 'Participant' if ~vm.event.participantIds.indexOf person.id
+        participantIds = _.chain(vm.lookup['Participations'])
+        .pluck('participantId').compact().value()
+        return 'Participant' if ~participantIds.indexOf person.id
         return 'Visitor'
   }
    

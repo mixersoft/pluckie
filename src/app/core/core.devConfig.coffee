@@ -1,7 +1,7 @@
 'use strict'
 
 # helper functions to set up dev testing
-DevConfig = ($rootScope, UsersResource, $q, $log)->
+DevConfig = ($rootScope, UsersResource, ParticipationsResource, $q, $log)->
   self = {
     loginUser : (id, force=true)->
       # manually set current user for testing
@@ -14,15 +14,29 @@ DevConfig = ($rootScope, UsersResource, $q, $log)->
           displayName.push user.lastname if user.lastname
           displayName = [user.username] if user.username
           user.displayName = displayName.join(' ')
+
+        if $rootScope['user']?.participation?
+          # promote anonymous participation to user participation
+          data = angular.copy $rootScope['user'].participation
+          data['participantId'] = user.id
+          data['responseId'] = null
+          data['responseName'] = null
+          skip = ParticipationsResource.put(data.id, data)
+          .then (result)->
+            delete $rootScope['user'].participation
+            $rootScope.$broadcast 'event:participant-changed', result
+
         $rootScope['user'] = user
         $rootScope.$emit 'user:sign-in', $rootScope['user']
         return $rootScope['user']
+      .catch (err)->
+        return $rootScope['user'] = {}
   }
   
   return self # DevConfig
 
 
-DevConfig.$inject = ['$rootScope', 'UsersResource', '$q', '$log']
+DevConfig.$inject = ['$rootScope', 'UsersResource', 'ParticipationsResource', '$q', '$log']
 
 
 

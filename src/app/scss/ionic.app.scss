@@ -230,6 +230,18 @@ label.inline-field {
   }
 }
 
+
+
+
+.list {
+  .button-bar .button {
+    vertical-align: middle;
+  }
+  & > .button-bar {
+    margin-left: -1px;
+  }
+}
+
 .last-row {
   margin-bottom: 40px;
   @media(max-width: $grid-responsive-sm-break) {

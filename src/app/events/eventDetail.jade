@@ -158,7 +158,7 @@ ion-view(view-title="{{vm.title}}")
                     
                   b.title {{ mitem.title  }} 
                   div.detail {{ mitem.detail  }}
-                  div.list.participation(ng-if="true || vm.acl.isParticipant()")
+                  div.list.participation
                     //- TODO: need to show committed vs suggested menu items to visitors
                     div.item.item-avatar.contribution(
                       ng-repeat="contrib in vm.getContributionsByMenuItem(mitem)"
@@ -181,7 +181,7 @@ ion-view(view-title="{{vm.title}}")
                   div.muted.pull-right {{ mitem.category }}
                   b.title {{ mitem.title  }} 
                   p.detail(ng-class="{'wrap':!mitem.summary.isContributed}"){{ mitem.detail  }}
-                  div.list.participation(ng-if="vm.acl.isParticipant()")
+                  div.list.participation(ng-if="vm.acl.isParticipant('Yes')")
                     div.item.item-avatar.contribution(
                       ng-repeat="contrib in vm.getContributionsByMenuItem(mitem)"
                       ng-if="contrib.contributorId"
@@ -192,7 +192,7 @@ ion-view(view-title="{{vm.title}}")
                       b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
                       p.muted {{contrib.comment}}
                     div.item.btn-contribute(
-                      ng-if="vm.acl.isParticipant() && !mitem.summary.isContributed" 
+                      ng-if="vm.acl.isParticipant('Yes') && !mitem.summary.isContributed" 
                       ng-click="vm.on.beginContribute(mitem)"
                     )
                       i.icon.ion-android-add-circle.balanced
@@ -200,7 +200,7 @@ ion-view(view-title="{{vm.title}}")
                       span.pull-right {{mitem.summary.portionsRemaining}} portions
                 
                 div.card.list.condensed(
-                  ng-if="vm.acl.isParticipant() && item.setting.denyAddMenu==false"
+                  ng-if="vm.acl.isParticipant('Yes') && item.setting.denyAddMenu==false"
                 )
                   div.item.button-full
                     div.button.button-balanced.icon.ion-android-add-circle(
@@ -221,7 +221,7 @@ ion-view(view-title="{{vm.title}}")
       //- 
       div#cp-booking.content.row.responsive-sm
         div.col.col-offset-25.col-50
-          div.list(ng-show="vm.isInvitation()")
+          div.list(ng-show="vm.isInvitation() && vm.acl.isVisitor()")
             div.item.button-full
               div.button.button-balanced.icon.ion-chatbox(
                 ng-click="vm.on.beginResponse(vm.me, item)"
@@ -254,22 +254,53 @@ ion-view(view-title="{{vm.title}}")
       //- 
       div#participants.content.row.responsive-sm
         div.col.col-offset-25.col-50
-          div.row.last-row
-            div.col.text-center
-              h2 Participants
-              //- eatWith: Guest List, x of y seats booked, show face icon or empty faces
-              //- 
-              div.list.condensed.participants
-                div(ng-repeat="particip in vm.getParticipationsByEvent(item)")
-                  div.item.item-avatar.participation {{person=vm.lookup['Users'][particip.participantId];''}}
-                    img.muted(
-                      ng-src="{{person.face}}" 
-                      ng-click="vm.on.gotoState('app.profile','id', person)"
-                      )
-                    span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
-                    b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
-                    div.seats.pull-right(ng-if="particip.seats > 1") + {{particip.seats - 1}} other{{particip.seats>2 ? 's' : ''}}
-                    div.comment.muted {{particip.comment}}
+          div.list.royal {{view = vm.settings.view;response = item.summary.response;''}}
+            div.item.item-royal.light.item-icon-right
+              button.button.button-clear.icon.ion-more.positive(
+                ng-click="vm.on.participantView('next')"
+                )
+              div.larger Participants
+              
+            div(ng-repeat="particip in vm.getParticipationsByEvent(item, view.response)")
+              {{ others = particip.seats==2 && '+1 other' || particip.seats>2 && '+' + (particip.seats - 1) + ' others' || '';'' }}
+              div(ng-show='particip.participantId')
+                div.item.participation.item-avatar {{person=vm.lookup['Users'][particip.participantId];''}}
+                  img.muted(
+                    ng-src="{{person.face}}" 
+                    ng-click="vm.on.gotoState('app.profile','id', person)"
+                    )
+                  span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
+                  b {{person.displayName }}
+                  div.seats.pull-right(ng-bind="others")
+                  div.comment.muted.wrap {{particip.comment}}
+              div(ng-show='particip.responseId')
+                div.item.participation.item-avatar
+                  span.face-overlay
+                    i.icon.ion-person 
+                  div.seats.pull-right(ng-bind="others")
+                  b.padding-right {{particip.responseName }}
+                  div.comment.muted.wrap {{particip.comment}}
+
+
+            div.item.participation.empty-row(
+              ng-show="response[view.response]==0"
+              ) (none)
+
+            div.button-bar
+              button.button.button-royal.icon.ion-checkmark-circled(
+                ng-click="view.response='Yes'"
+                ng-class="{active:view.response=='Yes'}")
+                &nbsp;{{response.Yes}}
+
+              button.button.button-royal.icon.ion-help-circled(
+                ng-click="view.response='Maybe'"
+                ng-class="{active:view.response=='Maybe'}")
+                &nbsp;{{response.Maybe}}
+              button.button.button-royal.icon.ion-close-circled(
+                ng-click="view.response='No'"
+                ng-class="{active:view.response=='No'}")
+                &nbsp;{{response.No}}
+          div.last-row
                   
 
       // 100% iphone, 50% ipad
@@ -277,29 +308,36 @@ ion-view(view-title="{{vm.title}}")
       //- MyParticipation
       //- alt: booking, reservation, contribution
       //- 
-      div#cp-participant.content.row.responsive-sm(ng-if="vm.acl.isParticipant()")
+      div#cp-participant.content.row.responsive-sm(ng-if="particip=vm.lookup['MyParticipation']")
         div.col.col-offset-25.col-50
           div.row
             div.col.text-left
-              div.my-participation.list.card.condensed {{myPart=vm.lookup['MyParticipation'];''}}
+              div.my-participation.list.card.condensed
                 div.item.item-divider.item-balanced.light
                   div.larger My Participation
                 h5.balanced.padding-horizontal Booking
                 {{person = vm.me;''}}
-                div.item.item-avatar.participation 
-                  img(
-                    ng-src="{{person.face}}" 
-                    ng-click="vm.on.gotoState('app.profile','id', person)"
-                    )
-                  span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
-                  div
-                    b.name {{ person.displayName }}
-                    &nbsp;
-                    b.seats ({{myPart.seats}} seat{{myPart.seats>1 ? 's' : ''}})
-                  div.comment.muted {{myPart.comment}}
+                {{ others = particip.seats==2 && '+1 other' || particip.seats>2 && '+' + (particip.seats - 1) + ' others' || '';'' }}
+                div(ng-show='particip.participantId')
+                  div.item.participation.item-avatar {{person=vm.lookup['Users'][particip.participantId];''}}
+                    img.muted(
+                      ng-src="{{person.face}}" 
+                      ng-click="vm.on.gotoState('app.profile','id', person)"
+                      )
+                    span.face-overlay(ng-if="!person.face" ng-bind="person.firstname[0]") 
+                    b {{person.displayName }}
+                    div.seats.pull-right(ng-bind="others")
+                    div.comment.muted.wrap {{particip.comment}}
+                div(ng-show='particip.responseId')
+                  div.item.participation.item-avatar
+                    span.face-overlay
+                      i.icon.ion-person.balanced 
+                    div.seats.pull-right(ng-bind="others")
+                    b.padding-right {{particip.responseName }}
+                    div.comment.muted.wrap {{particip.comment}}  
 
                 h5.balanced.padding-horizontal Contribution 
-                {{ myContribs=vm.lookupByClass(item, 'Contributions', myPart.contributionIds);''}}
+                {{ myContribs=vm.lookupByClass(item, 'Contributions', particip.contributionIds);''}}
                 div.item.item-avatar(ng-repeat="contrib in myContribs")
                   {{contrib.menuItem=vm.lookup['MenuItems'][contrib.menuItemId];''}}
                   img(
@@ -316,7 +354,7 @@ ion-view(view-title="{{vm.title}}")
                   p(ng-if="item.summary.myParticipation.isFullyParticipating==false"). 
                     You are contributing a total of {{item.summary.myParticipation.portions}} portions 
                     #[span.nowrap ( {{item.summary.myParticipation.portionsPct }}% )]
-                    based on your participation of {{myPart.seats}} seats. 
+                    based on your participation of {{particip.seats}} seats. 
                   p(ng-if="item.summary.myParticipation.isFullyParticipating").
                     You are already contributing to this event, but feel free to sign-up for more if you like.
                 div.item.button-full
@@ -327,15 +365,13 @@ ion-view(view-title="{{vm.title}}")
                 h5.balanced.padding-horizontal Actions
                 div.item
                   div.button-bar
-                    button.button.item-icon-left.button-positive(
+                    button.button.button-positive.icon.ion-ios-upload(
                       ng-click="vm.on.showShareLink(item)"
                     )
-                      i.icon.ion-ios-upload 
                       &nbsp; Share
-                    button.button.item-icon-left.button-positive(
+                    button.button.button-positive.icon.ion-edit(
                       ng-click="vm.on.beginResponse(vm.me, item)"
                     )
-                      i.icon.ion-edit 
                       &nbsp; Edit
 
 
@@ -403,7 +439,7 @@ ion-view(view-title="{{vm.title}}")
               stroke="opt.circle.stroke"
               )
             ui-gmap-marker(
-              ng-if="vm.acl.isParticipant()"
+              ng-if="vm.acl.isParticipant('Yes')"
               idKey="opt.marker.idKey"
               coords="opt.marker.coords"
               )

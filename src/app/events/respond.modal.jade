@@ -41,10 +41,18 @@ ion-modal-view#invitation-response-modal {{item=myResponse.event; me=myResponse.
       form(name="bookingForm" novalidate="" ng-submit="mm.submitResponse($event, myResponse, closeModal)")
       
         div(ng-show="mm.active")
-          div.item.item-avatar(ng-if="vm.acl.isAnonymous()==false")
-            img(ng-src="{{me.face}}")
-            span.face-overlay(ng-if="!me.face" ng-bind="me.firstname[0]")
-            b {{me.displayName }} - You are about to respond to this event.
+          {{person=vm.me;''}}
+          div.item.participation.item-avatar(ng-if="vm.acl.isParticipant()")
+            img.muted(
+              ng-src="{{person.face}}" 
+              )
+            span.face-overlay(ng-if="person.participation") 
+              i.icon.ion-person.balanced
+            span.face-overlay(ng-if="!person.face && !person.participation" ng-bind="person.firstname[0]") 
+            b {{person.displayName || person.participation.responseName }} -
+            {{verb = vm.acl.isParticipant() && 'update' || 'respond';'' }}
+            span You are about to {{verb}} to this event.
+
           label.item.item-input.item-stacked-label
             span.input-label Comment
             div.padding-right
@@ -59,7 +67,7 @@ ion-modal-view#invitation-response-modal {{item=myResponse.event; me=myResponse.
             input(type="range" name="seats" min="0" max="{{item.seatsOpen}}" ng-model="response.seats")
             i.icon.ion-ios-people.positive
 
-        div(ng-show="mm.active=='Yes' && vm.acl.isAnonymous()")  
+        div(ng-show="mm.active=='Yes' && !vm.me.id")  
           //- sign-in register response card for Yes 
           div.list.card.condensed.anonymous-response-card
             div.item.item-divided.item-positive.
@@ -93,7 +101,7 @@ ion-modal-view#invitation-response-modal {{item=myResponse.event; me=myResponse.
                 ng-model="response.displayName")
             label.item.item-input.item-label
               span.input-label Passcode
-              input(type="text" name="passcode" 
+              input(type="text" name="passcode" maxlength="8"
                 placeholder="Required to change your response." 
                 ng-model="response.passcode")
 
