@@ -2,10 +2,33 @@
 
 # helper functions for managing user actions on events
 EventActionHelpers = ($rootScope, $q, $timeout
-  $location, $state, $stateParams
+  $location, $state, $stateParams, $ionicPopup
   TokensResource, ParticipationsResource
   appModalSvc
   $log, toastr)->
+
+  passcodePopup = {
+    template: '<input type="password" ng-model="passcode">',
+    title: "Update Response"
+    subTitle: 'Enter your passcode to update this response',
+    cssClass: 'passcode-popup'
+    scope: null
+    buttons: [
+      { text: 'Cancel' }
+      {
+        text: 'OK'
+        type: 'button-positive'
+        onTap: (e)->
+          passcode = angular.element(e.currentTarget).scope().passcode
+          e.preventDefault() if !passcode
+            # //don't allow the user to close unless he enters passcode password
+          return passcode if passcode
+      }
+    ]
+  }
+
+
+
   self = {
     getShareLinks: (event)->
       vm = this
@@ -69,12 +92,20 @@ EventActionHelpers = ($rootScope, $q, $timeout
             item: event
             links: shareLinks
             goto: (type, id)->
+              return false
+
+              if type.currentTarget # event
+                return false # let a.href handle it naturally
+
+              if ionic.Platform.isWebView()
+                return false
               if type == 'invitation' # goto Invite
                 state = 'app.event-detail.invitation'
                 params = {invitation: id}
               if type == 'event' # goto Event
                 state = 'app.event-detail'
                 params = {id: id}
+
               $log.info "TESTING: manually transition to state=" + JSON.stringify [state,id]
               $state.transitionTo(state, params)
 
@@ -92,8 +123,18 @@ EventActionHelpers = ($rootScope, $q, $timeout
       vm = this
       return $q.when()
       .then ()->
+        if person && person == vm.lookup['Participations'][person.id]
+          participation = person
+          # recover anonymous response with passcode
+          return $ionicPopup.show(passcodePopup)
+          .then (response)->
+            key = ParticipationsResource.setResponseId(person, response, 'peek')
+            return participation if key == participation.responseId
+            toastr.warning "The passcode did not match"
+            return $q.reject('WARNING: The passcode did not match or records')
+      .then (participation)->
         options = {}
-        participation = vm.getParticipationByUser(person)
+        participation = vm.getParticipationByUser(person) if !participation
         if $state.is('app.event-detail.invitation')
           # assume invitation is valid if we got this far
           return $q.reject('INVALID') if !$state.params.invitation
@@ -244,7 +285,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
 
 
 EventActionHelpers.$inject = ['$rootScope', '$q', '$timeout'
-'$location', '$state', '$stateParams'
+'$location', '$state', '$stateParams', '$ionicPopup'
 'TokensResource', 'ParticipationsResource'
 'appModalSvc'
 '$log', 'toastr']

@@ -431,3 +431,12 @@ $hero-wrap-bg-height: 170px;
     }
   }
 }
+
+.passcode-popup {
+  .popup {
+    width: 300px;
+    .popup-body {
+      @extend .padding-horizontal;
+    }
+  }
+}

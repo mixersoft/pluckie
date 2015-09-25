@@ -276,7 +276,7 @@ ion-view(view-title="{{vm.title}}")
                   div.comment.muted.wrap {{particip.comment}}
               div(ng-show='particip.responseId')
                 div.item.participation.item-avatar
-                  span.face-overlay
+                  span.face-overlay(ng-click="vm.on.beginResponse(particip, item)")
                     i.icon.ion-person 
                   div.seats.pull-right(ng-bind="others")
                   b.padding-right {{particip.responseName }}

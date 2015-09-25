@@ -58,10 +58,12 @@ ParticipationsResource = (Resty, amMoment) ->
   }
   service = new Resty(data)
 
-  service.setResponseId = (data, passcode)->
+  service.setResponseId = (data, passcode, peek)->
     return data if data['participantId']?
     throw new Exception "ERROR: expecting data.responseName" if !data.responseName
-    data['responseId'] = [passcode, data['responseName'].toLowerCase()].join('~').replace(/ /g,'')
+    key = [passcode, data['responseName'].toLowerCase()].join('~').replace(/ /g,'')
+    return key if peek
+    data['responseId'] = key
     return data
 
   service.formatResponse = (data)->
