@@ -321,6 +321,9 @@ label.inline-field {
     height: 40px;
     color: white;
     text-align: center;
+    &.clear-bg {
+      background-color: rgba(0,0,0,0.4);
+    }
   }
 }
 

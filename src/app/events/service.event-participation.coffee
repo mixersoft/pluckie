@@ -170,6 +170,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
               if myResponse.response.seats < 1
                 toastr.warning("You must respond for at least 1 person")
 
+              myResponse.response['value'] = this.active
               return promise = self.saveResponse.call(vm, myResponse)
               .then (result)->
                 onSuccess?(result)

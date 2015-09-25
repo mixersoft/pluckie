@@ -67,20 +67,30 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   ###
   vm.getParticipationByUser = (user)->
     # TODO: memo result in vm.lookup
-    return false if !user
+    return null if !user
     participation = _.find vm.lookup['Participations'], {participantId: user.id}
     participation = user.participation if !participation  # the case of anonymous participation
-    return false if !participation
-    contributions = _.filter vm.lookup['Contributions'], {contributorId: user.id}
-    participation.contributionIds = _.pluck contributions, 'id'
+    return null if !participation
+    # TODO: link contribution to participation.id, not user.id
+    participation.contributionIds = []
+    if participation.response == 'Yes'
+      contributions = _.filter vm.lookup['Contributions'], {contributorId: user.id}
+      participation.contributionIds = _.pluck contributions, 'id'
     return participation
 
-  vm.getContributionsByMenuItem = (menuItem)->
+  vm.getContributionsByMenuItem = (event, menuItem)->
     return [] if !menuItem
-    return contributions = _.filter vm.lookup['Contributions'], {menuItemId: menuItem.id}
+    # filter only 'Yes' participation.responses
+    yesParticipantIds = _.chain vm.getParticipationsByEvent(event, 'Yes')
+      .pluck 'participantId'
+      .value()
+    contributions = _.filter vm.lookup['Contributions'], (o)->
+      return false if !~yesParticipantIds.indexOf o.contributorId
+      return true if o.menuItemId == menuItem.id
+    return contributions
 
   vm.getParticipationsByEvent = (event, response, sort)->
-    return [] if !event['ready']
+    return [] if !event || !event['ready']
     participations = _.chain(event.participationIds)
     .map (id)-> return vm.lookup['Participations'][id]
     .compact()
@@ -105,6 +115,21 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
      
 
   vm.acl = {
+    debounced:
+      isParticipant_ALL: _.debounce( ()->
+        return vm.acl.isParticipant()
+      , 300 , {
+        leading: true
+        maxWait: 300
+        trailing: false
+      })
+      isParticipant_YES: _.debounce( ()->
+        return vm.acl.isParticipant('Yes')
+      , 300 , {
+        leading: true
+        maxWait: 300
+        trailing: false
+      })
     isAnonymous: ()->
       return true if !$rootScope.user.id
       return false
@@ -114,9 +139,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       return vm.acl.isParticipant() == false
    
     isParticipant: (responseType)->
-      # TODO debounce this function?
       return false if _.isEmpty $rootScope['user']
-      # memoize?
       participations = _.chain(vm.lookup['Participations'])
       participations = participations.filter({response:responseType}) if responseType
       participantIds = participations.pluck('participantId').compact().value()
@@ -124,12 +147,13 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       return true if vm.acl.isOwner()
       # handle anonymous response participation
       anonResp = $rootScope['user'].participation?.response
-      return true if anonResp && !responseType
-      return true if anonResp == responseType
+      return false if !anonResp
+      return true if !responseType || anonResp == responseType
       return false
 
     isContributor: ()->
       return false if _.isEmpty $rootScope.user
+      $log.warn "isContributor() fix to consider if participation.response=='Yes'"
       return true if _.pluck(vm.lookup['Contributions'],'contributorId')
       .indexOf($rootScope.user.id) > -1
       # return vm.event?.contributorIds?.indexOf($rootScope.user.id) > -1
@@ -180,7 +204,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       if values[next] == 'contribute'
         if !vm.event.summary # not ready
           return vm.on.menuView(next, peek) # skip
-        if vm.acl.isParticipant('Yes') == false
+        if vm.acl.debounced.isParticipant_YES() == false
           return vm.on.menuView(next, peek) # skip
         if vm.event.summary.myParticipation.isFullyParticipating
           if value == 'next'
@@ -470,26 +494,31 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         portionsPct: 0
     }
 
+    # filter for Yes participants
+    yesParticipantIds = []
+
     # public stats
     summary['countdown'] = moment(event.startTime).fromNow()
 
-    _.each event.participationIds, (id)->
-      o = vm.lookup['Participations'][id]
+    _.each vm.lookup['Participations'], (o)->
+      return if o.eventId != event.id
       summary.response[o.response] += parseInt(o.seats || 1)
-      summary.booking['seats'] += parseInt o.seats if o.response == 'Yes'
+      if o.response == 'Yes'
+        summary.booking['seats'] += parseInt o.seats
+        yesParticipantIds.push o.participantId
       return
-    summary.booking['parties'] = event.participationIds.length
+    summary.booking['parties'] = yesParticipantIds.length
     summary.booking['seatsPct'] = Math.round( summary.booking['seats']/event.seatsTotal * 100 )
     event.seatsOpen = Math.max(0, event.seatsTotal - summary.booking['seats'])
 
     # myParticipation, any response
-    if vm.acl.isParticipant()
-      vm.lookup['MyParticipation'] = vm.getParticipationByUser(vm.me)
+    vm.lookup['MyParticipation'] = vm.getParticipationByUser(vm.me)
+    if vm.lookup['MyParticipation']
       myParticipation = summary['myParticipation']
       myParticipation['isFullyParticipating'] = false
 
-    if vm.acl.isContributor()
-      myParticipation = summary['myParticipation']
+    if vm.lookup['MyParticipation']?.contributionIds.length
+      # myParticipation = summary['myParticipation']
       _.each vm.lookup['MyParticipation'].contributionIds, (id)->
         myParticipation['portions'] += parseInt vm.lookup['Contributions'][id].portions
         return
@@ -500,22 +529,25 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       if myParticipation['portionsPct'] > 85
         myParticipation['isFullyParticipating'] = true
 
-    if vm.acl.isParticipant()  # any? or only 'Yes'
-      contributors = []
+    if vm.lookup['MyParticipation']  # stats are visible to any Participant
+      yesContributions = _.reduce vm.lookup['Contributions'], (result, o)->
+        # filter out participation.response != 'Yes'
+        result.push o if ~yesParticipantIds.indexOf o.contributorId
+        return result
+      ,[]
+
       participation = summary['participation']
       participation['menuItems'] = _.chain(vm.lookup['Contributions'])
-        .pluck( 'menuItemId')
-        .uniq().value().length
-      _.each event.contributionIds, (id)->
-        o = vm.lookup['Contributions'][id]
-        return if !o    # ERROR
-        return if !o.contributorId?   # null ok
+        .pluck( 'menuItemId').uniq().value().length
+      
+      
+      _.each yesContributions, (o)->
+        # return if !o.contributorId?   # mitem with no contributor
+        # ignore if contributor changed response, not coming
         participation['menuItemContributions'] += 1
         participation['portions'] += parseInt o.portions
         return
-      participation['contributors'] = _.chain(vm.lookup['Contributions'])
-        .pluck( 'contributorId')
-        .compact().uniq().value().length
+      participation['contributors'] = yesContributions.length
       participation['contributorsPct'] =
         Math.round( participation['contributors'] / summary.booking['parties'] * 100 )
       participation['menuItemContributionsPct'] =
@@ -536,11 +568,16 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   ###
   getDerivedValues_MenuItems = (event)->
     # TODO: move to a better location
+    yesParticipantIds = _.chain vm.getParticipationsByEvent(event, 'Yes')
+      .pluck 'participantId'
+      .value()
     # Contributions indexBy MenuItemId
+
     vm.lookup['MenuItemContributions'] = _.reduce vm.lookup['Contributions'], (result, contrib)->
       return result if contrib.eventId != event.id
       result[contrib.menuItemId] = result[contrib.menuItemId] || []
-      return result if !contrib.contributorId # null contribution
+      return result if !contrib.contributorId   # mitem with no contributor
+      return result if !~yesParticipantIds.indexOf contrib.contributorId
       result[contrib.menuItemId].push contrib
       return result
     , {}
@@ -680,6 +717,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       # first contribution to existing menuItem
       #   assign contributorId to record,
       found = _.find(vm.lookup['Contributions'], _.pick(contrib, ['menuItemId','eventId']))
+      if found.contributorId
+        # reset this contribution, it was not from an yesParticipationId
+        # if it were, it would have appeared in vm.lookup['MenuItemContributions'][menuItem.id]
+        found.portions = 0
+        found.contributorId = null
       if !found
         toastr.error "Error: Expecting empty Contribution record for menuItemId="+menuItem.id
       # update portion from existing contrib
@@ -711,7 +753,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       else
         vm.lookup['MenuItemContributions'][result.menuItemId][i] = result
       # update MyParticipation.contributionIds,  .contributions
-      if !~vm.lookup['MyParticipation'].contributionIds.indexOf( result.id )
+      vm.lookup['MyParticipation'] = vm.getParticipationByUser(vm.me)
+      if !~vm.lookup['MyParticipation']?.contributionIds.indexOf( result.id )
         vm.lookup['MyParticipation'].contributionIds.push( result.id )
       # need to getDerivedValues()
       $scope.$broadcast 'lookup-data:changed', {className:'Contributions'}
@@ -861,8 +904,13 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
             vm.lookup['Users'][user.id] = user
             return
       else
+        isResponseChanged =  participant.response != participation.response
         _.extend participation, participant  # update lookup
-
+        if isResponseChanged
+          if participation.response != 'Yes'
+            delete vm.lookup['MyParticipation']
+          $scope.$broadcast 'event:contribution-changed'
+          return
 
     event = vm.event
     getDerivedValues_Event(event)
@@ -876,7 +924,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     event.summary['distribution'] = getDerivedValues_MenuItems(event)
     # push notification to host + participants
     return
-
+  
 
   $scope.$on '$ionicView.loaded', (e) ->
     $log.info "viewLoaded for EventDetailCtrl"
@@ -888,6 +936,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   $rootScope.$on 'user:sign-in', (ev, user)->
     return if vm.event.ready == false
+
+  $rootScope.$on 'user:sign-out', ()->
+    return
 
     #ready
     vm.me = $rootScope.user
