@@ -5,11 +5,13 @@
 # for more ideas
 # see: http://brewhouse.io/blog/2014/12/09/authentication-made-simple-in-single-page-angularjs-applications.html
 #
-AAAHelpers = ($rootScope, $q, $location, $stateParams
+AAAHelpers = ($rootScope, $q, $location, $timeout
   UsersResource
   appModalSvc
   devConfig, $log, toastr)->
   self = {
+    
+    # example: AAAHelpers.signIn.apply(vm, arguments)
     signIn: (person, fnComplete)->
       return $q.when()
       .then (result)->
@@ -22,7 +24,7 @@ AAAHelpers = ($rootScope, $q, $location, $stateParams
       .then (person)->
         return devConfig.loginUser( person.id , true)
         .then (user)->
-          # $rootScope.$emit 'user:sign-in', $rootScope['user']
+          $rootScope.$emit 'user:sign-in', $rootScope['user']
           return fnComplete?(user) || user
       .catch (err)->
         $rootScope.$emit 'user:sign-out'
@@ -37,6 +39,7 @@ AAAHelpers = ($rootScope, $q, $location, $stateParams
         err['isError'] = true
         return fnComplete?(err) || err
 
+    #  example: AAAHelpers.register.apply(vm, arguments)
     register: (person, fnComplete)->
       return $q.when()
       .then (result)->
@@ -67,12 +70,52 @@ AAAHelpers = ($rootScope, $q, $location, $stateParams
           }
         err['isError'] = true
         return fnComplete?(err) || err
+
+    # exaple AAAHelpers.showSignInRegister.apply(vm, arguments)
+    showSignInRegister: (initialSlide)->
+      vm = this
+      SlideController = {
+        index: null
+        slideLabels: ['signup', 'signin']
+        initialSlide: initialSlide || 'signup'
+        setSlide: (label)->
+          if SlideController.index==null
+            $timeout ()->
+              # ionSlideBox not yet initialized/compiled, wrap in $timeout
+              # $log.info "timeout(0)"
+              label = SlideController.initialSlide if !label
+              return SlideController.setSlide(label)
+            return SlideController.index = 0
+
+          return SlideController.index if `label==null` # for active-slide watch
+
+          label = SlideController.initialSlide if label == 'initial'
+          i = SlideController.slideLabels.indexOf(label)
+          next = if i >= 0 then i else SlideController.index
+          return SlideController.index = next
+
+        signIn: (person, fnComplete)->
+          return self.signIn(person, fnComplete)
+        register: (person, fnComplete)->
+          return self.register(person, fnComplete)
+      }
+
+      return $q.when()
+      .then ()->
+        return appModalSvc.show('people/sign-in-sign-up.modal.html', vm, {
+          person: {}
+          slideCtrl: SlideController
+        })
+      .then (result)-> # closeModal(result)
+        return $q.reject('CANCELED') if `result==null` || result == 'CANCELED'
+        return $q.reject(result) if result?['isError']
+        return result
   }
   
   return self # AAAHelpers
 
 
-AAAHelpers.$inject = ['$rootScope', '$q', '$location', '$stateParams'
+AAAHelpers.$inject = ['$rootScope', '$q', '$location', '$timeout'
 'UsersResource'
 'appModalSvc'
 'devConfig', '$log', 'toastr']

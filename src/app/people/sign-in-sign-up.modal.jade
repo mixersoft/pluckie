@@ -1,5 +1,6 @@
 //- people/sign-up.modal.html
-ion-modal-view#sign-in-sign-up {{slideCtrl.setSlide();''}}
+ion-modal-view#sign-in-sign-up 
+  div {{slideCtrl.setSlide();''}}
   ion-slide-box(
     delegate-handle="sign-in-sign-up"
     active-slide="slideCtrl.index"
@@ -19,7 +20,7 @@ ion-modal-view#sign-in-sign-up {{slideCtrl.setSlide();''}}
           div.item
             div.text-center.muted.larger &mdash; or &mdash;
           div.padding-horizontal
-            form(name="registerForm" novalidate="" ng-submit="vm.on.register(person, closeModal)")
+            form(name="registerForm" novalidate="" ng-submit="slideCtrl.register(person, closeModal)")
               label.item.item-input
                 i.icon.ion-person.padding-horizontal.larger
                 input(type="text" name="Username" placeholder="Username" ng-model="person.username" required)
@@ -50,7 +51,7 @@ ion-modal-view#sign-in-sign-up {{slideCtrl.setSlide();''}}
           div.item
             div.text-center.larger &mdash; or &mdash;
           div.padding-horizontal
-            form(name="signInForm" novalidate="" ng-submit="vm.on.signIn(person, closeModal);")
+            form(name="signInForm" novalidate="" ng-submit="slideCtrl.signIn(person, closeModal);")
               label.item.item-input
                 i.icon.ion-person.padding-horizontal.larger
                 input(type="text" name="Username" placeholder="Username" ng-model="person.username" required)

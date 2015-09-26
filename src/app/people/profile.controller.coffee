@@ -4,10 +4,16 @@ ProfileCtrl = (
   $scope, $rootScope, $q, $location, $timeout, $state, $stateParams
   $ionicScrollDelegate
   $log, toastr
-  UsersResource
-  appModalSvc
+  UsersResource, AAAHelpers
   utils, devConfig, exportDebug
   )->
+  # coffeelint: disable=max_line_length
+  ANON_USER = {
+    id: false
+    displayName: 'Just Visiting?'
+    face: 'http://38.media.tumblr.com/acccd28f5b5183011cca2f279874da79/tumblr_inline_niuxsprCsL1t9pm9x.png'
+  }
+  # coffeelint: enable=max_line_length
 
   vm = this
   vm.title = "Profile"
@@ -40,6 +46,16 @@ ProfileCtrl = (
       $timeout ()->
         vm.settings.editing = false
       return
+
+    showSignInRegister: (action)->
+      return AAAHelpers.showSignInRegister.call(vm, action)
+      .then (user)->
+        vm.person = user if user
+        $log.info user
+
+    notReady: (value)->
+      toastr.info "Sorry, " + value + " is not available yet"
+      return false
   }
 
   $scope.dev = {
@@ -80,7 +96,7 @@ ProfileCtrl = (
 
   initialize = ()->
     # dev
-    DEV_USER_ID = '0'
+    DEV_USER_ID = # '0'
     devConfig.loginUser( DEV_USER_ID , false)
     .then (user)->
       vm.me = $rootScope.user
@@ -94,6 +110,8 @@ ProfileCtrl = (
     if !userid
       # me, copy in case we need to reset
       vm.person = angular.copy(vm.me)
+      if _.isEmpty vm.person
+        vm.person = ANON_USER
       promise = $q.when vm.person
     else if userid == vm.me.id
       vm.person = vm.me
@@ -124,8 +142,7 @@ ProfileCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$location', '$timeout', '$state', '$stateParams'
   '$ionicScrollDelegate'
   '$log', 'toastr'
-  'UsersResource'
-  'appModalSvc'
+  'UsersResource', 'AAAHelpers'
   'utils', 'devConfig', 'exportDebug'
 ]
 

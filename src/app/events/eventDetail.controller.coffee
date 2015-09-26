@@ -243,56 +243,22 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     'showShareLink': ()->EventActionHelpers.showShareLink.apply(vm, arguments)
 
     showSignIn: (initialSlide)->
-      slideCtrl = {
-        index: null
-        slideLabels: ['signup', 'signin']
-        initialSlide: initialSlide || 'signup'
-        setSlide: (label)->
-          if slideCtrl.index==null
-            $timeout ()->
-              # ionSlideBox not yet initialized/compiled, wrap in $timeout
-              # $log.info "timeout(0)"
-              label = slideCtrl.initialSlide if !label
-              return slideCtrl.setSlide(label)
-            return slideCtrl.index = 0
-
-          return slideCtrl.index if `label==null` # for active-slide watch
-
-          label = slideCtrl.initialSlide if label == 'initial'
-          i = slideCtrl.slideLabels.indexOf(label)
-          next = if i >= 0 then i else slideCtrl.index
-          return slideCtrl.index = next
-      }
-      return $q.when()
-      .then ()->
-        return appModalSvc.show('people/sign-in-sign-up.modal.html', vm, {
-          person: {}
-          slideCtrl: slideCtrl
-        })
+      return AAAHelpers.showSignInRegister.apply(vm, arguments)
       .then (result)-> # closeModal(result)
         return $q.reject('CANCELED') if `result==null` || result == 'CANCELED'
         return $q.reject(result) if result?['isError']
         return result
 
-    signIn: (person, fnComplete)->
-      return AAAHelpers.signIn.apply(vm, arguments)
-
-    register: (person, fnComplete)->
-      return AAAHelpers.register.apply(vm, arguments)
-
     'beginResponse': ()->
       return EventActionHelpers.beginResponse.apply(vm, arguments)
     
-
+    # called by button.JoinEvent
+    # ???:deprecate? is this the same as beginResponse?
+    # or do is this action for joinEvent w/o invitation?
     beginBooking: (person, event)->
       return $q.when()
       .then ()->
         return isInvitationRequired(event)
-      # .then ()->
-      #   if _.isEmpty person
-      #     return vm.on.showSignIn()
-      #     .then (result)->
-      #       return person = result
       .then ()->
         return appModalSvc.show('events/booking.modal.html', vm, {
           mm:   # mm == "modal model" instead of view model

@@ -1,23 +1,28 @@
 // people/profile.jade
-ion-view(view-title="{{vm.title}}")
-  //- ion-nav-bar.bar-balanced
-  //-   button.button.back-button.button-clear.header-item.icon.ion-ios-arrow-back(
-  //-     ng-click="$ionicGoBack()"
-  //-     ) Back
-  ion-content#profile.has-header.light-bg {{me=vm.me;''}}
+ion-view(view-title="{{vm.title}}") {{person=vm.person;''}}
+  ion-content#profile.has-header.light-bg
     div.hero-a
       div.content
         div.hero-wrap.has-mask-reverse
-          div.hero-bg.blur(ng-style="vm.imgAsBg(me.face)")
+          div.hero-bg.blur(ng-style="vm.imgAsBg(person.face)")
         div.hero-toolbar.padding
           i.padding-left.icon.ion-heart.dark
           i.padding-left.icon.ion-ios-upload.dark
         div.text-center.padding
-          h2.light.text-center {{me.displayName}}
-          img.face(ng-src="{{me.face}}")
+          h2.light.text-center {{person.displayName}}
+          img.face(ng-src="{{person.face}}")
 
-    div#description.content.row.responsive-sm
-      div.col.col-offset-25.col-50 {{person=vm.person;''}}
+    div#description.content.row.responsive-sm(ng-if="person.id==false")
+      div.col.col-offset-25.col-50
+        div.text-center.padding
+          h3 Take off your coat #[span.nowrap and stay awhile...]
+        div.text-center.padding
+          button.button.button-positive(
+            ng-click="vm.on.showSignInRegister('signin')"
+            ) Sign in
+
+    div#description.content.row.responsive-sm(ng-if="person.id")
+      div.col.col-offset-25.col-50
         form(name="updateProfile" novalidate="" ng-submit="vm.on.updateProfile(person, changePass);")
           div.list
             label.item.item-input
