@@ -1,7 +1,7 @@
 // menu/menu.jade
 ion-view(view-title="{{vm.title}}")
   ion-content#menu-item.has-header.light-bg 
-    div.menu-item(ng-repeat="id in vm.listIds")
+    div.menu-item(ng-repeat="id in vm.menuItemIds")
       div.hero-a
         div.content {{item=vm.lookup['MenuItems'][id];''}}
           div.hero-wrap.has-mask-reverse
@@ -24,6 +24,28 @@ ion-view(view-title="{{vm.title}}")
               a(ng-href="{{item.link}}" ng-click="vm.openExternalLink($event, item.link)" target="_blank")
                 button.button.button-positive see more
             div.last-row
+
+      div.content.row.responsive-sm(ng-show="vm.lookup['EventsByMenuId'][item.id]")
+        div.col.col-offset-25.col-50
+          div.list
+            div.item.item-royal.item-icon-right
+              div.larger.capitalize Featured In
+              i.icon(
+                ng-class="{'ion-arrow-down-b':!item.showFeatured, 'ion-arrow-up-b':item.showFeatured}"
+                ng-click="item.showFeatured = vm.on.toggleFeaturedIn(item)")
+            div.item.item-icon-left(
+              ng-show="item.showFeatured"
+              ng-repeat="eventId in vm.lookup['EventsByMenuId'][item.id]"
+              )
+              {{ event=vm.lookup['Events'][eventId];'' }}
+              i.icon.ion-fork.royal
+              div.larger.royal.padding-horizontal(
+                ng-bind="event.title"
+                ui-sref="app.event-detail({id: {{eventId}}  })"
+                )
+          div.last-row
+
+
 
 
 

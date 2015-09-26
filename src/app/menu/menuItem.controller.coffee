@@ -4,7 +4,7 @@ MenuItemCtrl = (
   $scope, $rootScope, $q, $location, $stateParams, $timeout
   $ionicScrollDelegate
   $log, toastr
-  MenuItemsResource
+  MenuItemsResource, ContributionsResource, EventsResource
   appModalSvc
   utils, devConfig, exportDebug
   )->
@@ -13,8 +13,12 @@ MenuItemCtrl = (
   vm.title = "Menu"
   vm.me = null      # current user, set in initialize()
   vm.menuItem = {}
-  vm.listIds = []   # sorted array of menuItemIds
-  vm.lookup = {}
+  vm.menuItemIds = []   # sorted array of menuItemIds
+  vm.lookup = {
+    'MenuItems': {}
+    'Events': {}
+    'EventsByMenuId': {}
+  }
   vm.imgAsBg = utils.imgAsBg
   vm.openExternalLink = utils.openExternalLink
   vm.acl = {
@@ -41,19 +45,27 @@ MenuItemCtrl = (
 
     scrollToItem: (menuItem)->
       $timeout ()->
-        i = vm.listIds.indexOf(menuItem.id)
+        i = vm.menuItemIds.indexOf(menuItem.id)
         return if i == -1
         $log.info "scroll to index=" + i
+        return if i == 0
         menuItems = document.getElementsByClassName('menu-item')
         found = _.find menuItems, (o)->
           return true if o.parentNode.parentNode.id == 'menu-item'
+        return if !found
         $container = angular.element(found.parentNode)
         if _.isEmpty($container)
           $log.warn "Error: could not find menuItem in DOM, id="+menuItem.id
         menuItemDom = $container.children()[i]
+        return if !menuItemDom
         pos = ionic.DomUtil.getPositionInParent(menuItemDom)
         $ionicScrollDelegate.scrollTo(pos.left, pos.top, false)
         return
+
+    toggleFeaturedIn: (item)->
+      item.showFeatured = !item.showFeatured
+      $log.info "showFeatured=" + item.showFeatured
+      return item.showFeatured
 
     xxloadNext: ()->
       $scope.$broadcast('scroll.infiniteScrollComplete')
@@ -79,7 +91,7 @@ MenuItemCtrl = (
 
   initialize = ()->
     # dev
-    DEV_USER_ID = '0'
+    DEV_USER_ID = null # '0'
     devConfig.loginUser( DEV_USER_ID , false)
     .then (user)->
       vm.me = $rootScope.user
@@ -92,23 +104,30 @@ MenuItemCtrl = (
       vm.on.scrollToItem(vm.menuItem)
       
 
-
-
   getData = (curId)->
     curId = $stateParams['id'] if `curId==null`
-    vm.listIds = if $stateParams['menu'] then $stateParams['menu'].split(',') else null
-    getMenuItems(vm.listIds || [curId])
+    vm.menuItemIds = if $stateParams['menu'] then $stateParams['menu'].split(',') else null
+    getMenuItems(vm.menuItemIds || [curId])
     .then (result)->
       vm.menuItem = vm.lookup['MenuItems'][curId]
       return vm.menuItem
     .then (itemCurrent)->
       # xxsetPrevNextItems(itemCurrent)
       # vm.nextDomId = xxreorderPrevNextDom()
-      vm.listIds = sorted = _.pluck MenuItemsResource.sortByCategory(vm.lookup['MenuItems']), 'id'
+      vm.menuItemIds = sorted = _.pluck MenuItemsResource.sortByCategory(vm.lookup['MenuItems']), 'id'
       return itemCurrent
+    .then ()->
+      # vm.lookup['EventsByMenuId'] = {} if !vm.lookup['EventsByMenuId']
+      # vm.lookup['Events'] = {} if !vm.lookup['Events']
+      _.each vm.menuItemIds, (mid)->
+        $timeout ()->
+          skip = getEventIdsByMenuItemId(mid).then (eventIds)->
+            getEvents(eventIds)
+        ,10
+      return
 
   getMenuItems = (ids)->
-    vm.lookup['MenuItems'] = {} if !vm.lookup['MenuItems']
+    # vm.lookup['MenuItems'] = {} if !vm.lookup['MenuItems']
     ids = _.difference ids, _.pluck(vm.lookup['MenuItems'],'id')
     if !ids.length
       return $q.when vm.lookup['MenuItems']
@@ -119,11 +138,30 @@ MenuItemCtrl = (
         return
       return vm.lookup['MenuItems']
 
+  getEventIdsByMenuItemId = (mid)->
+    filter = {menuItemId: mid}
+    return ContributionsResource.query(filter).then (results)->
+      eventIds = _.chain( results ).pluck('eventId').uniq().value()
+      vm.lookup['EventsByMenuId'][mid] = eventIds
+      $log.info "EventIds=" + JSON.stringify eventIds
+      return eventIds
+
+  getEvents = (eids)->
+    missing = _.difference eids, _.keys vm.lookup['Events']
+    $log.info "missing EventIds=" + JSON.stringify missing
+    skip = EventsResource.get(missing).then (results)->
+      _.each results, (o)->
+        vm.lookup['Events'][o.id] = o
+      $log.info "Events.title=" + JSON.stringify _.pluck( results, 'title')
+      return
+
+
+
   xxsetPrevNextItems = (current)->
-    if !vm.listIds
+    if !vm.menuItemIds
       vm.prev = vm.next = null
       return
-    vm.listIds = sorted = _.pluck MenuItemsResource.sortByCategory(vm.lookup['MenuItems']), 'id'
+    vm.menuItemIds = sorted = _.pluck MenuItemsResource.sortByCategory(vm.lookup['MenuItems']), 'id'
     i = sorted.indexOf(current.id)
     vm.prev = if i==0 then null else sorted[i-1]
     vm.next = if i+1==sorted.length then null else sorted[i+1]
@@ -160,7 +198,7 @@ MenuItemCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$location','$stateParams', '$timeout'
   '$ionicScrollDelegate'
   '$log', 'toastr'
-  'MenuItemsResource'
+  'MenuItemsResource', 'ContributionsResource', 'EventsResource'
   'appModalSvc'
   'utils', 'devConfig', 'exportDebug'
 ]
