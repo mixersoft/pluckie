@@ -147,6 +147,8 @@ EventActionHelpers = ($rootScope, $q, $timeout
           options['active'] = participation.response
           options['seats'] = participation.seats
           options['comment'] = participation.comment
+          # TODO: shouldn't extract passcode here, 
+          # just offer user a chance to change passcode, and save to server
           options['passcode'] = participation.responseId?.split('~').shift()
         if person?.displayName # override
           options['displayName'] = person.displayName

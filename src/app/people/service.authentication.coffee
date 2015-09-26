@@ -10,13 +10,14 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
   appModalSvc
   devConfig, $log, toastr)->
   self = {
-    
+
     # example: AAAHelpers.signIn.apply(vm, arguments)
     signIn: (person, fnComplete)->
       return $q.when()
       .then (result)->
         # TODO: do password sign-in
-        return UsersResource.query({username:person.username})
+        username = person.username.toLowerCase().trim()
+        return UsersResource.query({username:username})
       .then (results)->
         if results.length
           return person = results.shift()
@@ -44,12 +45,15 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
       return $q.when()
       .then (result)->
         return $q.reject('REQUIRED VALUE') if !person.username
-        return UsersResource.query({username:person.username})
+        username = person.username.toLowerCase().trim()
+        return UsersResource.query({username:username})
       .then (results)->
         if results.length
           return $q.reject('DUPLICATE USERNAME')
         person.face = UsersResource.randomFaceUrl()
-        return UsersResource.post(person)
+        user = angular.copy person
+        user.username = user.username.toLowerCase().trim()
+        return UsersResource.post(user)
       .then (person)->
         return devConfig.loginUser( person.id , true)
         .then (user)->
