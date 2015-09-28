@@ -4,7 +4,7 @@
 EventActionHelpers = ($rootScope, $q, $timeout
   $location, $state, $stateParams, $ionicPopup
   TokensResource, ParticipationsResource
-  appModalSvc
+  appModalSvc, utils
   $log, toastr)->
 
   passcodePopup = {
@@ -56,7 +56,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
           accessors:[]
         }
         return TokensResource.post(token).then (token)->
-          return [tokens]
+          return [token]
       .then (tokens)->
         if ionic.Platform.isWebView()
           origin = "http://app.snaphappi.com/pluckie.App/#"
@@ -87,27 +87,47 @@ EventActionHelpers = ($rootScope, $q, $timeout
       .then ()->
         return self.getShareLinks.call(vm, event)
       .then (shareLinks)->
+        utils.ga_PageView('/share', '.share', 'append')
         return appModalSvc.show('events/sharing.modal.html', vm, {
           mm:
             item: event
             links: shareLinks
             goto: (type, id)->
-              return false
+              if type.currentTarget
+                ev = type
+                target = id
+                # emulate SocialSharing with browser tab
+                label =
+                  if /invitation/.test(target)
+                  then 'invitation'
+                  else 'event'
+                utils.ga_Send('send'
+                  , 'event', 'social', 'sharing', label, 20)
+                if ionic.Platform.isWebView()
+                  #  we might want to open with inAppBrowser
+                  ev.preventDefault()
+                  window.open(target, '_system')
+                  return false
+                return true
 
-              if type.currentTarget # event
-                return false # let a.href handle it naturally
 
-              if ionic.Platform.isWebView()
-                return false
+
+
               if type == 'invitation' # goto Invite
                 state = 'app.event-detail.invitation'
                 params = {invitation: id}
+                utils.ga_Send('send'
+                  , 'event', 'social', 'sharing', 'invitation', 20)
               if type == 'event' # goto Event
                 state = 'app.event-detail'
                 params = {id: id}
+                utils.ga_Send('send'
+                  , 'event', 'social', 'sharing', 'event', 20)
 
-              $log.info "TESTING: manually transition to state=" + JSON.stringify [state,id]
-              $state.transitionTo(state, params)
+              if utils.isDev()
+                $log.info "TESTING: manually transition to state=" + JSON.stringify [state,id]
+                # $state.transitionTo(state, params)
+                return true # continue
 
         })
       .then (result)-> # closeModal(result)
@@ -147,7 +167,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
           options['active'] = participation.response
           options['seats'] = participation.seats
           options['comment'] = participation.comment
-          # TODO: shouldn't extract passcode here, 
+          # TODO: shouldn't extract passcode here,
           # just offer user a chance to change passcode, and save to server
           options['passcode'] = participation.responseId?.split('~').shift()
         if person?.displayName # override
@@ -155,7 +175,11 @@ EventActionHelpers = ($rootScope, $q, $timeout
         return options
 
       .then (options={})->
-        $log.info options
+        # $log.info options
+        if !options
+          utils.ga_PageView('/respond', '.respond', 'append')
+        else
+          utils.ga_PageView('/edit', '.edit', 'append')
         return appModalSvc.show('events/respond.modal.html', vm, {
           mm:   # mm == "modal model" instead of view model
             active: options['active'] || null
@@ -216,6 +240,17 @@ EventActionHelpers = ($rootScope, $q, $timeout
               myResponse.response['value'] = this.active
               return promise = self.saveResponse.call(vm, myResponse)
               .then (result)->
+                if participation
+                  utils.ga_Send('send'
+                    , 'event', 'participation', 'update', myResponse.response['value'], 2)
+                else if result.responseId
+                  utils.ga_Send('send'
+                    , 'event', 'participation'
+                    , 'response-anonymous', myResponse.response['value'], 5)
+                else
+                  utils.ga_Send('send'
+                    , 'event', 'participation'
+                    , 'response-user', myResponse.response['value'], 10)
                 onSuccess?(result)
                 return result
 
@@ -231,7 +266,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
               comment: options['comment']
         })
       .then (result)->
-        $log.info "Contribute Modal resolved, result=" + JSON.stringify result
+        $log.info "Invitation Response Modal resolved, result=" + JSON.stringify result
       .catch (err)->
         toastr.warning "Expecting an invitation" if err == "INVALID"
 
@@ -275,7 +310,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
           toastr.info "Please use passcode='" + response.passcode + "' to update your response."
 
         $rootScope.$broadcast 'event:participant-changed', result
-        return $log.info result
+        return result
 
 
 
@@ -289,7 +324,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
 EventActionHelpers.$inject = ['$rootScope', '$q', '$timeout'
 '$location', '$state', '$stateParams', '$ionicPopup'
 'TokensResource', 'ParticipationsResource'
-'appModalSvc'
+'appModalSvc', 'utils'
 '$log', 'toastr']
 
 

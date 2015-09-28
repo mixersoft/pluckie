@@ -17,6 +17,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   vm.lookup = {}
   exportDebug.set( 'lookup', vm['lookup'] )
   vm.imgAsBg = utils.imgAsBg
+  vm.isDev = utils.isDev
 
   ###
   # @description set address & location labels by ACL, mask values for visitors
@@ -211,10 +212,12 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
             return vm.on.menuView(next, peek) # skip unless forced
       return values[next] if peek
 
-      vm.on.scrollTo('menu')
       if value == 'contribute'
         toastr.info "Contribute a suggested Menu Item or add a new one."
-      return vm.settings.view.menu = values[next]
+      vm.settings.view.menu = values[next]
+      utils.ga_Send('send', 'event', 'category', 'action', 'menu-view-' + vm.settings.view.menu, 10)
+      $timeout ()->  vm.on.scrollTo('menu')
+      return
 
     participantView: (value, peek)->
       values = ['Yes','Maybe','No','Yes']
@@ -236,6 +239,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       switch state
         when 'app.menu-item'
           params['menu'] = vm.event.menuItemIds.join(',')
+          params['id'] = params['menu'][0] if obj=='first'
       $state.transitionTo state, params
       return
 
@@ -260,6 +264,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       .then ()->
         return isInvitationRequired(event)
       .then ()->
+        utils.ga_PageView('/booking', '.booking', 'append')
         return appModalSvc.show('events/booking.modal.html', vm, {
           mm:   # mm == "modal model" instead of view model
             isValidated: (booking)->
@@ -282,6 +287,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
                   booking.person.displayName)
 
               vm.createBooking(booking).then (result)->
+                utils.ga_Send('send', 'event', 'participation'
+                  , 'event-booking', 'Yes', 10)
                 onSuccess?(result)
                 return result
               return
@@ -302,6 +309,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     beginContribute: (mitem)->
       if `mitem==null`
+        utils.ga_PageView($location.path() + '/contribute/new' , 'app.event-detail.contribute')
         return appModalSvc.show('events/contribute-new.modal.html', vm, {
         myContribution :
           isNewMenuItem: true
@@ -325,6 +333,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
       dishes = ['Starter','Side','Main','Dessert']
       # label = if dishes.indexOf(mitem.category) > -1 then 'dish' else 'item'
+      utils.ga_PageView($location.path() + '/contribute/' + mitem.id
+        , 'app.event-detail.contribute')
       appModalSvc.show('events/contribute.modal.html', vm, {
         myContribution :
           menuItem: mitem
@@ -353,6 +363,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         promise = $q.when contribution
       promise.then (contribution)->
         createContribution(contribution).then (result)->
+          utils.ga_Send('send', 'event', 'category', 'action', 'contribution-made', 10)
           onSuccess?(result)
           return result
       return
@@ -360,7 +371,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   initialize = ()->
     # dev
-    DEV_USER_ID =  null # '0'
+    DEV_USER_ID = null # '0'
     devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
       vm.settings.view.menu = 'more' if vm.acl.isParticipant('Yes')
@@ -630,7 +641,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       message = "Congratulations, you have just booked " + participation.seats + " seats! "
       message += "Now search for your contribution."
       toastr.info message
-      vm.on.scrollTo('cp-participant')
+      $timeout ()-> vm.on.scrollTo('cp-participant')
       return participation
 
   createMenuItem = (menuItem)->
@@ -733,7 +744,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       message = "Congratulations, you are signed-up to contribute " + contribution.portions
       message += " portions of " + options.menuItem.title + "."
       toastr.info message
-      vm.on.scrollTo('cp-participant')
+      $timeout ()-> vm.on.scrollTo('cp-participant')
       return contribution
 
   activate = ()->
@@ -900,10 +911,15 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     $log.info "viewEnter for EventDetailCtrl"
     activate()
 
+  $scope.$on '$ionicView.leave', (e) ->
+    $log.info "viewLeave for EventDetailCtrl"
+
+
   $rootScope.$on 'user:sign-in', (ev, user)->
     return if vm.event.ready == false
 
   $rootScope.$on 'user:sign-out', ()->
+    $rootScope.user = {}
     return
 
     #ready
@@ -933,7 +949,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         .then (result)->
           vm.people = _.indexBy result, 'id'
           $scope.dev.settings.show = 'admin'
-          vm.on.scrollTo('admin-change-user')
+          $timeout ()-> vm.on.scrollTo('admin-change-user')
           return
       loginUser: (person)->
         devConfig.loginUser( person.id )
@@ -946,7 +962,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
           # getDerivedValues_Event(event)
           # getDerivedValues_MenuItems(event)
           activate()
-          vm.on.scrollTo()
+          $timeout ()-> vm.on.scrollTo()
           return
       getRoleLabel: (person)->
         return 'Host' if person.id == vm.event.ownerId

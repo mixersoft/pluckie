@@ -1,9 +1,13 @@
 'use strict'
 
 HandyStuff = ($window, $document, amMoment
-  $ionicPlatform, $cordovaInAppBrowser, toastr
+  $location, $state
+  $ionicPlatform, $cordovaInAppBrowser, $log, toastr
   ) ->
   self = {
+    isDev: ()->
+      return false if ionic.Platform.isWebView()
+      return $location.host() == 'localhost'
     # format img.src as background img
     # usage: img.hero(ng-style="{{imgInBg(url)}}")
     imgAsBg: (url)->
@@ -65,12 +69,42 @@ HandyStuff = ($window, $document, amMoment
       return [latlon[0]+offset.lat, latlon[1]+offset.lon]
 
 
+    ###
+    # @description helper function for recording state changes as GoogleAnalytics pageview
+    # @param page string url
+    # @param title string, using $state.current.name by default
+    ###
+    ga_PageView: (page, title, append)->
+      if append
+        data = {
+          page: $location.path() + page
+          title: $state.current.name + title
+        }
+      else
+        data = {
+          page: page || $location.path()
+          title: title || $state.current.name
+        }
+      if self.isDev()
+        $log.warn "ga-debug, page=" + JSON.stringify data
+        return
+      ga('set', data)
+      ga('send', 'pageview')
+
+    ga_Send: ()->
+      if self.isDev()
+        $log.warn "ga-debug, send=" + JSON.stringify _.values arguments
+        return
+      ga.apply(this, arguments)
+      
+
   }
   return self
 
 
 HandyStuff.$inject = ['$window', '$document', 'amMoment'
-'$ionicPlatform', '$cordovaInAppBrowser', 'toastr'
+'$location', '$state'
+'$ionicPlatform', '$cordovaInAppBrowser', '$log', 'toastr'
 ]
 
 angular.module 'starter.core'

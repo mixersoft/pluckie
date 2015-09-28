@@ -14,12 +14,14 @@ ion-view(view-title="{{vm.title}}")
           i.padding-left.icon.ion-ios-upload.dark
         div.text-center.padding
           h2.light.text-center {{person.displayName}}
-          img.face(ng-src="{{person.face}}")
+          img.face(
+            ng-style="vm.imgAsBg(person.face)"
+            )
     div.text-center(ng-if="vm.me != person") 
       h2.capitalize {{person.firstname}} {{person.lastname}}
       button.button.icon-left.icon.ion-chatbox Contact Me
 
-    div#admin-change-user.content.row.responsive-sm
+    div#admin-change-user.content.row.responsive-sm(ng-if="vm.isDev()")
       div.col.col-offset-25.col-50
         div.row(ng-hide="dev.settings.show=='admin'")
           div.col

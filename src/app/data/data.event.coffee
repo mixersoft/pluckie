@@ -154,7 +154,7 @@ EventsResource = (Resty, amMoment) ->
       # menu:    # menu ideas
 
       setting:
-        isExclusive: true   # invite Only
+        isExclusive: false   # invite Only
         denyForward: false     # guests can forward invites
         denyGuestShare: false # guests can share event, same as denyForward
         denyRsvpFriends: false # guests can rsvp friends

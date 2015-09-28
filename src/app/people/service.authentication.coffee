@@ -8,7 +8,7 @@
 AAAHelpers = ($rootScope, $q, $location, $timeout
   UsersResource
   appModalSvc
-  devConfig, $log, toastr)->
+  utils, devConfig, $log, toastr)->
   self = {
 
     # example: AAAHelpers.signIn.apply(vm, arguments)
@@ -16,6 +16,7 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
       return $q.when()
       .then (result)->
         # TODO: do password sign-in
+        return $q.reject("NOT FOUND") if !person.username
         username = person.username.toLowerCase().trim()
         return UsersResource.query({username:username})
       .then (results)->
@@ -26,6 +27,7 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
         return devConfig.loginUser( person.id , true)
         .then (user)->
           $rootScope.$emit 'user:sign-in', $rootScope['user']
+          utils.ga_Send('send', 'event', 'category', 'action', 'sign-in', 10)
           return fnComplete?(user) || user
       .catch (err)->
         $rootScope.$emit 'user:sign-out'
@@ -58,6 +60,7 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
         return devConfig.loginUser( person.id , true)
         .then (user)->
           # $rootScope.$emit 'user:sign-in', $rootScope['user']
+          utils.ga_Send('send', 'event', 'category', 'action', 'register', 10)
           return fnComplete?(user) || user
       .catch (err)->
         $rootScope.$emit 'user:sign-out'
@@ -96,7 +99,9 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
           label = SlideController.initialSlide if label == 'initial'
           i = SlideController.slideLabels.indexOf(label)
           next = if i >= 0 then i else SlideController.index
-          return SlideController.index = next
+          SlideController.index = next
+          utils.ga_PageView('/' + label, '.' + label, 'append')
+          return
 
         signIn: (person, fnComplete)->
           return self.signIn(person, fnComplete)
@@ -122,7 +127,7 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
 AAAHelpers.$inject = ['$rootScope', '$q', '$location', '$timeout'
 'UsersResource'
 'appModalSvc'
-'devConfig', '$log', 'toastr']
+'utils', 'devConfig', '$log', 'toastr']
 
 
 angular.module 'starter.profile'

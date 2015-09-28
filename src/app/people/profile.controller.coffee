@@ -19,6 +19,7 @@ ProfileCtrl = (
   vm.title = "Profile"
   vm.me = null      # current user, set in initialize()
   vm.imgAsBg = utils.imgAsBg
+  vm.isDev = utils.isDev
   vm.acl = {
     isVisitor: ()->
       return true if !$rootScope.user
@@ -53,6 +54,9 @@ ProfileCtrl = (
         vm.person = user if user
         $log.info user
 
+    signOut: ()->
+      $rootScope.$emit 'user:sign-out'
+
     notReady: (value)->
       toastr.info "Sorry, " + value + " is not available yet"
       return false
@@ -67,7 +71,7 @@ ProfileCtrl = (
         .then (result)->
           vm.people = _.indexBy result, 'id'
           $scope.dev.settings.show = 'admin'
-          vm.on.scrollTo('admin-change-user')
+          $timeout ()-> vm.on.scrollTo('admin-change-user')
       loginUser: (person)->
         devConfig.loginUser( person.id )
         .then (user)->   # sets $rootScope.user
@@ -76,6 +80,7 @@ ProfileCtrl = (
           $scope.dev.settings.show = 'less'
           activate()
           return user
+
       updateProfile: (person, changePassword)->
         if changePassword.new?
           # validate changePassword.old

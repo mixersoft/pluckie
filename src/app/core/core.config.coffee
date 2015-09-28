@@ -1,6 +1,6 @@
 'use strict'
 
-appRun = ($ionicPlatform, $rootScope, $location) ->
+appRun = ($ionicPlatform, $rootScope, $location, utils) ->
 
   $ionicPlatform.ready ->
     # Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -19,11 +19,11 @@ appRun = ($ionicPlatform, $rootScope, $location) ->
     locationSearch = $location.search()
     return
 
-  $rootScope.$on '$stateChangeSucess', (ev, toState, toParams, fromState, fromParams)->
+  $rootScope.$on '$stateChangeSuccess', (ev, toState, toParams, fromState, fromParams)->
     # addback $location.search  after transition
     $location.search( angular.extend(locationSearch, $location.search()) )
+    utils.ga_PageView()
     return
-
 
   return # appRun
 
@@ -44,7 +44,7 @@ toastrConfig = (toastrConfig) ->
 
 
 
-appRun.$inject = ['$ionicPlatform', '$rootScope', '$location']
+appRun.$inject = ['$ionicPlatform', '$rootScope', '$location', 'utils']
 
 angular
   .module 'starter.core'

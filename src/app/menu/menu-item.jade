@@ -11,7 +11,9 @@ ion-view(view-title="{{vm.title}}")
             i.padding-left.icon.ion-ios-upload.dark
           div.text-center.padding
             h2.light.text-center {{item.title}}
-            img.face(ng-src="{{item.pic}}")
+            img.face(
+              ng-style="vm.imgAsBg(item.pic)"
+              )
       div.content.row.responsive-sm
         div.col.col-offset-25.col-50
           div.list

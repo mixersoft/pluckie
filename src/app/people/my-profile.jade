@@ -10,7 +10,9 @@ ion-view(view-title="{{vm.title}}") {{person=vm.person;''}}
           i.padding-left.icon.ion-ios-upload.dark
         div.text-center.padding
           h2.light.text-center {{person.displayName}}
-          img.face(ng-src="{{person.face}}")
+          img.face(
+            ng-style="vm.imgAsBg(person.face)"
+            )
 
     div#description.content.row.responsive-sm(ng-if="person.id==false")
       div.col.col-offset-25.col-50
@@ -77,29 +79,36 @@ ion-view(view-title="{{vm.title}}") {{person=vm.person;''}}
                   ) Update
 
         
+    div#description.content.row.responsive-sm(ng-if="person.id")
+      div.col.col-offset-25.col-50
+        div.padding.text-center
+              button.button.button-full.button-assertive.icon.ion-close-circled(
+                ng-click="vm.on.signOut()"
+                )
+                span.padding-left Sign out
 
-        div#admin-change-user.content.row.responsive-sm
-          div.col.col-offset-25.col-50
-            div.row(ng-hide="dev.settings.show=='admin'")
-              div.col
-                div.padding.text-center
-                  button.button.button-assertive.icon.ion-gear-b(
-                    ng-click="dev.on.selectUser()"
-                    )
-                    span.padding-left Change User
-            div.row(ng-show="dev.settings.show=='admin'")
-              div.col
-                div.list.card.condensed
-                  div.item.item-assertive.item-icon-right
-                    h2.title.light Select User for Testing
-                    i.light.icon.ion-close(ng-click="dev.settings.show='less'")
-                  a.item.item-avatar(
-                    ng-repeat="person in vm.people"
-                    ng-click="dev.on.loginUser(person)"
-                  )
-                    img(ng-src="{{person.face}}")
-                    b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
-                    p id = {{person.id}}
+    div#admin-change-user.content.row.responsive-sm(ng-if="vm.isDev()")
+      div.col.col-offset-25.col-50
+        div.row(ng-hide="dev.settings.show=='admin'")
+          div.col
+            div.padding.text-center
+              button.button.button-assertive.icon.ion-gear-b(
+                ng-click="dev.on.selectUser()"
+                )
+                span.padding-left Change User
+        div.row(ng-show="dev.settings.show=='admin'")
+          div.col
+            div.list.card.condensed
+              div.item.item-assertive.item-icon-right
+                h2.title.light Select User for Testing
+                i.light.icon.ion-close(ng-click="dev.settings.show='less'")
+              a.item.item-avatar(
+                ng-repeat="person in vm.people"
+                ng-click="dev.on.loginUser(person)"
+              )
+                img(ng-src="{{person.face}}")
+                b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
+                p id = {{person.id}}
 
 
 

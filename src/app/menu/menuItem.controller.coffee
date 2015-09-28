@@ -114,7 +114,8 @@ MenuItemCtrl = (
     .then (itemCurrent)->
       # xxsetPrevNextItems(itemCurrent)
       # vm.nextDomId = xxreorderPrevNextDom()
-      vm.menuItemIds = sorted = _.pluck MenuItemsResource.sortByCategory(vm.lookup['MenuItems']), 'id'
+      vm.menuItemIds = sorted =
+        _.pluck MenuItemsResource.sortByCategory(vm.lookup['MenuItems']), 'id'
       return itemCurrent
     .then ()->
       # vm.lookup['EventsByMenuId'] = {} if !vm.lookup['EventsByMenuId']
@@ -148,6 +149,7 @@ MenuItemCtrl = (
 
   getEvents = (eids)->
     missing = _.difference eids, _.keys vm.lookup['Events']
+    return if _.isEmpty missing
     $log.info "missing EventIds=" + JSON.stringify missing
     skip = EventsResource.get(missing).then (results)->
       _.each results, (o)->
@@ -190,6 +192,10 @@ MenuItemCtrl = (
   $scope.$on '$ionicView.enter', (e)->
     $log.info "viewEnter for MenuItemCtrl"
     activate()
+
+  $scope.$on '$ionicView.leave', (e)->
+    $log.info "viewLeave for MenuItemCtrl"
+    $location.search('menu', null)
 
   return # end MenuItemCtrl
 

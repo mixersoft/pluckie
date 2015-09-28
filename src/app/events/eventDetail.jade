@@ -138,7 +138,9 @@ ion-view(view-title="{{vm.title}}")
                 button.overlay-right.button.button-clear.icon.dark(
                   ng-click="vm.on.menuView('next')"
                   ng-class="{'ion-arrow-up-b':nextMenu=='less', 'ion-arrow-right-b':nextMenu=='contribute', 'ion-arrow-down-b':nextMenu=='more' }")
-                span Menu
+                span(
+                  ng-click="vm.on.gotoState('app.menu-item','id', 'first')"
+                  ) Menu
                 
               div.list.menu-item.text-center(ng-switch-when="less") 
                 div.item(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
@@ -151,7 +153,7 @@ ion-view(view-title="{{vm.title}}")
                 div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
                   img(
                     ng-src="{{mitem.pic}}"
-                    ng-click="vm.on.gotoState('app.menu-item','id', mitem)"
+                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
                     )
                   div.pull-right
                     span.muted {{ mitem.category }}
@@ -473,7 +475,7 @@ ion-view(view-title="{{vm.title}}")
 
 
 
-      div#admin-change-user.content.row.responsive-sm
+      div#admin-change-user.content.row.responsive-sm(ng-if="vm.isDev()")
         div.col.col-offset-25.col-50
           div.row(ng-hide="dev.settings.show=='admin'")
             div.col
