@@ -268,6 +268,8 @@ MenuItemsResource = (Resty, amMoment) ->
       else menuItem.category
     return _labels[cat]
 
+  service.categoryLookup = _labels
+
   return service
 
 

@@ -34,7 +34,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     event.visibleAddress = event.neighborhood
     participantIds = _.pluck vm.lookup['Participations'], 'participantId'
     showExactLocation = userid && ~participantIds?.indexOf(userid)
-    showExactLocation = true if event.setting.allowPublicAddress
+    showExactLocation = true if event.setting?.allowPublicAddress
     if showExactLocation
       # add complete address
       event['visibleAddress'] = [event.address, event.neighborhood].join(', ')
@@ -185,7 +185,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       , 1000
 
     scrollTo: (anchor)->
-
       $location.hash(anchor)
       $ionicScrollDelegate.anchorScroll(true)
       return
@@ -314,9 +313,29 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
 
     beginContribute: (mitem)->
+      modalModel = {
+        submitContribute: (contribution, onSuccess)->
+          if contribution.isNewMenuItem
+            promise = createMenuItem(contribution.menuItem)
+            .then (menuItem)->
+              contribution['contribution'].menuItemId = menuItem.id
+              contribution.isNewMenuItem = false
+              return contribution
+            , (err)->
+              toastr.error "Error creating NEW menuItem"
+          else
+            promise = $q.when contribution
+          promise.then (contribution)->
+            createContribution(contribution).then (result)->
+              utils.ga_Send('send', 'event', 'participation', 'contribution', 'Yes', 10)
+              onSuccess?(result)
+              return result
+          return
+      }
       if `mitem==null`
         utils.ga_PageView($location.path() + '/contribute/new' , 'app.event-detail.contribute')
         return appModalSvc.show('events/contribute-new.modal.html', vm, {
+        mm: modalModel
         myContribution :
           isNewMenuItem: true
           maxPortions: Math.min(12, vm.event.seatsTotal)
@@ -342,6 +361,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       utils.ga_PageView($location.path() + '/contribute/' + mitem.id
         , 'app.event-detail.contribute')
       appModalSvc.show('events/contribute.modal.html', vm, {
+        mm: modalModel
         myContribution :
           menuItem: mitem
           # label: label
@@ -355,23 +375,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       .then (result)->
         result = _.omit result, ['contributor', 'menuItem']
         $log.info "Contribute Modal resolved, result=" + JSON.stringify result
-      return
-    submitContribute: (contribution, onSuccess)->
-      if contribution.isNewMenuItem
-        promise = createMenuItem(contribution.menuItem)
-        .then (menuItem)->
-          contribution['contribution'].menuItemId = menuItem.id
-          contribution.isNewMenuItem = false
-          return contribution
-        , (err)->
-          toastr.error "Error creating NEW menuItem"
-      else
-        promise = $q.when contribution
-      promise.then (contribution)->
-        createContribution(contribution).then (result)->
-          utils.ga_Send('send', 'event', 'participation', 'contribution', 'Yes', 10)
-          onSuccess?(result)
-          return result
       return
   }
 
@@ -841,6 +844,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     .then (event)->
       vm.event = event
       exportDebug.set( 'event', vm['event'] )
+      return event
     .then (event)->
       getEventUsers(event)
     .then (event)->
@@ -848,6 +852,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     .then (event)->
       getContributions(event)
     .then (event)->
+      vm.lookup['MenuItemCategories'] = _.keys MenuItemsResource.categoryLookup
       getMenuItems(event)
     .then (event)->
       getDerivedValues_Event(event)

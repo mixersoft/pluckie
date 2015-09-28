@@ -3,7 +3,7 @@ ion-modal-view
   ion-header-bar.bar-positive {{event=vm.event; me=vm.me; mitem = myContribution.menuItem;''}}
     h1.title Contribute to {{ event.title }}
   ion-content
-    form(name="contributeForm" novalidate="" ng-submit="vm.on.submitContribute(myContribution, closeModal);")
+    form(name="contributeForm" novalidate="" ng-submit="mm.submitContribute(myContribution, closeModal);")
 
       div.list.padding {{contribution = myContribution.contribution;''}}
         div.item.item-avatar 
@@ -15,13 +15,7 @@ ion-modal-view
         label.item.item-input.item-select
           div.input-label Category
           select(ng-model="mitem.category")
-            option Starter
-            option Side
-            option Main
-            option Dessert
-            option Setting
-            option Servicing
-            option Resource
+            option(ng-repeat="cat in vm.lookup['MenuItemCategories']" ng-bind="cat") 
         label.item.item-input.item-floating-label
           span.input-label Description
           textarea(placeholder="Description" ng-model="mitem.detail" maxlength='255')

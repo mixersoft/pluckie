@@ -23,7 +23,7 @@ ion-modal-view
         {{mitem.summary.portionsRemaining}} portions needed
 
 
-    form(name="contributeForm" novalidate="" ng-submit="vm.on.submitContribute(myContribution, closeModal);")
+    form(name="contributeForm" novalidate="" ng-submit="mm.submitContribute(myContribution, closeModal);")
 
       div.list {{contribution = myContribution.contribution;''}}
         div.item.item-avatar 
