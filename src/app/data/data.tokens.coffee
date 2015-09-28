@@ -7,8 +7,8 @@ TokensResource = (Resty, amMoment, $q) ->
       ownerId: '10'
       target: 'Event:2'  # ClassName:id
       views: 2
-      expireCount: 3
-      expireDate: moment().weekday(4).hour(20).startOf('hour').toJSON()
+      expireCount: 30
+      expireDate: moment().weekday(4).add(7,'d').hour(20).startOf('hour').toJSON()
       accessors: []
     '1234':
       ownerId: '1'
@@ -24,6 +24,14 @@ TokensResource = (Resty, amMoment, $q) ->
       expireCount: 10
       expireDate: moment().weekday(4).add(7,'d').hour(20).startOf('hour').toJSON()
       accessors: []
+    'justforfun':
+      ownerId: '10'
+      target: 'Event:3'  # ClassName:id
+      views: 3
+      expireCount: 50
+      expireDate: moment(new Date('2015-10-03')).hour(23).toJSON()
+      accessors: []
+
 
   }
   service = new Resty(data)

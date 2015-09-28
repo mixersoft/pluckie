@@ -190,6 +190,35 @@ MenuItemsResource = (Resty, amMoment) ->
       category: "Dessert"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
       pic     : "http://www.time2saveworkshops.com/wp-content/uploads/2012/08/watermelon.jpg"
       link    : null
+    30:
+      title   : "Best Buffalo Wings Ever"
+      detail  :"""
+      Buffalo wings are pure, unadulterated, crispy, greasy, hot and vinegary nuggets of awesome.
+      Whether you believe the apocryphal (or at least wildly inaccurate) account of their creation as an impromptu late-night snack at the Anchor Bar in Buffalo New York,
+      or the equally apocryphal story Calvin Trillin tells of a John Young and his "wings in mambo sauce,"
+      there's one thing that we can all believe:
+      you will be eating Buffalo wings this coming Saturday!
+      """
+      category: "SmallPlate"
+      pic     : "http://www.seriouseats.com/images/2015/04/20150428-buffalo-wings-reupload-kenji-6.jpg"
+      link    : "http://www.seriouseats.com/2012/01/the-food-lab-how-to-make-best-buffalo-wings-fry-again-ultimate-crispy-deep-fried-buffalo-wings.html"
+    35:
+      title   : "IPAs for all"
+      detail  : """
+      Only 'Indian' Pale Ales today
+      """
+      category: "Drinks"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "http://drinks.seriouseats.com/images/20110512neIPAprimary.jpg"
+      link    : ""
+    36:
+      title   : "Chardonnay"
+      detail  : """
+      Bring a favorite bottle of Chardonnay to share. Sally is counting on you...
+      """
+      category: "Drinks"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "https://thewinecountry.com/twcwp/wp-content/uploads/2014/03/Wine.jpg"
+      link    : ""
+
 
   }
   # coffeelint: enable=max_line_length

@@ -55,6 +55,12 @@ ParticipationsResource = (Resty, amMoment) ->
       response: 'Yes'
       seats: 3
       comment: 'Your host'
+    30:
+      eventId: '3'
+      participantId: '10'
+      response: 'Yes'
+      seats: 3
+      comment: 'Your host'
   }
   service = new Resty(data)
 

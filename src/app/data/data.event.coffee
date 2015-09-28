@@ -1,6 +1,7 @@
 'use strict'
 
 EventsResource = (Resty, amMoment) ->
+  # coffeelint: disable=max_line_length
   data = {
     0:
       # what
@@ -173,8 +174,67 @@ EventsResource = (Resty, amMoment) ->
         yes: 0
         maybe: 0
         no: 0
+    3:
+      # what
+      title: "Tailgate on the Farm"
+      description: """
+      Join us on the Farm for our season opening tailgate
+      as the Cardinal looks to build on their Pac-12 lead.
+      Stop by for a beer, some BBQ, hot wings, and more;
+      then settle in to watch that McCaffery kid run wild!
+      """
+      category: "Potluck"     # [Potluck|Popup]
+      cusine: "American"      # [American|Japanese|California|Seafood|etc.]
+      style: 'Casual'         # [Seated|Casual|Grazing|Picnic]
+      attire: 'Casual'        # [Casual|Cocktail|Business|Formal|Fun]
+      inspiration: "Go Stanford!"
+      aspiration: 2           # 0-3 stars
+      price: null             # guest can contribute money?
+
+      heroPic: "http://x.pac-12.com/sites/default/files/styles/event_page_content__hero/public/STAN-FB-SPRING-3__1428795219.jpg"
+
+      # when: 4=Thur
+      startTime: moment(new Date('2015-10-03')).hour(17).toJSON() # search/filter
+      duration: moment.duration(3, 'hours').asMilliseconds()
+
+      # where:
+      neighborhood: "Stanford Stadium, Palo Alto"
+      address: 'El Camino Grove'
+      location: [37.436191, -122.159668] # search/filter
+
+      seatsTotal: 25
+      seatsOpen: null
+
+      # host:
+      ownerId: "10" # belongsTo Users
+      isPublic: true # searchable
+
+      # guests:  # habtm Users
+      # menu:    # menu ideas
+
+      setting:
+        isExclusive: false   # invite Only
+        denyForward: false     # guests can forward invites
+        denyGuestShare: false # guests can share event, same as denyForward
+        denyRsvpFriends: false # guests can rsvp friends
+        rsvpFriendsLimit: 12 # guests rsvp limit for friends
+        allowSuggestedFee: false # monentary fee in lieu of donation
+        allowPublicAddress: true    # only guests see address
+        denyParticipantList: false # guests can see Participants
+        denyWaitlist: true    # use waitlist if full
+        feedVisibility: "public"  # [public|guests|none]
+        denyAddMenu: false    # only host can update menu Items
+
+      wrapUp:
+        rating: null          # guest ratings
+
+      controlPanel:
+        yes: 0
+        maybe: 0
+        no: 0
 
   }
+  # coffeelint: enable=max_line_length
   return service = new Resty(data)
 
 
