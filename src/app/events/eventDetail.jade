@@ -431,24 +431,25 @@ ion-view(view-title="{{vm.title}}")
       //- Map
       //- 
       div.content.last-row
-        div#map(ng-if="item.map")
-          {{opt = item.map.options;''}}
-          ui-gmap-google-map( 
-            center='item.map.center' 
-            zoom='item.map.zoom'
-            options='opt.map.options'
-          )
-            ui-gmap-circle(
-              ng-if="vm.acl.isVisitor()"
-              center="opt.circle.center"
-              radius="opt.circle.radius"
-              stroke="opt.circle.stroke"
-              )
-            ui-gmap-marker(
-              ng-if="vm.acl.debounced.isParticipant_YES()"
-              idKey="opt.marker.idKey"
-              coords="opt.marker.coords"
-              )
+        div#map
+          div.wrap(ng-if="item.map")
+            {{opt = item.map.options;''}}
+            ui-gmap-google-map( 
+              center='item.map.center' 
+              zoom='item.map.zoom'
+              options='opt.map.options'
+            )
+              ui-gmap-circle(
+                ng-if="item.visibleLocation"
+                center="opt.circle.center"
+                radius="opt.circle.radius"
+                stroke="opt.circle.stroke"
+                )
+              ui-gmap-marker(
+                ng-if="item.visibleMarker"
+                idKey="opt.marker.idKey"
+                coords="opt.marker.coords"
+                )
 
 
 

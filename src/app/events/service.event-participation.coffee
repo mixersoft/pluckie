@@ -240,17 +240,6 @@ EventActionHelpers = ($rootScope, $q, $timeout
               myResponse.response['value'] = this.active
               return promise = self.saveResponse.call(vm, myResponse)
               .then (result)->
-                if participation
-                  utils.ga_Send('send'
-                    , 'event', 'participation', 'update', myResponse.response['value'], 2)
-                else if result.responseId
-                  utils.ga_Send('send'
-                    , 'event', 'participation'
-                    , 'response-anonymous', myResponse.response['value'], 5)
-                else
-                  utils.ga_Send('send'
-                    , 'event', 'participation'
-                    , 'response-user', myResponse.response['value'], 10)
                 onSuccess?(result)
                 return result
 
@@ -302,6 +291,19 @@ EventActionHelpers = ($rootScope, $q, $timeout
           return ParticipationsResource['put'](participation.id, data)
         return ParticipationsResource['post'](data)
       .then (result)->
+        # google analytics event
+        if participation
+          utils.ga_Send('send'
+            , 'event', 'participation', 'update', myResponse.response['value'], 2)
+        else if result.responseId
+          utils.ga_Send('send'
+            , 'event', 'participation'
+            , 'response-anonymous', myResponse.response['value'], 5)
+        else
+          utils.ga_Send('send'
+            , 'event', 'participation'
+            , 'response-user', myResponse.response['value'], 10)
+
         # for anonymous responses, look for response in vm.me.participation, delete on sign-in
         _.extend vm.me.participation, result if vm.me.participation?
         vm.me['participation'] = result if _.isEmpty vm.me

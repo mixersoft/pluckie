@@ -193,7 +193,7 @@ MenuItemCtrl = (
     $log.info "viewEnter for MenuItemCtrl"
     activate()
 
-  $scope.$on '$ionicView.leave', (e)->
+  $scope.$on '$ionicView.beforeLeave', (e)->
     $log.info "viewLeave for MenuItemCtrl"
     $location.search('menu', null)
 

@@ -12,7 +12,7 @@ ion-view(view-title="{{vm.title}}" hide-back-button="true")
           )
           div.card.dark-bg
             a.item.item-bg-image.waves-effect.waves-button.waves-light.has-mask(
-              class="{{colors[$index % colors.length]}}"
+              xx-class="{{colors[$index % colors.length]}}"
               ui-sref="app.event-detail({id: {{item.id}}  })"
               ) 
               div.has-mask-wrap

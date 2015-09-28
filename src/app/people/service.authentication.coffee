@@ -60,7 +60,7 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
         return devConfig.loginUser( person.id , true)
         .then (user)->
           # $rootScope.$emit 'user:sign-in', $rootScope['user']
-          utils.ga_Send('send', 'event', 'category', 'action', 'register', 10)
+          utils.ga_Send('send', 'event', 'aaa', 'register', 'register', 10)
           return fnComplete?(user) || user
       .catch (err)->
         $rootScope.$emit 'user:sign-out'

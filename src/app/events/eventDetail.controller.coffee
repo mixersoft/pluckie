@@ -34,9 +34,12 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     event.visibleAddress = event.neighborhood
     participantIds = _.pluck vm.lookup['Participations'], 'participantId'
     showExactLocation = userid && ~participantIds?.indexOf(userid)
+    showExactLocation = true if event.setting.allowPublicAddress
     if showExactLocation
       # add complete address
       event['visibleAddress'] = [event.address, event.neighborhood].join(', ')
+      # event['visibleLocation'] = event.location
+      event['visibleMarker'] = event.location
     else
       # mask event.location
       event['visibleLocation'] = utils.maskLatLon(event.location, event.title)
@@ -182,6 +185,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       , 1000
 
     scrollTo: (anchor)->
+
       $location.hash(anchor)
       $ionicScrollDelegate.anchorScroll(true)
       return
@@ -215,7 +219,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       if value == 'contribute'
         toastr.info "Contribute a suggested Menu Item or add a new one."
       vm.settings.view.menu = values[next]
-      utils.ga_Send('send', 'event', 'category', 'action', 'menu-view-' + vm.settings.view.menu, 10)
+      utils.ga_Send('send', 'event', 'engagement', 'menu', 'menu-view:' + vm.settings.view.menu, 2)
       $timeout ()->  vm.on.scrollTo('menu')
       return
 
@@ -240,6 +244,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         when 'app.menu-item'
           params['menu'] = vm.event.menuItemIds.join(',')
           params['id'] = params['menu'][0] if obj=='first'
+          utils.ga_Send('send', 'event'
+            , 'engagement', 'menu-item', 'event:' + vm.event.id, 2)
       $state.transitionTo state, params
       return
 
@@ -363,7 +369,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         promise = $q.when contribution
       promise.then (contribution)->
         createContribution(contribution).then (result)->
-          utils.ga_Send('send', 'event', 'category', 'action', 'contribution-made', 10)
+          utils.ga_Send('send', 'event', 'participation', 'contribution', 'Yes', 10)
           onSuccess?(result)
           return result
       return
@@ -622,6 +628,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     particip = {
       eventId: options.event.id
       participantId: options.person.id
+      response: 'Yes'
       seats: parseInt booking.seats
       comment: booking.comment
     }
@@ -754,34 +761,44 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     setMaterialEffects()
 
   getMap = (event)->
+    mapOptions = {
+      'map':
+        options:
+          draggable: false
+    }
     if event.visibleLocation?
+      latlon = {
+        latitude: event.visibleLocation[0]
+        longitude: event.visibleLocation[1]
+      }
+      mapOptions['circle'] = {
+        center: latlon
+        stroke:
+          color: '#FF0000'
+          weight: 1
+        radius: 500
+        fill:
+          color: '#FF0000'
+          opacity: '0.2'
+      }
+    if event.visibleMarker?
+      latlon = {
+        latitude: event.visibleMarker[0]
+        longitude: event.visibleMarker[1]
+      }
+      mapOptions['marker'] = {
+        idKey: event.id
+        coords: latlon
+      }
+    if event.visibleLocation? || event.visibleMarker?
       $timeout ()->
-        latlon = {
-          latitude: event.visibleLocation[0]
-          longitude: event.visibleLocation[1]
-        }
         event.map = {
           center: latlon
             # latitude: Math.round((event.location[0]*1000000)/1000000)
             # longitude: Math.round((event.location[1]*1000000)/1000000)
           zoom: 14
           # event.map.options
-          options:
-            map:
-              options:
-                draggable: false
-            circle:
-              center: latlon
-              stroke:
-                color: '#FF0000'
-                weight: 1
-              radius: 500
-              fill:
-                color: '#FF0000'
-                opacity: '0.2'
-            marker:
-              idKey: event.id
-              coords: latlon
+          options: mapOptions
         }
 
         return
@@ -802,13 +819,19 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
           return TokensResource.isValid(token, 'Event', eventId)
         .then ()->
           return eventId
+        .catch (err)->
+          if err=='EXPIRED'
+            toastr.warning "Sorry, this invitation has expired. " +
+            "Please contact the host for another."
+          if err=='INVALID'
+            toastr.warning "Sorry, this event is by invitation only"
+          return $q.reject(err)
       return eventId = $state.params.id
     .catch (err)->
       if $ionicHistory.backView()
         $ionicHistory.goBack()
       else
         $state.transitionTo('app.events')
-        toastr.info "Oops, that invitation was not found."
       return $q.reject()
     .then (eventId)->
       vm.event['ready'] = false

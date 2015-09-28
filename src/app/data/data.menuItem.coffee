@@ -209,6 +209,7 @@ MenuItemsResource = (Resty, amMoment) ->
       Side      : 20
       Main      : 30
       SmallPlate: 40
+      Drinks    : 45
       Dessert   : 50
       Setting   : 60
       Serving   : 70
@@ -220,6 +221,7 @@ MenuItemsResource = (Resty, amMoment) ->
     Main      : 'Mains'
     SmallPlate: 'Small Plates'
     Dessert   : 'Desserts'
+    Drinks    : "Drinks"
     Setting   : 'Settings'
     Serving   : 'Serving Utentils'
     Resource  : 'Resources'
