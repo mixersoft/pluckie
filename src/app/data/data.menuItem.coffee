@@ -199,7 +199,7 @@ MenuItemsResource = (Resty, amMoment) ->
       there's one thing that we can all believe:
       you will be eating Buffalo wings this coming Saturday!
       """
-      category: "SmallPlate"
+      category: "Main"
       pic     : "http://www.seriouseats.com/images/2015/04/20150428-buffalo-wings-reupload-kenji-6.jpg"
       link    : "http://www.seriouseats.com/2012/01/the-food-lab-how-to-make-best-buffalo-wings-fry-again-ultimate-crispy-deep-fried-buffalo-wings.html"
     35:
@@ -207,7 +207,7 @@ MenuItemsResource = (Resty, amMoment) ->
       detail  : """
       Only 'Indian' Pale Ales today
       """
-      category: "Drinks"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      category: "Drink"    # [Starter|Side|Main|SmallPlate|Dessert|Drink|Setting|Serving|Resource]
       pic     : "http://drinks.seriouseats.com/images/20110512neIPAprimary.jpg"
       link    : ""
     36:
@@ -215,7 +215,7 @@ MenuItemsResource = (Resty, amMoment) ->
       detail  : """
       Bring a favorite bottle of Chardonnay to share. Sally is counting on you...
       """
-      category: "Drinks"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      category: "Drink"    # [Starter|Side|Main|SmallPlate|Dessert|Drink||Setting|Serving|Resource]
       pic     : "https://thewinecountry.com/twcwp/wp-content/uploads/2014/03/Wine.jpg"
       link    : ""
 
@@ -250,7 +250,7 @@ MenuItemsResource = (Resty, amMoment) ->
     Main      : 'Mains'
     SmallPlate: 'Small Plates'
     Dessert   : 'Desserts'
-    Drinks    : "Drinks"
+    Drink     : "Drinks"
     Setting   : 'Settings'
     Serving   : 'Serving Utentils'
     Resource  : 'Resources'

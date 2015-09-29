@@ -211,6 +211,8 @@ EventsResource = (Resty, amMoment) ->
 
       # guests:  # habtm Users
       # menu:    # menu ideas
+      menu:
+        allowCategoryKeys: ['Side','Main','Dessert','Drink']
 
       setting:
         isExclusive: false   # invite Only

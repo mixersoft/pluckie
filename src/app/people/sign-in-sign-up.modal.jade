@@ -41,6 +41,7 @@ ion-modal-view#sign-in-sign-up
                 div.text-right 
                   a(ng-click="slideCtrl.setSlide('signin')"). 
                     Have an account? Sign in #[i.icon.ion-android-arrow-forward.padding-right]
+              div.last-row
     ion-slide.sign-in
       ion-scroll
         div.list
@@ -67,4 +68,5 @@ ion-modal-view#sign-in-sign-up
                   a(ng-click="vm.on.notReady('password recovery')") Forgot Password?
                 a(ng-click="slideCtrl.setSlide('signup')").
                   #[i.icon.ion-android-arrow-back.padding-left] Sign up
+              div.last-row
 

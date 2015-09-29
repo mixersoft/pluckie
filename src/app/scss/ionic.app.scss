@@ -432,6 +432,12 @@ $hero-wrap-bg-height: 170px;
   }
 }
 
+form[name="contributeForm"] {
+  .item-select select {
+    position: initial;
+  }
+}
+
 .passcode-popup {
   .popup {
     width: 300px;

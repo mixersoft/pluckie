@@ -312,8 +312,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     
 
 
-    beginContribute: (mitem)->
+    beginContribute: (mitem, category)->
       modalModel = {
+        menu:
+          categories: vm.event.menu.allowCategoryKeys
+          selected: category
         submitContribute: (contribution, onSuccess)->
           if contribution.isNewMenuItem
             promise = createMenuItem(contribution.menuItem)
@@ -581,6 +584,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       count: {}
       pct: {}
     }
+    # initialize Categories, as necessary
+    if event.menu.allowCategoryKeys?
+      _.each event.menu.allowCategoryKeys, (key)-> distribution.count[key] = 0
 
     _.each event.menuItemIds, (id)->
       required = _.reduce vm.lookup['Contributions'], (result, o)->
@@ -620,6 +626,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     _.each distribution.count, (v,k)->
       distribution.pct[k] = Math.round( v / distribution.total * 100 )
+      return
+
     return distribution
 
   vm.createBooking = (options)->
@@ -852,7 +860,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     .then (event)->
       getContributions(event)
     .then (event)->
-      vm.lookup['MenuItemCategories'] = _.keys MenuItemsResource.categoryLookup
+      allowCategoryKeys = event.menu?.allowCategoryKeys
+      vm.lookup['MenuItemCategories'] =
+        if allowCategoryKeys
+        then _.pick MenuItemsResource.categoryLookup, allowCategoryKeys
+        else MenuItemsResource.categoryLookup
       getMenuItems(event)
     .then (event)->
       getDerivedValues_Event(event)

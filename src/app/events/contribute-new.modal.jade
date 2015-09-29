@@ -15,7 +15,7 @@ ion-modal-view
         label.item.item-input.item-select
           div.input-label Category
           select(ng-model="mitem.category")
-            option(ng-repeat="cat in vm.lookup['MenuItemCategories']" ng-bind="cat") 
+            option(ng-repeat="(key,label) in vm.lookup['MenuItemCategories']" value="key") {{label}} 
         label.item.item-input.item-floating-label
           span.input-label Description
           textarea(placeholder="Description" ng-model="mitem.detail" maxlength='255')

@@ -204,14 +204,17 @@ ion-view(view-title="{{vm.title}}")
                 div.card.list.condensed(
                   ng-if="vm.acl.debounced.isParticipant_YES() && item.setting.denyAddMenu==false"
                 )
-                  div.item.button-full
+                  div.button-full
                     div.button.button-balanced.icon.ion-android-add-circle(
                       ng-click="vm.on.beginContribute()"
                       ).
-                      Add Menu Item
+                      &nbsp; Add New Menu Item
                   div.item.item-icon-left.balanced {{distr = item.summary.distribution;''}}
                     i.icon.ion-pie-graph
-                    div.balanced(ng-repeat="(cat,count) in distr.count") 
+                    div.balanced(
+                      ng-repeat="(cat,count) in distr.count"
+                      ng-click="vm.on.beginContribute(null, cat)"
+                      ) 
                       label.inline-field {{value = count + ' (' + distr.pct[cat] + '%)';''}}
                         span.label.balanced {{vm.getLabel_MenuItemCategory(cat)}}
                         input.balanced(type="text" ng-model="value" readonly)
