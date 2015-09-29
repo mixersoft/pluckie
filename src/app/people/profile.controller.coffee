@@ -3,6 +3,7 @@
 ProfileCtrl = (
   $scope, $rootScope, $q, $location, $timeout, $state, $stateParams
   $ionicScrollDelegate
+  ParticipationsResource, EventsResource
   $log, toastr
   UsersResource, AAAHelpers
   utils, devConfig, exportDebug
@@ -18,6 +19,7 @@ ProfileCtrl = (
   vm = this
   vm.title = "Profile"
   vm.me = null      # current user, set in initialize()
+  vm.lookup = {}
   vm.imgAsBg = utils.imgAsBg
   vm.isDev = utils.isDev
   vm.acl = {
@@ -27,7 +29,8 @@ ProfileCtrl = (
       return true if $rootScope.user
   }
   vm.settings = {
-    show: 'less'
+    view:
+      show: 'signin'    # [signin|profile|account]
     editing: false
     changePassword: false
   }
@@ -44,6 +47,7 @@ ProfileCtrl = (
       return vm.settings.show = value
     resetForm: ()->
       vm.person = angular.copy(vm.me)
+      vm.settings.view.show = "profile"
       $timeout ()->
         vm.settings.editing = false
       return
@@ -51,15 +55,39 @@ ProfileCtrl = (
     showSignInRegister: (action)->
       return AAAHelpers.showSignInRegister.call(vm, action)
       .then (user)->
-        vm.person = user if user
-        $log.info user
+        vm.me = $rootScope.user
+        activate()
+        $log.info vm.me
 
     signOut: ()->
+      vm.me = $rootScope.user = {}
       $rootScope.$emit 'user:sign-out'
+      activate()
+
 
     notReady: (value)->
       toastr.info "Sorry, " + value + " is not available yet"
       return false
+
+    updateProfile: (person, changePassword)->
+      if changePassword.new?
+        # validate changePassword.old
+        promise = $q.when changePassword
+      else
+        promise = $q.when()
+      promise
+      .catch (o)->
+        # error updating password
+        return o
+      .then ()->
+        # update profile attributions
+        id = vm.me.id
+        return UsersResource.put(id, person)
+      .then (result)->
+        _.extend vm.me, result
+        vm.person = angular.copy(vm.me)
+        $log.info "Updated profile " + JSON.stringify vm.person
+        $timeout ()->vm.settings.editing = false
   }
 
   $scope.dev = {
@@ -81,27 +109,11 @@ ProfileCtrl = (
           activate()
           return user
 
-      updateProfile: (person, changePassword)->
-        if changePassword.new?
-          # validate changePassword.old
-          promise = $q.when changePassword
-        else
-          promise = $q.when()
-        promise
-        .catch (o)->
-          # error updating password
-          return o
-        .then ()->
-          # update profile attributions
-          id = vm.me.id
-          return UsersResource.put(id, person)
-
-
   }
 
   initialize = ()->
     # dev
-    DEV_USER_ID = # '0'
+    DEV_USER_ID = '10' # '0'
     devConfig.loginUser( DEV_USER_ID , false)
     .then (user)->
       vm.me = $rootScope.user
@@ -109,23 +121,55 @@ ProfileCtrl = (
       vm.on.scrollTo()
 
   activate = ()->
-    vm.settings.editing = false
-    vm.settings.changePassword = false
-    userid = $stateParams.id
-    if !userid
-      # me, copy in case we need to reset
+    if $state.is('app.me')
       vm.person = angular.copy(vm.me)
       if _.isEmpty vm.person
         vm.person = ANON_USER
-      promise = $q.when vm.person
-    else if userid == vm.me.id
-      vm.person = vm.me
-      promise = $q.when vm.person
-    else
-      promise = UsersResource.get(userid)
-      .then (user)->
-        return vm.person = user
-    return promise
+        vm.settings.view.show = 'signin'
+      else
+        vm.settings.view.show = 'profile'
+      vm.settings.editing = false
+      vm.settings.changePassword = false
+      getMyEvents(vm.me)
+      return
+
+    if $state.is('app.profile')
+      userid = $stateParams.id
+      if !userid
+        toastr.warning "Sorry, that profile was not found."
+        $rootScope.goBack()
+        return
+      else if userid == vm.me.id
+        # looking at my own profile
+        vm.person = vm.me
+        promise = $q.when vm.person
+      else
+        # viewing someone else's profile
+        promise = UsersResource.get(userid)
+        .then (user)->
+          return vm.person = user
+      return promise
+
+  getMyEvents = (user)->
+    return $q.when()
+    .then ()->
+      return ParticipationsResource.query({participantId: user.id})
+    .then (result)->
+      eventIds = _.pluck result, 'eventId'
+      vm.lookup['ParticipationsByEventId'] = _.indexBy result, 'eventId'
+      return EventsResource.get(eventIds)
+    .then (result)->
+      vm.lookup['Events'] = _.indexBy result, 'id'
+      now = new Date().toJSON()
+      _.each result, (o)->
+        o['calendar'] = moment(o.startTime).calendar()
+        o['isComplete'] = o.startTime < now
+        return
+      result = _.sortBy( result, 'startTime').reverse()
+      vm.lookup['Hosting'] = _.filter result, {ownerId: user.id}
+      vm.lookup['Participating'] = _.filter result, (o)-> return o.ownerId != user.id
+
+
 
   $scope.$watch 'vm.person', (newV, oldV)->
     vm.settings.editing = true if $state.is('app.me')
@@ -146,6 +190,7 @@ ProfileCtrl = (
 ProfileCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$location', '$timeout', '$state', '$stateParams'
   '$ionicScrollDelegate'
+  'ParticipationsResource', 'EventsResource'
   '$log', 'toastr'
   'UsersResource', 'AAAHelpers'
   'utils', 'devConfig', 'exportDebug'

@@ -839,10 +839,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
           return $q.reject(err)
       return eventId = $state.params.id
     .catch (err)->
-      if $ionicHistory.backView()
-        $ionicHistory.goBack()
-      else
-        $state.transitionTo('app.events')
+      $rootScope.goBack('app.events')
       return $q.reject()
     .then (eventId)->
       vm.event['ready'] = false
@@ -959,7 +956,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     return if vm.event.ready == false
 
   $rootScope.$on 'user:sign-out', ()->
-    $rootScope.user = {}
+    vm.me = $rootScope.user
     return
 
     #ready

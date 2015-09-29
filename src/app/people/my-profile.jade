@@ -1,5 +1,5 @@
 // people/profile.jade
-ion-view(view-title="{{vm.title}}") {{person=vm.person;''}}
+ion-view(view-title="{{vm.title}}") {{person=vm.person;view=vm.settings.view;''}}
   ion-content#profile.has-header.light-bg
     div.hero-a
       div.content
@@ -14,7 +14,7 @@ ion-view(view-title="{{vm.title}}") {{person=vm.person;''}}
             ng-style="vm.imgAsBg(person.face)"
             )
 
-    div#description.content.row.responsive-sm(ng-if="person.id==false")
+    div#description.content.row.responsive-sm(ng-if="view.show=='signin'")
       div.col.col-offset-25.col-50
         div.text-center.padding
           h3 Take off your coat #[span.nowrap and stay awhile...]
@@ -23,7 +23,59 @@ ion-view(view-title="{{vm.title}}") {{person=vm.person;''}}
             ng-click="vm.on.showSignInRegister('signin')"
             ) Sign in
 
-    div#description.content.row.responsive-sm(ng-if="person.id")
+    div#description.content.row.responsive-sm(ng-if="view.show=='profile'")
+      div.col.col-offset-25.col-50
+        div.list.condensed
+          label.item.inline-field {{ fullname=[person.firstname, person.lastname].join(' ') + ' (' + person.username + ')';'' }}
+            span.label
+              i.icon.ion-person.padding-horizontal.larger
+            input.capitalize(type="text" ng-model="fullname" readonly)
+          label.item.inline-field
+            span.label
+              i.icon.ion-email.padding-horizontal.larger
+            input(type="text" ng-model="person.email" readonly)  
+          label.item.inline-field
+            span.label
+              i.icon.ion-quote.padding-horizontal.larger
+            input(type="text" ng-model="person.about" readonly)
+
+      div.col.col-offset-25.col-50
+        div.list.condensed.royal
+          div.item.item-divider.item-royal.light.item-icon-right
+            div.larger My Events
+          h4.royal.padding-horizontal Hosting
+          div(
+            ng-repeat="item in vm.lookup['Hosting']"
+            )  {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
+            div.item.item-text-wrap(
+              ui-sref="app.event-detail({id: {{item.id}}  })"
+              ng-class="{dark:item.isComplete}"
+              )
+              #[b {{item.title}}],  {{ item.calendar }}
+
+          h4.royal.padding-horizontal Participating
+          div(
+            ng-repeat="item in vm.lookup['Participating']"
+            ) {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
+            div.item.item-text-wrap(
+              ui-sref="app.event-detail({id: {{item.id}}  })"
+              ) 
+              #[b {{item.title}}],  {{ item.calendar }} , {{particip.response}}, {{particip.seats}} people
+
+
+      div.col.col-offset-25.col-50
+        div.list
+          div.item.button-bar
+            button.button.button-assertive.icon.ion-edit(
+              ng-click="view.show='account'"
+              )
+              &nbsp; Edit Profile
+            button.button.button-assertive.icon.ion-close-circled(
+              ng-click="vm.on.signOut()"
+              )
+              &nbsp; Sign out 
+
+    div#description.content.row.responsive-sm(ng-if="view.show=='account'")
       div.col.col-offset-25.col-50
         form(name="updateProfile" novalidate="" ng-submit="vm.on.updateProfile(person, changePass);")
           div.list
@@ -70,22 +122,14 @@ ion-view(view-title="{{vm.title}}") {{person=vm.person;''}}
             div.item
               div.button-bar
                 button.button.button-positive.button-outline(
-                  ng-click="vm.on.resetForm();closeModal('CANCELED')"
-                  ng-class="{disabled:vm.settings.editing==false}"
-                  ) Cancel
+                  ng-click="vm.on.resetForm()"
+                  ) &nbsp; Cancel
                 button.button.button-positive(
                   type="submit"
                   ng-class="{disabled:vm.settings.editing==false}"
-                  ) Update
+                  ) &nbsp; Update
 
         
-    div#description.content.row.responsive-sm(ng-if="person.id")
-      div.col.col-offset-25.col-50
-        div.padding.text-center
-              button.button.button-full.button-assertive.icon.ion-close-circled(
-                ng-click="vm.on.signOut()"
-                )
-                span.padding-left Sign out
 
     div#admin-change-user.content.row.responsive-sm(ng-if="vm.isDev()")
       div.col.col-offset-25.col-50

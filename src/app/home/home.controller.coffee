@@ -2,6 +2,7 @@
 
 HomeCtrl = (
   $scope, $rootScope, $q, $location, $timeout
+  $state
   $ionicScrollDelegate, $ionicHistory
   $log, toastr
   HomeResource, EventsResource, MenuItemsResource
@@ -117,7 +118,10 @@ HomeCtrl = (
 
 
     # dev
-    DEV_USER_ID = '3'
+    DEV_USER_ID = null #'3'
+    if $location.search()['user']
+      DEV_USER_ID = $location.search()['user']
+      $location.search('user', null)
     devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
 
@@ -150,6 +154,7 @@ HomeCtrl = (
 
 HomeCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$location', '$timeout'
+  '$state'
   '$ionicScrollDelegate', '$ionicHistory'
   '$log', 'toastr'
   'HomeResource', 'EventsResource','MenuItemsResource'

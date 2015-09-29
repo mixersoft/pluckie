@@ -6,8 +6,9 @@ UsersResource = (Resty, amMoment) ->
     10:
       firstname  : 'Michael'
       lastname   : 'Lin'
-      username   : 'mixersoft'
+      username   : 'snaphappi'
       displayName: 'Michael'
+      email      : null
       face       : "http://snappi.snaphappi.com/svc/storage/DEQBCEektV/.thumbs/bm~me-2015.jpg"
       about      : ""
     0:
