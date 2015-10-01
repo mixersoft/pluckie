@@ -17,9 +17,48 @@ ion-view(view-title="{{vm.title}}")
           img.face(
             ng-style="vm.imgAsBg(person.face)"
             )
-    div.text-center(ng-if="vm.me != person") 
-      h2.capitalize {{person.firstname}} {{person.lastname}}
-      button.button.icon-left.icon.ion-chatbox Contact Me
+    div.content.row.responsive-sm(ng-if="vm.me != person") 
+      div.col.col-offset-25.col-50      
+        div.text-center
+          h2.capitalize {{person.firstname}} {{person.lastname}}
+          button.button.icon-left.icon.ion-chatbox Contact Me
+
+
+    div#profile.content.row.responsive-sm
+      div.col.col-offset-25.col-50
+        div.list.condensed
+          label.item.inline-field {{ fullname=[person.firstname, person.lastname].join(' ') + ' (' + person.username + ')';'' }}
+            span.label
+              i.icon.ion-person.padding-horizontal.larger
+            input.capitalize(type="text" ng-model="fullname" readonly)
+          label.item.inline-field
+            span.label
+              i.icon.ion-quote.padding-horizontal.larger
+            input(type="text" ng-model="person.about" readonly)
+
+        div.list.card.condensed.royal
+          div.item.item-divider.item-royal.light.item-icon-right
+            div.larger Activity
+          h4.royal.padding-horizontal Hosting
+          div(
+            ng-repeat="item in vm.lookup['Hosting']"
+            )  {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
+            div.item.item-text-wrap(
+              ui-sref="app.event-detail({id: {{item.id}}  })"
+              ng-class="{dark:item.isComplete}"
+              )
+              b {{item.title}}
+              ,  {{ item.calendar }} 
+              span(ng-if="item.isComplete") (done)
+
+          h4.royal.padding-horizontal Participating
+          div(
+            ng-repeat="item in vm.lookup['Participating']"
+            ) {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
+            div.item.item-text-wrap(
+              ui-sref="app.event-detail({id: {{item.id}}  })"
+              ) 
+              #[b {{item.title}}],  {{ item.calendar }} , {{particip.response}}, {{particip.seats}} people
 
     div#admin-change-user.content.row.responsive-sm(ng-if="vm.isDev()")
       div.col.col-offset-25.col-50

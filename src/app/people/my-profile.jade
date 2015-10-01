@@ -23,57 +23,56 @@ ion-view(view-title="{{vm.title}}") {{person=vm.person;view=vm.settings.view;''}
             ng-click="vm.on.showSignInRegister('signin')"
             ) Sign in
 
-    div#description.content.row.responsive-sm(ng-if="view.show=='profile'")
+    div#profile.content.row.responsive-sm(ng-if="view.show=='profile'")
       div.col.col-offset-25.col-50
-        div.list.condensed
-          label.item.inline-field {{ fullname=[person.firstname, person.lastname].join(' ') + ' (' + person.username + ')';'' }}
-            span.label
-              i.icon.ion-person.padding-horizontal.larger
-            input.capitalize(type="text" ng-model="fullname" readonly)
-          label.item.inline-field
-            span.label
-              i.icon.ion-email.padding-horizontal.larger
-            input(type="text" ng-model="person.email" readonly)  
-          label.item.inline-field
-            span.label
-              i.icon.ion-quote.padding-horizontal.larger
-            input(type="text" ng-model="person.about" readonly)
+          div.list.condensed
+            label.item.inline-field {{ fullname=[person.firstname, person.lastname].join(' ') + ' (' + person.username + ')';'' }}
+              span.label
+                i.icon.ion-person.padding-horizontal.larger
+              input.capitalize(type="text" ng-model="fullname" readonly)
+            label.item.inline-field
+              span.label
+                i.icon.ion-email.padding-horizontal.larger
+              input(type="text" ng-model="person.email" readonly)  
+            label.item.inline-field
+              span.label
+                i.icon.ion-quote.padding-horizontal.larger
+              input(type="text" ng-model="person.about" readonly)
 
-      div.col.col-offset-25.col-50
-        div.list.condensed.royal
-          div.item.item-divider.item-royal.light.item-icon-right
-            div.larger My Events
-          h4.royal.padding-horizontal Hosting
-          div(
-            ng-repeat="item in vm.lookup['Hosting']"
-            )  {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
-            div.item.item-text-wrap(
-              ui-sref="app.event-detail({id: {{item.id}}  })"
-              ng-class="{dark:item.isComplete}"
-              )
-              #[b {{item.title}}],  {{ item.calendar }}
+          div.list.condensed.royal
+            div.item.item-divider.item-royal.light.item-icon-right
+              div.larger My Events
+            h4.royal.padding-horizontal Hosting
+            div(
+              ng-repeat="item in vm.lookup['Hosting']"
+              )  {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
+              div.item.item-text-wrap(
+                ui-sref="app.event-detail({id: {{item.id}}  })"
+                ng-class="{dark:item.isComplete}"
+                )
+                b {{item.title}}
+                ,  {{ item.calendar }} 
+                span(ng-if="item.isComplete") (done)
 
-          h4.royal.padding-horizontal Participating
-          div(
-            ng-repeat="item in vm.lookup['Participating']"
-            ) {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
-            div.item.item-text-wrap(
-              ui-sref="app.event-detail({id: {{item.id}}  })"
-              ) 
-              #[b {{item.title}}],  {{ item.calendar }} , {{particip.response}}, {{particip.seats}} people
+            h4.royal.padding-horizontal Participating
+            div(
+              ng-repeat="item in vm.lookup['Participating']"
+              ) {{ particip = vm.lookup['ParticipationsByEventId'][item.id];''}}
+              div.item.item-text-wrap(
+                ui-sref="app.event-detail({id: {{item.id}}  })"
+                ) 
+                #[b {{item.title}}],  {{ item.calendar }} , {{particip.response}}, {{particip.seats}} people
 
-
-      div.col.col-offset-25.col-50
-        div.list
-          div.item.button-bar
-            button.button.button-assertive.icon.ion-edit(
-              ng-click="view.show='account'"
-              )
-              &nbsp; Edit Profile
-            button.button.button-assertive.icon.ion-close-circled(
-              ng-click="vm.on.signOut()"
-              )
-              &nbsp; Sign out 
+          div.list
+            div.item.button-bar
+              button.button.button-assertive.icon.ion-edit(
+                ng-click="view.show='account'"
+                )
+                &nbsp; Edit
+              button.button.button-assertive.icon.ion-close-circled(
+                ng-click="vm.on.signOut()"
+                )
+                &nbsp; Sign out 
 
     div#description.content.row.responsive-sm(ng-if="view.show=='account'")
       div.col.col-offset-25.col-50

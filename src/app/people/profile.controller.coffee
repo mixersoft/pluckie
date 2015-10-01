@@ -150,6 +150,8 @@ ProfileCtrl = (
         .then (user)->
           return vm.person = user
       return promise
+      .then (user)->
+        getMyEvents(user)
 
   getMyEvents = (user)->
     return $q.when()
