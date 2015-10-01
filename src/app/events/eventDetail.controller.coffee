@@ -315,7 +315,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     beginContribute: (mitem, category)->
       modalModel = {
         menu:
-          categories: vm.event.menu.allowCategoryKeys
+          categories: vm.event.menu?.allowCategoryKeys
           selected: category
         submitContribute: (contribution, onSuccess)->
           if contribution.isNewMenuItem
@@ -585,7 +585,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       pct: {}
     }
     # initialize Categories, as necessary
-    if event.menu.allowCategoryKeys?
+    if event.menu?.allowCategoryKeys
       _.each event.menu.allowCategoryKeys, (key)-> distribution.count[key] = 0
 
     _.each event.menuItemIds, (id)->

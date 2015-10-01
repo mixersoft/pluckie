@@ -14,13 +14,10 @@ angular
     'ionic'
     'ngCordova'
     'ionic-material'
-    'starter.core'
     'starter.layout'
+    'starter.core'
     # Components
     # Feature areas
-    # 'starter.account'
-    # 'starter.chat'
-    # 'starter.dash'
     'starter.data'
     'starter.home'
     'starter.events'
