@@ -638,7 +638,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     # clean up data
     particip = {
       eventId: options.event.id
-      participantId: options.person.id
+      participantId: options.person.id + ''
       response: 'Yes'
       seats: parseInt booking.seats
       comment: booking.comment

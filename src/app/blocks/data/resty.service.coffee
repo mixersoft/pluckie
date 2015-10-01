@@ -65,7 +65,7 @@ Resty = ($q, $sessionStorage) ->
   RestyClass::post = (o)->
     self = this
     return $q.reject false if `o==null`
-    id = Date.now() # _.keys( @_data ).length + ''
+    id = Date.now() + '' # force string # _.keys( @_data ).length + ''
     o['id'] = id
     o['updatedAt'] = o['createdAt'] = new Date()
     o = _.pick o, @fields

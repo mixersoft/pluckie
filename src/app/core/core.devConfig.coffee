@@ -21,7 +21,7 @@ DevConfig = ($rootScope, UsersResource, ParticipationsResource
         if $rootScope['user']?.participation?
           # promote anonymous participation to user participation
           data = angular.copy $rootScope['user'].participation
-          data['participantId'] = user.id
+          data['participantId'] = user.id + ''
           data['responseId'] = null
           data['responseName'] = null
           skip = ParticipationsResource.put(data.id, data)
