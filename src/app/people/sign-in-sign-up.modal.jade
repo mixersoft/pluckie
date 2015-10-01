@@ -20,7 +20,10 @@ ion-modal-view#sign-in-sign-up
           div.item
             div.text-center.muted.larger &mdash; or &mdash;
           div.padding-horizontal
-            form(name="registerForm" novalidate="" ng-submit="slideCtrl.register(person, closeModal)")
+            form(name="registerForm" 
+              novalidate="" 
+              ng-submit="slideCtrl.register(person, closeModal)"
+              )
               label.item.item-input
                 i.icon.ion-person.padding-horizontal.larger
                 input(type="text" name="Username" placeholder="Username" ng-model="person.username" required)
@@ -34,6 +37,7 @@ ion-modal-view#sign-in-sign-up
                 i.icon.ion-locked.padding-horizontal.larger
                 input(type="password" name="PasswordRepeat" placeholder="Again" ng-model="person.passwordRepeat")
               div.item
+                button.button.ng-submit-on-form-enter
                 div.button-bar
                   button.button.button-balanced.button-outline(ng-click="closeModal('CANCELED')") Cancel
                   button.button.button-balanced(type="submit") Sign up
@@ -52,7 +56,10 @@ ion-modal-view#sign-in-sign-up
           div.item
             div.text-center.larger &mdash; or &mdash;
           div.padding-horizontal
-            form(name="signInForm" novalidate="" ng-submit="slideCtrl.signIn(person, closeModal);")
+            form(name="signInForm" 
+              novalidate="" 
+              ng-submit="slideCtrl.signIn(person, closeModal);"
+              )
               label.item.item-input
                 i.icon.ion-person.padding-horizontal.larger
                 input(type="text" name="Username" placeholder="Username" ng-model="person.username" required)
@@ -60,6 +67,7 @@ ion-modal-view#sign-in-sign-up
                 i.icon.ion-locked.padding-horizontal.larger
                 input(type="password" name="Password" placeholder="Password" ng-model="person.password" required)
               div.item
+                button.button.ng-submit-on-form-enter
                 div.button-bar
                   button.button.button-balanced.button-outline(ng-click="closeModal('CANCELED')") Cancel
                   button.button.button-balanced(type="submit") Sign in

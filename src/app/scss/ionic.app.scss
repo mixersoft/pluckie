@@ -432,6 +432,12 @@ $hero-wrap-bg-height: 170px;
   }
 }
 
+form .ng-submit-on-form-enter {
+  /* hide first button to allow ng-submit handler on enter*/
+  position: absolute;
+  left: -999px;
+}
+
 form[name="contributeForm"] {
   .item-select select {
     position: initial;

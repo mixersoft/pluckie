@@ -1,6 +1,10 @@
 'use strict'
 
-appRun = ($ionicPlatform, $rootScope, $location, utils, $state, $ionicHistory) ->
+appRun = ($rootScope, $ionicPlatform, $ionicHistory, $location
+  utils, $state, $sessionStorage
+  ) ->
+
+  $rootScope['user'] = $sessionStorage['me']
 
   $ionicPlatform.ready ->
     # Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -51,7 +55,12 @@ toastrConfig = (toastrConfig) ->
 
 
 
-appRun.$inject = ['$ionicPlatform', '$rootScope', '$location', 'utils', '$state', '$ionicHistory']
+appRun.$inject = ['$rootScope', '$ionicPlatform', '$ionicHistory', '$location'
+'utils', '$state', '$sessionStorage'
+]
+
+ionicConfig.$inject = ['$ionicConfigProvider']
+toastrConfig.$inject = ['toastrConfig']
 
 angular
   .module 'starter.core'

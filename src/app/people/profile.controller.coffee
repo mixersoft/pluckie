@@ -113,7 +113,8 @@ ProfileCtrl = (
 
   initialize = ()->
     # dev
-    DEV_USER_ID = '10' # '0'
+    DEV_USER_ID =
+      if utils.isDev() then '10' else null # '0'
     devConfig.loginUser( DEV_USER_ID , false)
     .then (user)->
       vm.me = $rootScope.user
@@ -168,6 +169,9 @@ ProfileCtrl = (
       result = _.sortBy( result, 'startTime').reverse()
       vm.lookup['Hosting'] = _.filter result, {ownerId: user.id}
       vm.lookup['Participating'] = _.filter result, (o)-> return o.ownerId != user.id
+      return result
+    .then (result)->
+      'done'
 
 
 

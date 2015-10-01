@@ -34,15 +34,20 @@ Resty = ($q, $sessionStorage) ->
 
   RestyClass::get = (id) ->
     return $q.when {} if `id==null`
+    self = this
+
     if id=='all'
       result = _.chain( @_data )
-      .each (v,k)-> v.id = k
+      .each (v,k)->
+        v.id = k
+        self.afterFetch?(v)
+        return
       .value()
       return $q.when angular.copy _.values result
 
     if _.isArray id
       promises = []
-      self = this
+      
       _.each id, (i)->
         promises.push RestyClass::get.call(self, i).catch (err)->
           return $q.when null
@@ -53,6 +58,7 @@ Resty = ($q, $sessionStorage) ->
     result = @_data[id]
     if result?
       result.id = id
+      self.afterFetch?(result)
       return $q.when angular.copy result
     return $q.reject false
 

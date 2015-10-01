@@ -98,6 +98,9 @@ UsersResource = (Resty, amMoment) ->
   service.beforeSave = (user)->
     service.setDisplayName(user)
 
+  service.afterFetch = (user)->
+    service.setDisplayName(user)
+
   service.setDisplayName = (user)->
     return user if user.displayName
     displayName = []

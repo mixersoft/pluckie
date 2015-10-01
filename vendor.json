@@ -1,7 +1,20 @@
 {
   "production": [
-    "ionic/js/ionic.bundle.min.js",
-    "ionic/fonts/*"
+    "ionic/js/ionic.bundle.js",
+    "ionic/fonts/*",
+    "ngCordova/dist/ng-cordova.js",
+    "lodash/lodash.min.js",
+    "angular-toastr/dist/angular-toastr.tpls.min.js",
+    "angular-toastr/dist/angular-toastr.min.css",
+    "robotodraft/fonts/**/*",
+    "ionic-material/dist/ionic.material.js",
+    "ionic-material/dist/ionic.material.css",
+    "x-ionic-material-design-lite/dist/ionic.material-design-lite.css",
+    "x-ionic-material-design-lite/dist/ionic.material-design-lite.js",
+    "moment/min/moment.min.js",
+    "angular-moment/angular-moment.min.js",
+    "angular-google-maps/dist/angular-google-maps.js",
+    "ngstorage/ngStorage.min.js"   
   ],
   "dev": [
     "ionic/js/ionic.bundle.js", 
@@ -16,7 +29,8 @@
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.css",
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.js",
     "moment/min/moment.min.js",
-    "angular-moment/angular-moment.js",
-    "angular-google-maps/dist/angular-google-maps.js"
+    "angular-moment/angular-moment.min.js",
+    "angular-google-maps/dist/angular-google-maps.js",
+    "ngstorage/ngStorage.js"
   ]
 }
