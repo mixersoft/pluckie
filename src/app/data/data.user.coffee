@@ -89,11 +89,24 @@ UsersResource = (Resty, amMoment) ->
 
 
     
-  service = new Resty(data)
+  service = new Resty(data, "Users")
 
   service.randomFaceUrl = (id)->
     id = Date.now() if `id==null`
     return Resty.lorempixel( 200, 200, 'people') + (id % 11)
+
+  service.beforeSave = (user)->
+    service.setDisplayName(user)
+
+  service.setDisplayName = (user)->
+    return user if user.displayName
+    displayName = []
+    displayName.push user.firstname if user.firstname
+    displayName.push user.lastname if user.lastname
+    displayName = [user.username] if user.username
+    user.displayName = displayName.join(' ')
+    return user
+
 
   return service
 

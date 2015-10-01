@@ -1,8 +1,13 @@
 'use strict'
 
-Resty = ($q) ->
 
-  RestyClass = (@_data = {}) ->
+
+Resty = ($q, $sessionStorage) ->
+
+  RestyClass = (@_data = {}, className) ->
+    if $sessionStorage[className]
+      @_data = $sessionStorage[className]
+      console.log "restoring from SessionStorage"
     # alias to mimic ngResource
     @get = RestyClass::get
     @query = (filter)->
@@ -21,6 +26,9 @@ Resty = ($q) ->
       return
     , this
     @fields = _.uniq @fields.concat ['createdAt', 'updatedAt']
+
+    # save to SessionStorage
+    $sessionStorage[className] = @_data
     return
 
 
@@ -49,20 +57,24 @@ Resty = ($q) ->
     return $q.reject false
 
   RestyClass::post = (o)->
+    self = this
     return $q.reject false if `o==null`
     id = Date.now() # _.keys( @_data ).length + ''
     o['id'] = id
     o['updatedAt'] = o['createdAt'] = new Date()
     o = _.pick o, @fields
+    self.beforeSave?(o)
     return $q.when angular.copy @_data[id] = o
 
   RestyClass::put = (id, o) ->
+    self = this
     id = id + ''
     return $q.reject false if `o==null`
     if @_data[id]?
       o['id'] = id
       o['updatedAt'] = new Date()
       o = _.pick o, @fields
+      self.beforeSave?(o)
       o = _.extend @_data[id], o
       return $q.when angular.copy @_data[id] = o
     return $q.reject false
@@ -89,7 +101,7 @@ Resty = ($q) ->
 
   return RestyClass
 
-Resty.$inject = ['$q']
+Resty.$inject = ['$q', '$sessionStorage']
 
 angular.module 'blocks.data'
   .factory 'Resty', Resty

@@ -1,6 +1,7 @@
 'use strict'
 # join table for Event, MenuItem, Users
 ContributionsResource = (Resty, amMoment) ->
+  className = 'Contributions'
   # key = [eventId,menuitemId,contributorId]
   data = {
     0:
@@ -166,7 +167,7 @@ ContributionsResource = (Resty, amMoment) ->
       sort: 20
 
   }
-  return service = new Resty(data)
+  return service = new Resty(data, className)
 
 
 ContributionsResource.$inject = ['Resty','amMoment']

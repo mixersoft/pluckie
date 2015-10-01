@@ -1,6 +1,7 @@
 'use strict'
 # join table for Event, MenuItem, Users
 ParticipationsResource = (Resty, amMoment) ->
+  className = 'Participations'
   # key = [eventId,menuitemId,contributorId]
   data = {
     0:
@@ -62,7 +63,7 @@ ParticipationsResource = (Resty, amMoment) ->
       seats: 3
       comment: 'Your host'
   }
-  service = new Resty(data)
+  service = new Resty(data, className)
 
   service.setResponseId = (data, passcode, peek)->
     return data if data['participantId']?

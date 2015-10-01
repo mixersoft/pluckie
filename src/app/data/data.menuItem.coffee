@@ -2,6 +2,7 @@
 
 MenuItemsResource = (Resty, amMoment) ->
   # Event hasMany MenuItems
+  className = 'MenuItems'
   # coffeelint: disable=max_line_length
   data = {
     0:
@@ -227,7 +228,7 @@ MenuItemsResource = (Resty, amMoment) ->
     v.pic += k % 10 if /lorempixel/.test v.pic
     return
 
-  service = new Resty(data)
+  service = new Resty(data, className)
 
   #
   # additional MenuItemsResource Class Methods

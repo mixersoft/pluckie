@@ -1,6 +1,7 @@
 'use strict'
 # Manages Tokens on Classes
 TokensResource = (Resty, amMoment, $q) ->
+  className = 'Tokens'
   # key = [eventId,menuitemId,contributorId]
   data = {
     'abcd':
@@ -34,7 +35,7 @@ TokensResource = (Resty, amMoment, $q) ->
 
 
   }
-  service = new Resty(data)
+  service = new Resty(data, className)
 
   service.isValid = (token, className, id)->
     return $q.reject('INVALID') if !token

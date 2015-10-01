@@ -1,3 +1,3 @@
 'use strict'
 
-angular.module 'blocks.data', []
+angular.module 'blocks.data', ['ngStorage']

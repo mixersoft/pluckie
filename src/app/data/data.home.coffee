@@ -1,6 +1,7 @@
 'use strict'
 
 HomeResource = (Resty, amMoment) ->
+  className = 'Home'
   # coffeelint: disable=max_line_length
   data = {
     0:
@@ -75,7 +76,7 @@ HomeResource = (Resty, amMoment) ->
       target: "app.menu-ideas({filter:'side'})"
   }
   # coffeelint: enable=max_line_length
-  return service = new Resty(data)
+  return service = new Resty(data, className)
 
 
 HomeResource.$inject = ['Resty','amMoment']

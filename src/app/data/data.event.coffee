@@ -1,6 +1,7 @@
 'use strict'
 
 EventsResource = (Resty, amMoment) ->
+  className = 'Events'
   # coffeelint: disable=max_line_length
   data = {
     0:
@@ -237,7 +238,7 @@ EventsResource = (Resty, amMoment) ->
 
   }
   # coffeelint: enable=max_line_length
-  return service = new Resty(data)
+  return service = new Resty(data, className)
 
 
 EventsResource.$inject = ['Resty','amMoment']
