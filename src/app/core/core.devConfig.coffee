@@ -10,6 +10,8 @@ DevConfig = ($rootScope, UsersResource, ParticipationsResource
   exportDebug.set('sess', $sessionStorage)
 
   self = {
+    signOut: ()->
+      return $rootScope['user'] = $sessionStorage['me'] =  {}
     loginUser : (id, force=true)->
       # manually set current user for testing
       $rootScope.user = $sessionStorage['me']
@@ -31,7 +33,8 @@ DevConfig = ($rootScope, UsersResource, ParticipationsResource
         $rootScope.$emit 'user:sign-in', $rootScope['user']
         return $rootScope['user']
       .catch (err)->
-        return $rootScope['user'] = $sessionStorage['me'] =  {}
+        return self.signOut()
+        
   }
   
   return self # DevConfig

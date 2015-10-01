@@ -60,7 +60,7 @@ ProfileCtrl = (
         $log.info vm.me
 
     signOut: ()->
-      vm.me = $rootScope.user = {}
+      vm.me = devConfig.signOut()
       $rootScope.$emit 'user:sign-out'
       activate()
 

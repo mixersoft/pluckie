@@ -84,7 +84,7 @@ OnboardCtrl = (
 
   initialize = ()->
     # dev
-    DEV_USER_ID = '3'
+    DEV_USER_ID = null # '3'
     devConfig.loginUser( DEV_USER_ID , false).then (user)->
       vm.me = $rootScope.user
 
