@@ -36,8 +36,8 @@ EventsResource = (Resty, amMoment) ->
       isPublic: true # searchable
 
       # contributors: {}      # see vm.lookup['Contributions']
-      # menu:    # menu ideas
-      # menuItems: {}         # see vm.lookup['MenuItems']
+      menu:
+        allowCategoryKeys: ['SmallPlate','Main','Dessert','Drink']
 
       setting:
         # isExclusive: false   # invite Only

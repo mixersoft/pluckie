@@ -134,12 +134,11 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         maxWait: 300
         trailing: false
       })
-    isAnonymous: ()->
-      return true if !$rootScope.user.id
-      return false
+
+    isAnonymous: AAAHelpers.isAnonymous
 
     isVisitor: ()-> ## has not responded to or joined event
-      return true if _.isEmpty $rootScope.user
+      return true if AAAHelpers.isAnonymous()
       return vm.acl.isParticipant() == false
    
     isParticipant: (responseType)->
@@ -251,134 +250,22 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     'getShareLink': ()->EventActionHelpers.getShareLink.apply(vm, arguments)
     'showShareLink': ()->EventActionHelpers.showShareLink.apply(vm, arguments)
 
-    showSignIn: (initialSlide)->
-      return AAAHelpers.showSignInRegister.apply(vm, arguments)
-      .then (result)-> # closeModal(result)
-        return $q.reject('CANCELED') if `result==null` || result == 'CANCELED'
-        return $q.reject(result) if result?['isError']
-        return result
+    'showSignIn': (initialSlide)->
+      $log.warn "deprecate EventDetailCtrl.showSignIn(), moved to EventActionHelpers"
+      return EventActionHelpers.showSignIn.apply(vm, arguments)
+
 
     'beginResponse': ()->
       return EventActionHelpers.beginResponse.apply(vm, arguments)
     
     # called by button.JoinEvent
-    # ???:deprecate? is this the same as beginResponse?
     # or do is this action for joinEvent w/o invitation?
-    beginBooking: (person, event)->
-      return $q.when()
-      .then ()->
-        return isInvitationRequired(event)
-      .then ()->
-        utils.ga_PageView('/booking', '.booking', 'append')
-        return appModalSvc.show('events/booking.modal.html', vm, {
-          mm:   # mm == "modal model" instead of view model
-            isValidated: (booking)->
-              return false if vm.acl.isAnonymous()
-              return false if booking.seats < 1
-              return true
-            signInRegister: (action, person)->
-              # update booking user after sign in/register
-              return vm.on.showSignIn(action)
-              .then (result)->
-                _.extend person, result
-                return
-            submitBooking: (booking, onSuccess)->
-              # some sanity checks
-              if vm.event.id != booking.event.id
-                toastr.warning("You are booking for a different event. title=" +
-                  booking.event.title)
-              if vm.me.id != booking.person.id
-                toastr.warning("You are booking for a different person. name=" +
-                  booking.person.displayName)
-
-              vm.createBooking(booking).then (result)->
-                utils.ga_Send('send', 'event', 'participation'
-                  , 'event-booking', 'Yes', 10)
-                onSuccess?(result)
-                return result
-              return
-
-          myBooking :
-            person: person
-            event: event
-            booking:
-              userId: person.id
-              seats: 1
-              comment: null
-        })
-      .then (result)->
-        $log.info "Contribute Modal resolved, result=" + JSON.stringify result
-
-    
+    'beginBooking': (person, event)->
+      return EventActionHelpers.beginBooking.apply(vm, arguments)
 
 
-    beginContribute: (mitem, category)->
-      modalModel = {
-        menu:
-          categories: vm.event.menu?.allowCategoryKeys
-          selected: category
-        submitContribute: (contribution, onSuccess)->
-          if contribution.isNewMenuItem
-            promise = createMenuItem(contribution.menuItem)
-            .then (menuItem)->
-              contribution['contribution'].menuItemId = menuItem.id
-              contribution.isNewMenuItem = false
-              return contribution
-            , (err)->
-              toastr.error "Error creating NEW menuItem"
-          else
-            promise = $q.when contribution
-          promise.then (contribution)->
-            createContribution(contribution).then (result)->
-              utils.ga_Send('send', 'event', 'participation', 'contribution', 'Yes', 10)
-              onSuccess?(result)
-              return result
-          return
-      }
-      if `mitem==null`
-        utils.ga_PageView($location.path() + '/contribute/new' , 'app.event-detail.contribute')
-        return appModalSvc.show('events/contribute-new.modal.html', vm, {
-        mm: modalModel
-        myContribution :
-          isNewMenuItem: true
-          maxPortions: Math.min(12, vm.event.seatsTotal)
-          menuItem:
-            id: null
-            title: ''
-            detail: ''
-            category: null
-            pic: null
-            link: null
-          # label: label
-          contribution:
-            eventId: vm.event.id
-            menuItemId: null
-            contributorId: vm.me.id
-            portions: Math.min(12, vm.event.seatsTotal)
-            portionsRequired: null   # TODO: allow create from to set portionsRequired
-            comment: null
-        })
-
-      dishes = ['Starter','Side','Main','Dessert']
-      # label = if dishes.indexOf(mitem.category) > -1 then 'dish' else 'item'
-      utils.ga_PageView($location.path() + '/contribute/' + mitem.id
-        , 'app.event-detail.contribute')
-      appModalSvc.show('events/contribute.modal.html', vm, {
-        mm: modalModel
-        myContribution :
-          menuItem: mitem
-          # label: label
-          contribution:
-            eventId: vm.event.id
-            menuItemId: mitem.id
-            contributorId: vm.me.id
-            portions: Math.min(12, mitem.summary.portionsRemaining)
-            comment: null
-        })
-      .then (result)->
-        result = _.omit result, ['contributor', 'menuItem']
-        $log.info "Contribute Modal resolved, result=" + JSON.stringify result
-      return
+    'beginContribute': (mitem, category)->
+      return EventActionHelpers.beginContribute.apply(vm, arguments)
   }
 
   initialize = ()->
@@ -631,140 +518,18 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     return distribution
 
   vm.createBooking = (options)->
-    booking = options.booking
-    person = options.person
-
-    # add booking as participant to event
-    # clean up data
-    particip = {
-      eventId: options.event.id
-      participantId: options.person.id + ''
-      response: 'Yes'
-      seats: parseInt booking.seats
-      comment: booking.comment
-    }
-    ParticipationsResource.post(particip)
-    .then (result)->
-      # update lookups
-      if !~vm.event['participationIds'].indexOf(result.id)
-        vm.event['participationIds'].push result.id
-        # vm.event['participantIds'].push result.participantId
-      vm.lookup['Participations'][result.id] = result
-      vm.lookup['Users'][result.participantId] = person
-      vm.lookup['MyParticipation'] = vm.getParticipationByUser(person)
-      $scope.$broadcast 'lookup-data:changed', {className:'Participations'}
-      return result
-    .then (participation)->
-      $scope.$broadcast 'event:participant-changed', options
-      message = "Congratulations, you have just booked " + participation.seats + " seats! "
-      message += "Now search for your contribution."
-      toastr.info message
-      $timeout ()-> vm.on.scrollTo('cp-participant')
-      return participation
-
-  createMenuItem = (menuItem)->
-    MenuItemsResource.post(menuItem)
-    .then (menuItem)->
-      # add to Event
-      vm.event['menuItemIds'].push( menuItem.id) if !~vm.event['menuItemIds'].indexOf( menuItem.id)
-      # arr.push( xxx ) if !~arr.indexOf( xxx )
-      vm.lookup['MenuItems'][menuItem.id] = menuItem
-      vm.lookup['MenuItemContributions'][menuItem.id] = []
-      $scope.$broadcast 'lookup-data:changed', {className:'MenuItem'}
-      return menuItem
-
+    $log.warn "deprecate EventDetailCtrl.createBooking(), moved to EventActionHelpers"
+    return EventActionHelpers.createBooking.apply(vm, arguments)
 
   createContribution = (options)->
-    menuItem = options.menuItem
-    contrib = options.contribution
-    # clean up data
-    contrib.portions = parseInt contrib.portions
+    $log.warn "deprecate EventDetailCtrl.createContribution(), moved to EventActionHelpers"
+    return EventActionHelpers.createContribution.apply(vm, arguments)
 
-    return $q.reject("expecting menuItem") if !menuItem
-    isCreate = false
-    # TODO: use Resty::methods
-    found = _.filter vm.lookup['Contributions']
-      , _.pick contrib, ['contributorId','menuItemId','eventId']
+  createMenuItem = (menuItem)->
+    $log.warn "deprecate EventDetailCtrl.createMenuItem(), moved to EventActionHelpers"
+    return EventActionHelpers.createMenuItem.apply(vm, arguments)
 
-    if found.length > 1
-      toastr.warning "Warning: same menu item contributed by same person more than once"
-    if found.length == 1
-      # update portion from existing contrib
-      updateObj = angular.copy found[0]
-      updateObj['portions'] += contrib.portions
-      updateObj['comment'] =
-        if updateObj.comment
-        then [updateObj.comment, contrib.comment].join('; ')
-        else contrib.comment
-      # updateObj.sort = Date.now()
-      promise = ContributionsResource.put( updateObj.id, updateObj )
-    else if vm.lookup['MenuItemContributions'][menuItem.id].length > 0
-      # follow-on contribution, create NEW contrib record
-      isCreate = true
-      updateObj = contrib
-      promise = ContributionsResource.post( updateObj )
-    else if !_.find(vm.lookup['Contributions'], _.pick(contrib, ['menuItemId','eventId']))
-      # first contribution for NEW menuItem
-      isCreate = true
-      updateObj = contrib
-      promise = ContributionsResource.post( updateObj )
-    else if vm.lookup['MenuItemContributions'][menuItem.id].length == 0
-      # first contribution to existing menuItem
-      #   assign contributorId to record,
-      found = _.find(vm.lookup['Contributions'], _.pick(contrib, ['menuItemId','eventId']))
-      if found.contributorId
-        # reset this contribution, it was not from an yesParticipationId
-        # if it were, it would have appeared in vm.lookup['MenuItemContributions'][menuItem.id]
-        found.portions = 0
-        found.contributorId = null
-      if !found
-        toastr.error "Error: Expecting empty Contribution record for menuItemId="+menuItem.id
-      # update portion from existing contrib
-      updateObj = angular.copy found
-      updateObj['contributorId'] = contrib.contributorId
-      updateObj['portions'] += contrib.portions
-      updateObj['comment'] =
-        if updateObj.comment
-        then [updateObj.comment, contrib.comment].join('; ')
-        else contrib.comment
-      promise = ContributionsResource.put( updateObj.id, updateObj )
-
-   
-    else
-      toastr.error "Error: no MenuItemContributions record for id="+menuItem.id
-
-
-    return promise
-    .then (result)->
-      # register person as contributor
-      if !~vm.event['contributorIds'].indexOf( vm.me.id )
-        vm.event['contributorIds'].push( vm.me.id )
-      vm.lookup['Contributions'][result.id] = result # copy
-      # update contrib in MenuItemContributions lookup
-      contribs = vm.lookup['MenuItemContributions'][result.menuItemId]
-      i = _.findIndex(contribs, {id:result.id})
-      if i = -1
-        vm.lookup['MenuItemContributions'][result.menuItemId].push result
-      else
-        vm.lookup['MenuItemContributions'][result.menuItemId][i] = result
-      # update MyParticipation.contributionIds,  .contributions
-      vm.lookup['MyParticipation'] = vm.getParticipationByUser(vm.me)
-      if !~vm.lookup['MyParticipation']?.contributionIds.indexOf( result.id )
-        vm.lookup['MyParticipation'].contributionIds.push( result.id )
-      # need to getDerivedValues()
-      $scope.$broadcast 'lookup-data:changed', {className:'Contributions'}
-      return result
-    , (err)->
-      toastr.error( "Error updating Contribution, o=" + updateObj)
-      return
-    .then (contribution)->
-      $scope.$broadcast 'event:contribution-changed', options
-      message = "Congratulations, you are signed-up to contribute " + contribution.portions
-      message += " portions of " + options.menuItem.title + "."
-      toastr.info message
-      $timeout ()-> vm.on.scrollTo('cp-participant')
-      return contribution
-
+    
   activate = ()->
     getData()
     # // Set Ink
@@ -954,6 +719,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   $rootScope.$on 'user:sign-in', (ev, user)->
     return if vm.event.ready == false
+    activate() # reload data
 
   $rootScope.$on 'user:sign-out', ()->
     vm.me = $rootScope.user

@@ -10,6 +10,9 @@ AAAHelpers = ($rootScope, $q, $location, $timeout
   appModalSvc
   utils, devConfig, $log, toastr)->
   self = {
+    isAnonymous: ()->
+      return true if _.isEmpty $rootScope.user
+      return false
 
     # example: AAAHelpers.signIn.apply(vm, arguments)
     signIn: (person, fnComplete)->
