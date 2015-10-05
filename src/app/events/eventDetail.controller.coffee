@@ -1,7 +1,7 @@
 'use strict'
 
 EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
-  $ionicHistory, $location, $ionicScrollDelegate, $ionicModal
+  $location, $ionicScrollDelegate, $ionicModal
   $log, toastr, exportDebug
   EventsResource, UsersResource, MenuItemsResource
   EventActionHelpers, AAAHelpers
@@ -266,6 +266,15 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
     'beginContribute': (mitem, category)->
       return EventActionHelpers.beginContribute.apply(vm, arguments)
+
+    updateSettings: (setting, isPublic)->
+      fields = []
+      fields.push 'setting' if setting?
+      fields.push 'isPublic' if isPublic?
+      data = _.pick vm.event, fields
+      EventsResource.put(vm.event.id, data).then (result)->
+        $log.info "Event updated, result=" + JSON.stringify _.pick result, fields
+
   }
 
   initialize = ()->
@@ -717,6 +726,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     $log.info "viewLeave for EventDetailCtrl"
 
 
+
   $rootScope.$on 'user:sign-in', (ev, user)->
     return if vm.event.ready == false
     activate() # reload data
@@ -781,7 +791,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
 EventDetailCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$timeout', '$state', '$stateParams'
-  '$ionicHistory', '$location', '$ionicScrollDelegate', '$ionicModal'
+  '$location', '$ionicScrollDelegate', '$ionicModal'
   '$log', 'toastr', 'exportDebug'
   'EventsResource', 'UsersResource', 'MenuItemsResource'
   'EventActionHelpers', 'AAAHelpers'

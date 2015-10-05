@@ -16,14 +16,19 @@ plStarRatings = ($compile) ->
       scope.value = scope.minValue if !scope.value
       scope.iconOn = 'ion-ios-star'
       scope.iconOff = 'ion-ios-star-outline'
-      scope.clicked = (val) ->
+      scope.starClicked = (val) ->
+        console.log "StarRating=" + val
         return if scope.readOnly()
         scope.value = val
         scope.onClick({value:val})
         return
-      markup = """
-      <span class="icon {{ value >= index ? iconOn : iconOff }}" ng-click="clicked(index)"></span>
-      """
+      # markup = """
+      # <span class="icon {{ value >= index ? iconOn : iconOff }}" ng-click="starClicked(index)"></span>
+      # """
+      markup = '<span class="icon" ng-class="{\'' +
+        scope.iconOn + '\':value>=index, \'' +
+        scope.iconOff + '\':value<index' +
+        '}" ng-click="starClicked(index)"></span>'
       scope.$watch 'value', () ->
         scope.value = Math.round(scope.value || 0)
         scope.value = scope.minValue if scope.value < scope.minValue

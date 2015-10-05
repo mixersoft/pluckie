@@ -452,3 +452,9 @@ form[name="contributeForm"] {
     }
   }
 }
+
+.event-settings-control-panel {
+  input[disabled=disabled] {
+    color: #AAA !important;
+  }
+}

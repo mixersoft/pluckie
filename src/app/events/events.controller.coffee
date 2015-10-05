@@ -1,15 +1,41 @@
 'use strict'
 
-EventsCtrl = ($scope, $q, $timeout, $stateParams
-  $log, toastr, $ionicHistory
-  EventsResource, utils
+EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
+  $log, toastr, $location
+  EventsResource, MenuItemsResource
+  AAAHelpers, appModalSvc, utils
   ionicMaterialMotion, ionicMaterialInk
   ) ->
   vm = this
+  vm.me = null
   vm.title = ""     # filter.label, i.e. [ComingSoon|NearMe|PeLive]
   vm.filter = {}
+  # coffeelint: disable=max_line_length
+  vm.lookup = {
+    'select':       # lookups for form select options
+      'category':   ['Potluck', 'Popup']
+      'style':      ['Seated','Casual','Grazing','Picnic']
+      'attire':     ['Casual','Cocktail','Business','Formal','Fun']
+      'cuisine':    ['American','Balkan','California','French','Italian','Japanese','Modern','Thai','Seafood']
+      'MenuItemCategories': MenuItemsResource.categoryLookup
+    'controlPanelDefaults':
+      'Potluck':
+        isExclusive: false   # invite Only
+        denyForward: false     # guests can forward invites
+        denyGuestShare: false # guests can share event, same as denyForward
+        denyRsvpFriends: false # guests can rsvp friends
+        rsvpFriendsLimit: 12 # guests rsvp limit for friends
+        allowSuggestedFee: false # monentary fee in lieu of donation
+        allowPublicAddress: false    # only guests see address
+        denyParticipantList: false # guests can see Participants
+        denyWaitlist: true    # use waitlist if full
+        feedVisibility: "public"  # [public|guests|none]
+        denyAddMenu: false    # only host can update menu Items
+  }
+  # coffeelint: enable=max_line_length
   vm.events = []
   vm.imgAsBg = utils.imgAsBg
+  vm.isDev = utils.isDev
  
   _filters = {
     'comingSoon':
@@ -24,13 +50,73 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
       label: "Events"
   }
 
+  vm.settings = {
+  }
+
+  vm.on = {
+    ###
+    # @description show create event modal and handle response
+    # called by button.ion-plus in app.events
+    ###
+    beginCreate: (owner, copyEvent)->
+      # vm = this
+      owner = vm.me if _.isEmpty owner
+      EVENT_TYPE = 'Potluck'
+      return $q.when()
+      .then ()->
+        # must be user
+        if _.isEmpty owner
+          return AAAHelpers.showSignInRegister.call(vm, 'signin')
+          .then (result)-> # closeModal(result)
+            return $q.reject('CANCELED') if `result==null` || result == 'CANCELED'
+            return $q.reject(result) if result?['isError']
+            return result
+          .then (result)->
+            _.extend owner, result
+
+      .then ()->
+        utils.ga_PageView($location.path() + '/new' , 'app.event.new')
+
+        if copyEvent
+          blankEvent = angular.copy copyEvent
+        else
+          blankEvent = {
+            isPublic: true
+            aspiration: 0
+            seatsTotal: 0
+            setting: vm.lookup['controlPanelDefaults'][EVENT_TYPE]
+          }
+          
+
+        return appModalSvc.show('events/event-new.modal.html', vm, {
+          mm: {
+            event: blankEvent
+            eventType: EVENT_TYPE
+            owner: owner
+            select: vm.lookup['select']
+            submitEvent: (event, onSuccess)->
+              # sanity checks
+              createEvent.call(vm, event).then (result)->
+                utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)
+                onSuccess?(result)
+                return result
+              return
+          }
+        })
+  }
+
+  createEvent = (event)->
+    return $q.when()
+    .then ()->
+      return
+
   initialize = ()->
     getData()
 
   activate = ()->
-    $ionicHistory.clearHistory()
     vm.filter = _filters[ $stateParams.filter ] || _filters[ 'all' ]
     vm.title = vm.filter.label
+    vm.me = $rootScope.user
 
     # // Set Ink
     ionicMaterialInk.displayEffect()
@@ -101,11 +187,12 @@ EventsCtrl = ($scope, $q, $timeout, $stateParams
 
 
 EventsCtrl.$inject = [
-  '$scope', '$q', '$timeout', '$stateParams'
-  '$log', 'toastr', '$ionicHistory'
-  'EventsResource', 'utils'
+  '$scope', '$rootScope', '$q', '$timeout', '$stateParams'
+  '$log', 'toastr', '$location'
+  'EventsResource', 'MenuItemsResource'
+  'AAAHelpers', 'appModalSvc', 'utils'
   'ionicMaterialMotion', 'ionicMaterialInk'
 ]
 
-angular.module 'starter.home'
+angular.module 'starter.events'
   .controller 'EventsCtrl', EventsCtrl

@@ -1,0 +1,139 @@
+//- events/event-new.modal.jade
+ion-modal-view 
+  ion-header-bar.bar-positive 
+    h1.title Create Event
+  ion-content {{myEvent=mm.event;me=mm.owner;''}}
+
+    form(name="createEventForm" novalidate="" ng-submit="mm.submitEvent(myEvent, closeModal);")
+      div#create-event.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div.list.padding
+            div.item.item-avatar 
+              img(ng-src="{{me.face}}")
+              div.wrap #[b{{me.displayName }}]: You are about to create new Event
+
+
+            //- Title text  
+            label.item.item-input.item-floating-label
+              span.input-label Title
+              input(type="text" name="Title" placeholder="Title" ng-model="myEvent.title")
+
+            //- Description textarea
+            label.item.item-input.item-floating-label
+              span.input-label Description
+              textarea(placeholder="Description" ng-model="myEvent.description"
+              rows="3" maxlength='255')
+
+
+            //- Category select
+            label.item.item-input.item-select
+              div.input-label Category
+              select(ng-model="myEvent.category")
+                option(
+                  ng-repeat="value in mm.select['category']" 
+                  ng-bind="value"
+                  ng-selected="value==mm.select['category'][0]"
+                  )
+
+
+            //- Cusine text or auto-complete
+            label.item.item-input.item-select
+              div.input-label Cuisine
+              select(ng-model="myEvent.cuisine")
+                option(
+                  ng-repeat="value in mm.select['cuisine']" 
+                  ng-bind="value"
+                  ng-selected="value==mm.select['cuisine'][0]"
+                  )
+
+
+            //- style select
+            label.item.item-input.item-select
+              div.input-label Style
+              select(ng-model="myEvent.style")
+                option(
+                  ng-repeat="value in mm.select['style']" 
+                  ng-bind="value"
+                  ng-selected="value==mm.select['style'][0]"
+                  )
+
+            //- attire text or auto-complete
+            label.item.item-input.item-select
+              div.input-label Attire
+              select(ng-model="myEvent.style")
+                option(
+                  ng-repeat="value in mm.select['attire']" 
+                  ng-bind="value"
+                  ng-selected="value==mm.select['attire'][0]"
+                  )
+
+            //- Inspiration text
+            label.item.item-input.item-floating-label
+              span.input-label Inspiration
+              input(type="text" name="Inspiration" placeholder="Inspire your guests to get excited" ng-model="myEvent.inspiration")
+
+            //- aspiration plStarRating
+            div.item.inline-field
+              span.label Aspiration
+              pl-star-ratings(
+                value="myEvent.aspiration" 
+                max-value="3" 
+                read-only="false"
+              )
+
+            //- link text
+            label.item.item-input.item-floating-label
+              span.input-label Background Pic
+              input(type="text" name="Link" placeholder="link to background pic" ng-model="myEvent.heroPic")  
+
+            //- startTime DateTime
+
+            //- duration Time
+
+            //- Neighborhood text
+            label.item.item-input.item-floating-label
+              span.input-label Neighborhood
+              input(type="text" name="Neighborhood" placeholder="The neighborhood for this event is shown to visitors" ng-model="myEvent.neighborhood")
+
+            //- Address text
+            label.item.item-input.item-floating-label
+              span.input-label Address
+              input(type="text" name="Address" placeholder="The exact address for this event is shown to guests" ng-model="myEvent.address")
+
+            //- location latlon
+
+            //- SeatTotal number / range
+            label.item.item-input
+              span.input-label Seats
+              input(type="text" name="portions" min="1" max="999" ng-model="myEvent.seatsTotal")
+            div.item.item-floating-label.range.range-positive
+              i.icon.ion-ios-person.positive
+              input(type="range" name="portions" min="0" max="20" ng-model="myEvent.seatsTotal")
+              i.icon.ion-ios-people.positive
+
+            // menuCategoryKeys checkbox group
+            label.item.item-input.item-select
+              div.input-label Menu Item Categories
+              select(ng-model="myEvent.menu.allowCategoryKeys")
+                option(
+                  ng-repeat="(key,label) in mm.select['MenuItemCategories']" 
+                  value="{{key}}"
+                  ng-bind="label"
+                  )
+
+        div.content.row.responsive-sm
+          div.col.col-offset-25.col-50
+            pl-event-settings(
+              event="myEvent"
+              on-change=""
+              type="{{mm.eventType}}"
+              )
+
+
+        div.item
+          div.button-bar
+            button.button.button-positive.button-outline(ng-click="closeModal('CANCELED')") Cancel
+            button.button.button-positive(type="submit") Submit
+
+
+

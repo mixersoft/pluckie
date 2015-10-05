@@ -41,7 +41,11 @@ ion-view(view-title="{{vm.title}}")
             div.col
               dt aspiration
               dd
-                pl-star-ratings(value="item.aspiration" max-value="3" read-only="!vm.acl.isOwner()")
+                pl-star-ratings(
+                  value="item.aspiration" 
+                  max-value="3" 
+                  read-only="!vm.acl.isOwner()"
+                  )
                 //- ionic-ratings(ratingsobj="vm.ionicRating.aspirationRating")
 
 
@@ -461,21 +465,12 @@ ion-view(view-title="{{vm.title}}")
       //- 
       div#cp-host.content.row.responsive-sm(ng-if="vm.acl.isOwner()")
         div.col.col-offset-25.col-50
-          div.row
-            div.col.text-left
-              div.list.condensed.card.control-panel
-                div.item.item-divider.item-dark.light
-                  div.larger Host Control Panel
-                ion-toggle(ng-model="item.isPublic" toggle-class="toggle-balanced") Is Published
-                ion-toggle(ng-model="item.setting.isExclusive" toggle-class="toggle-balanced") Is Invitation Only
-                ion-toggle(ng-model="item.setting.canForward" toggle-class="toggle-balanced") Can Forward Invitations
-                ion-toggle(ng-model="item.setting.hideAddress" toggle-class="toggle-balanced") Address for Guests only
-                ion-toggle(ng-model="item.setting.hasWaitList" toggle-class="toggle-balanced") Can Join Waitlist
-                ion-toggle(ng-model="item.setting.fixedMenu" toggle-class="toggle-balanced") Fixed Menu
-                div.item Feed Visibibility
-                  ion-radio(ng-model="item.setting.feedVisibility" ng-value="'public'") Public
-                  ion-radio(ng-model="item.setting.feedVisibility" ng-value="'participants'") Participants
-                  ion-radio(ng-model="item.setting.feedVisibility" ng-value="'host'") Host
+          pl-event-settings(
+            event="item"
+            on-change="vm.on.updateSettings(eventSetting, eventIsPublic)"
+            type="Potluck"
+            )
+
 
 
 

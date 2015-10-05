@@ -1,0 +1,31 @@
+//- events/partial.eventSettings.html
+div.list.condensed.event-settings-control-panel
+  div.item.item-divider.item-dark.light
+    div.larger Event Settings
+  //- # use humanizeSettings()  item
+  ion-toggle(ng-model="event.isPublic" toggle-class="toggle-balanced") Is Public and Searchable
+  ion-toggle(ng-model="humanizedSetting.isExclusive" toggle-class="toggle-balanced") Is Invitation Only
+  ion-toggle(ng-model="humanizedSetting.allowGuestShare" toggle-class="toggle-balanced") Guests Can Forward Invitations
+  ion-toggle(ng-model="humanizedSetting.allowRsvpFriends" toggle-class="toggle-balanced") Guests Can Bring Friends
+  label.item.item-input
+    span.input-label RSVP Guest Limit
+    input(type="text" name="portions" min="1" max="999" 
+      ng-model="humanizedSetting.rsvpFriendsLimit"
+      ng-disabled="disableRsvpFriendsLimit"
+      )
+  div.item.item-floating-label.range.range-positive
+    i.icon.ion-ios-person.positive
+    input(type="range" name="portions" min="0" max="20" 
+      ng-model="humanizedSetting.rsvpFriendsLimit"
+      ng-disabled="disableRsvpFriendsLimit"
+      )
+    i.icon.ion-ios-people.positive
+  ion-toggle(ng-model="humanizedSetting.allowPublicAddress" toggle-class="toggle-balanced") Show Exact Location To Visitors 
+  ion-toggle(ng-model="humanizedSetting.allowParticipantList" toggle-class="toggle-balanced") Show Guest List
+  ion-toggle(ng-model="humanizedSetting.allowAddMenu" toggle-class="toggle-balanced") Guests Can Add New Menu Items
+  div.item Feed Visibibility
+    ion-radio(ng-model="humanizedSetting.feedVisibility" ng-value="'public'") Public
+    ion-radio(ng-model="humanizedSetting.feedVisibility" ng-value="'participants'") Participants
+    ion-radio(ng-model="humanizedSetting.feedVisibility" ng-value="'host'") Host
+  ion-toggle(ng-model="humanizedSetting.hideSuggestedFee" toggle-class="toggle-balanced") Skip Suggested Contribution Amount
+  ion-toggle(ng-model="humanizedSetting.denyWaitlist" toggle-class="toggle-balanced") Skip The Waitlist

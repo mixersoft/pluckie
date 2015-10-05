@@ -238,7 +238,43 @@ EventsResource = (Resty, amMoment) ->
 
   }
   # coffeelint: enable=max_line_length
-  return service = new Resty(data, className)
+
+  service = new Resty(data, className)
+
+  # static methods
+  service.humanizeSettings = (settings, target='humanize')->
+    # humanize setting values by expressing settings in postive form
+    humanize = {
+      'denyForward'        : 'canForward'     # guests can forward invites
+      'denyGuestShare'     : 'allowGuestShare' # guests can share event, same as denyForward
+      'denyRsvpFriends'    : 'allowRsvpFriends' # guests can rsvp friends
+      'allowSuggestedFee'  : 'hideSuggestedFee' # monentary fee in lieu of donation
+      'denyParticipantList': 'allowParticipantList' # guests can see Participants
+      'denyAddMenu'        : 'allowAddMenu'    # only host can update menu Items
+    }
+    dbForm = {
+      'canForward'          : 'denyForward'    # guests can forward invites
+      'allowGuestShare'     : 'denyGuestShare' # guests can share event, same as denyForward
+      'allowRsvpFriends'   : 'denyRsvpFriends' # guests can rsvp friends
+      'hideSuggestedFee'    : 'allowSuggestedFee' # monentary fee in lieu of donation
+      'allowParticipantList': 'denyParticipantList' # guests can see Participants
+      'allowAddMenu'        : 'denyAddMenu'     # only host can update menu Items
+    }
+    lookup =
+      if target=='humanize'
+      then humanize
+      else dbForm
+    copy = {}
+    _.each settings, (v, k)->
+      if !lookup[k]
+        copy[k] = settings[k]
+      else
+        copy[ lookup[k] ] = !settings[k] #invert value
+      return
+    return copy
+
+
+  return service
 
 
 EventsResource.$inject = ['Resty','amMoment']
