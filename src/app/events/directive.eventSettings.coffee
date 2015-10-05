@@ -11,7 +11,7 @@ plEventSettings = ($compile, EventsResource) ->
       onChange: '&'
     }
     link: (scope, element, attrs) ->
-      scope.humanizedSetting = EventsResource.humanizeSettings(scope.event.setting, 'humanize')
+      scope.humanizedSetting = EventsResource.humanizeSettings( scope.event.setting, 'humanize')
       scope.$watch 'event.isPublic', (newV, oldV)->
         return if newV == oldV
         scope.onChange({eventIsPublic: newV})

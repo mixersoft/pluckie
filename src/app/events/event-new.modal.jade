@@ -101,6 +101,9 @@ ion-modal-view
               input(type="text" name="Address" placeholder="The exact address for this event is shown to guests" ng-model="myEvent.address")
 
             //- location latlon
+            label.item.item-input.item-floating-label
+              span.input-label Location
+              input(type="text" name="latlon" placeholder="The exact Google Maps location for this event latlon" ng-model="myEvent.latlon")
 
             //- SeatTotal number / range
             label.item.item-input
@@ -121,19 +124,20 @@ ion-modal-view
                   ng-bind="label"
                   )
 
-        div.content.row.responsive-sm
-          div.col.col-offset-25.col-50
-            pl-event-settings(
-              event="myEvent"
-              on-change=""
-              type="{{mm.eventType}}"
-              )
+      div.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          pl-event-settings(
+            event="myEvent"
+            on-change=""
+            type="{{mm.eventType}}"
+            )
 
-
-        div.item
-          div.button-bar
-            button.button.button-positive.button-outline(ng-click="closeModal('CANCELED')") Cancel
-            button.button.button-positive(type="submit") Submit
+      div.content.row.responsive-sm
+        div.col.col-offset-25.col-50
+          div.item
+            div.button-bar
+              button.button.button-positive.button-outline(ng-click="closeModal('CANCELED')") Cancel
+              button.button.button-positive(type="submit") Submit
 
 
 

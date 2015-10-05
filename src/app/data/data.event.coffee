@@ -248,17 +248,18 @@ EventsResource = (Resty, amMoment) ->
       'denyForward'        : 'canForward'     # guests can forward invites
       'denyGuestShare'     : 'allowGuestShare' # guests can share event, same as denyForward
       'denyRsvpFriends'    : 'allowRsvpFriends' # guests can rsvp friends
-      'allowSuggestedFee'  : 'hideSuggestedFee' # monentary fee in lieu of donation
       'denyParticipantList': 'allowParticipantList' # guests can see Participants
       'denyAddMenu'        : 'allowAddMenu'    # only host can update menu Items
+      'denyWaitlist'        : 'allowWaitlist'
     }
     dbForm = {
       'canForward'          : 'denyForward'    # guests can forward invites
       'allowGuestShare'     : 'denyGuestShare' # guests can share event, same as denyForward
-      'allowRsvpFriends'   : 'denyRsvpFriends' # guests can rsvp friends
-      'hideSuggestedFee'    : 'allowSuggestedFee' # monentary fee in lieu of donation
+      'allowRsvpFriends'    : 'denyRsvpFriends' # guests can rsvp friends
       'allowParticipantList': 'denyParticipantList' # guests can see Participants
       'allowAddMenu'        : 'denyAddMenu'     # only host can update menu Items
+      'allowWaitlist'       : 'denyWaitlist'
+      
     }
     lookup =
       if target=='humanize'

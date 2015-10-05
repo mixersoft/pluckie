@@ -96,6 +96,11 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             select: vm.lookup['select']
             submitEvent: (event, onSuccess)->
               # sanity checks
+
+              # data cleanup
+              event.location = _.map event.latlon.split(','), (v)->
+                return parseFloat(v)
+
               createEvent.call(vm, event).then (result)->
                 utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)
                 onSuccess?(result)
@@ -108,7 +113,15 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   createEvent = (event)->
     return $q.when()
     .then ()->
-      return
+      event.ownerId = vm.me.id
+      EventsResource.post(event)
+    .then (result)->
+      $log.info "Event Created, result="+JSON.stringify result
+      return result
+    .then ()->
+      getData()
+    .then ()->
+      activate()
 
   initialize = ()->
     getData()
