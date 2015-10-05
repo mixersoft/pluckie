@@ -206,7 +206,8 @@ ion-view(view-title="{{vm.title}}")
                       span.pull-right {{mitem.summary.portionsRemaining}} portions
                 
                 div.card.list.condensed(
-                  ng-if="vm.acl.debounced.isParticipant_YES() && item.setting.denyAddMenu==false"
+                  ng-if="vm.acl.debounced.isParticipant_YES()"
+                  ng-hide="item.setting['denyAddMenu']"
                 )
                   div.button-full
                     div.button.button-balanced.icon.ion-android-add-circle(
@@ -261,13 +262,14 @@ ion-view(view-title="{{vm.title}}")
       //- Participants
       //- alt: guests, 
       //- 
-      div#participants.content.row.responsive-sm
+      div#participants.content.row.responsive-sm(ng-if="vm.acl.isOwner() || item.setting['denyParticipantList']==false")
         div.col.col-offset-25.col-50
           div.list.royal {{view = vm.settings.view;response = item.summary.response;''}}
             div.item.item-divider.item-royal.light.item-icon-right
               //- i.icon(ng-class="{'ion-checkmark-circled': view.response=='Yes','ion-help-circled': view.response=='Maybe','ion-close-circled': view.response=='No'}")
               button.button.button-clear.icon.ion-more.positive(
                 ng-click="vm.on.participantView('next')"
+                ng-show="vm.acl.isOwner() || item.setting['denyMaybeNoResponseList']==false"
                 )
               div.larger Participants
               
@@ -296,7 +298,7 @@ ion-view(view-title="{{vm.title}}")
               ng-show="response[view.response]==0"
               ) (none)
 
-            div.button-bar
+            div.button-bar(ng-show="vm.acl.isOwner() || item.setting['denyMaybeNoResponseList']==false")
               button.button.button-royal.icon.ion-checkmark-circled(
                 ng-click="view.response='Yes'"
                 ng-class="{active:view.response=='Yes'}")
@@ -310,6 +312,8 @@ ion-view(view-title="{{vm.title}}")
                 ng-click="view.response='No'"
                 ng-class="{active:view.response=='No'}")
                 &nbsp;{{response.No}}
+
+
           div.last-row
                   
 

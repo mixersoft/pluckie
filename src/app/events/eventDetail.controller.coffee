@@ -34,7 +34,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     event.visibleAddress = event.neighborhood
     participantIds = _.pluck vm.lookup['Participations'], 'participantId'
     showExactLocation = userid && ~participantIds?.indexOf(userid)
-    showExactLocation = true if event.setting?.allowPublicAddress
+    showExactLocation = true if event.setting?['allowPublicAddress']
     if showExactLocation
       # add complete address
       event['visibleAddress'] = [event.address, event.neighborhood].join(', ')
@@ -54,7 +54,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     return $q.when()
     .then ()->
       return true if $state.is('app.event-detail.invitation')
-      if event.setting.isExclusive || $state.params.invitation
+      if event.setting['isExclusive'] || $state.params.invitation
         return TokensResource.isValid($state.params.invitation, 'Event', event.id)
     .catch (result)->
       $log.info "Token check, value="+result
@@ -95,6 +95,12 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
   vm.getParticipationsByEvent = (event, response, sort)->
     return [] if !event || !event['ready']
+    if event.setting['denyParticipantList'] && vm.acl.isOwner()==false
+      return []
+    if event.setting['denyMaybeNoResponseList'] && vm.acl.isOwner()==false
+      return [] if response != "Yes"
+
+
     participations = _.chain(event.participationIds)
     .map (id)-> return vm.lookup['Participations'][id]
     .compact()

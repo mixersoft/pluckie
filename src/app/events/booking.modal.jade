@@ -32,10 +32,10 @@ ion-modal-view {{item=myBooking.event; me=myBooking.person;''}}
 
         label.item.item-input
           span.input-label Number of People
-          input(type="text" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="booking.seats")
+          input(type="text" name="seats" min="0" max="{{mm.seats.max}}" ng-model="booking.seats")
         div.item.range.range-positive
           i.icon.ion-ios-person.positive
-          input(type="range" name="seats" min="0" max="{{item.seatsOpen}}" ng-model="booking.seats")
+          input(type="range" name="seats" min="0" max="{{mm.seats.max}}" ng-model="booking.seats")
           i.icon.ion-ios-people.positive
         label.item.item-input.item-stacked-label
           span.input-label Comment

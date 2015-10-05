@@ -29,13 +29,13 @@ ion-modal-view#invitation-response-modal {{item=myResponse.event; me=myResponse.
       div.item.item-balanced
         div.button-bar
           button.button(
-            ng-class="{'button-assertive': mm.isActive('No')}" ng-click="mm.setActive('No')"
+            ng-class="{'button-assertive': mm.isResponse('No')}" ng-click="mm.setResponse('No')"
             ) No
           button.button(
-            ng-class="{'button-energized': mm.isActive('Maybe')}" ng-click="mm.setActive('Maybe')"
+            ng-class="{'button-energized': mm.isResponse('Maybe')}" ng-click="mm.setResponse('Maybe')"
             ) Maybe
           button.button(
-            ng-class="{'button-positive': mm.isActive('Yes')}" ng-click="mm.setActive('Yes')"
+            ng-class="{'button-positive': mm.isResponse('Yes')}" ng-click="mm.setResponse('Yes')"
             ) Yes
 
       form(name="bookingForm" novalidate="" ng-submit="mm.submitResponse($event, myResponse, closeModal)")
@@ -56,15 +56,15 @@ ion-modal-view#invitation-response-modal {{item=myResponse.event; me=myResponse.
           label.item.item-input.item-stacked-label
             span.input-label Comment
             div.padding-right
-              textarea(ng-model="response.comment" placeholder="{{mm.placeholder}}" maxlength="165")
+              textarea(ng-model="response.comment" placeholder="{{mm.placeholder.comment}}" maxlength="165")
 
         div(ng-show="mm.active=='Yes' || mm.active=='Maybe'")  
           label.item.item-input
             span.input-label Number of People
-            input(type="text" name="seats" min="1" max="{{item.seatsOpen}}" ng-model="response.seats")
+            input(type="text" name="seats" min="1" max="{{mm.seats.max}}" ng-model="response.seats")
           div.item.range.range-positive
             i.icon.ion-ios-person.positive
-            input(type="range" name="seats" min="0" max="{{item.seatsOpen}}" ng-model="response.seats")
+            input(type="range" name="seats" min="0" max="{{mm.seats.max}}" ng-model="response.seats")
             i.icon.ion-ios-people.positive
 
         div(ng-show="mm.active=='Yes' && !vm.me.id")  

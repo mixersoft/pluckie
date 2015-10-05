@@ -21,13 +21,13 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     'controlPanelDefaults':
       'Potluck':
         isExclusive: false   # invite Only
-        denyForward: false     # guests can forward invites
-        denyGuestShare: false # guests can share event, same as denyForward
+        denyGuestShare: false # guests can share event
         denyRsvpFriends: false # guests can rsvp friends
         rsvpFriendsLimit: 12 # guests rsvp limit for friends
         allowSuggestedFee: false # monentary fee in lieu of donation
         allowPublicAddress: false    # only guests see address
         denyParticipantList: false # guests can see Participants
+        denyMaybeNoResponseList: false # hide Maybe, No responses
         denyWaitlist: true    # use waitlist if full
         feedVisibility: "public"  # [public|guests|none]
         denyAddMenu: false    # only host can update menu Items

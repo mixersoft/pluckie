@@ -67,9 +67,9 @@ EventActionHelpers = ($rootScope, $q, $timeout
 
         eventLink = origin + '/app/event-detail/' + event.id
         shareLinks = {
-          'event': if event.setting.isExclusive then false else eventLink
+          'event': if event.setting['isExclusive'] then false else eventLink
         }
-        if event.setting.denyForward && vm.me.id != vm.event.ownerId
+        if event.setting['denyGuestShare'] && vm.me.id != vm.event.ownerId
           shareLinks['invitations'] = false
         else
           shareLinks['invitations'] = _.map tokens, (token)->
@@ -165,7 +165,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
 
         if participation
           options['displayName'] = participation.responseName
-          options['active'] = participation.response
+          options['response'] = participation.response
           options['seats'] = participation.seats
           options['comment'] = participation.comment
           # TODO: shouldn't extract passcode here,
@@ -173,6 +173,14 @@ EventActionHelpers = ($rootScope, $q, $timeout
           options['passcode'] = participation.responseId?.split('~').shift()
         if person?.displayName # override
           options['displayName'] = person.displayName
+
+        if event.setting['denyRsvpFriends']
+          options['maxSeats'] = 1
+          options['defaultSeats'] = 1
+        else
+          options['maxSeats'] = Math.min event.seatsOpen, event.setting['rsvpFriendsLimit']
+          options['defaultSeats'] = 0
+
         return options
 
       .then (options={})->
@@ -183,18 +191,21 @@ EventActionHelpers = ($rootScope, $q, $timeout
           utils.ga_PageView('/edit', '.edit', 'append')
         return appModalSvc.show('events/respond.modal.html', vm, {
           mm:   # mm == "modal model" instead of view model
-            active: options['active'] || null
-            placeholder: ''
-            isActive: (value)->
-              return value == this.active if value
-              return this.active
-            setActive: (value)->
-              this.active = value
+            placeholder:
+              comment:''
+            _response: options['response'] || null # response
+            seats:
+              max: options['maxSeats']
+            isResponse: (value)->
+              return value == this._response if value
+              return this._response
+            setResponse: (value)->
+              this._response = value
               this.commentPlaceholder(value)
               return value
             isValidated: (response)->
-              return false if this.active == null
-              switch this.active
+              return false if this._response == null
+              switch this._response
                 when 'Yes'
                   return true if vm.acl.isAnonymous() == false
                   return false
@@ -215,7 +226,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
                 else
                   msg = "Add a message to announce your participation!"
               # $log.info "placeholder=" + msg
-              return this.placeholder = msg
+              return this.placeholder.comment = msg
 
             signInRegister: (action, person)->
               # update booking user after sign in/register
@@ -238,7 +249,8 @@ EventActionHelpers = ($rootScope, $q, $timeout
               if myResponse.response.seats < 1
                 toastr.warning("You must respond for at least 1 person")
 
-              myResponse.response['value'] = this.active
+              myResponse.response['value'] = this._response
+
               return promise = self.saveResponse.call(vm, myResponse)
               .then (result)->
                 onSuccess?(result)
@@ -249,10 +261,10 @@ EventActionHelpers = ($rootScope, $q, $timeout
             person: person
             event: event
             response:
-              value: options['active']  # set in submitResponse(), [No|Maybe|Yes]
+              value: options['response']  # set in submitResponse(), [No|Maybe|Yes]
               displayName: options['displayName'] || person?.displayName
               passcode: options['passcode']
-              seats: options['seats'] || 1
+              seats: options['seats'] || options['defaultSeats']
               comment: options['comment']
         })
       .then (result)->
@@ -290,6 +302,14 @@ EventActionHelpers = ($rootScope, $q, $timeout
           data['responseName'] = data['responseId'] = null
         if participation
           return ParticipationsResource['put'](participation.id, data)
+
+        # new response
+        maxSeats =
+          if myResponse.event.setting['denyRsvpFriends']
+          then 1
+          else myResponse.event.setting['rsvpFriendsLimit']
+        return $q.reject('RSVP FRIENDS LIMIT') if data['seats'] > maxSeats
+
         return ParticipationsResource['post'](data)
       .then (result)->
         # google analytics event
@@ -321,13 +341,24 @@ EventActionHelpers = ($rootScope, $q, $timeout
     ###
     beginBooking: (person, event)->
       vm = this
+      options = {}
       return $q.when()
       .then ()->
         return self.isInvitationValid(event)
       .then ()->
         utils.ga_PageView('/booking', '.booking', 'append')
+
+        if event.setting['denyRsvpFriends']
+          options['maxSeats'] = 1
+          options['defaultSeats'] = 1
+        else
+          options['maxSeats'] = Math.min event.seatsOpen, event.setting['rsvpFriendsLimit']
+          options['defaultSeats'] = 0
+
         return appModalSvc.show('events/booking.modal.html', vm, {
           mm:   # mm == "modal model" instead of view model
+            seats:
+              max: options['maxSeats']
             isValidated: (booking)->
               return false if AAAHelpers.isAnonymous()
               return false if booking.seats < 1
@@ -368,7 +399,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
             event: event
             booking:
               userId: person.id
-              seats: 1
+              seats: options['defaultSeats']
               comment: null
         })
       .then (result)->
@@ -414,10 +445,19 @@ EventActionHelpers = ($rootScope, $q, $timeout
         comment: booking.comment
       }
       # check for existing participation
-      if ~vm.event['participationIds'].indexOf(person.id)
+      participantIds = _.pluck vm.lookup['Participations'], 'participantId'
+      if ~participantIds.indexOf(person.id)
         return $q.reject("DUPLICATE KEY")
+     
 
-      participants = _.pluck vm.lookup['Participations'], 'participantId'
+      # booking by definition is a new response
+      maxSeats =
+        if options.event.setting['denyRsvpFriends']
+        then 1
+        else options.event.setting['rsvpFriendsLimit']
+      return $q.reject('RSVP FRIENDS LIMIT') if particip['seats'] > maxSeats
+
+
       return ParticipationsResource.post(particip)
       .then (result)->
         # update lookups
@@ -452,6 +492,8 @@ EventActionHelpers = ($rootScope, $q, $timeout
           selected: category
         submitContribute: (contribution, onSuccess)->
           if contribution.isNewMenuItem
+            if vm.event.setting['denyAddMenu']
+              return $q.reject("DENY ADD MENU")
             promise = self.createMenuItem.call(vm, contribution.menuItem)
             .then (menuItem)->
               contribution['contribution'].menuItemId = menuItem.id
@@ -569,7 +611,7 @@ EventActionHelpers = ($rootScope, $q, $timeout
           else contrib.comment
         promise = ContributionsResource.put( updateObj.id, updateObj )
 
-     
+    
       else
         toastr.error "Error: no MenuItemContributions record for id="+menuItem.id
 
@@ -607,19 +649,20 @@ EventActionHelpers = ($rootScope, $q, $timeout
 
     createMenuItem: (menuItem, vm)->
       vm = this if !vm
+
       MenuItemsResource.post(menuItem)
       .then (menuItem)->
         # add to Event
         if !~vm.event['menuItemIds'].indexOf( menuItem.id)
           vm.event['menuItemIds'].push( menuItem.id)
-        # arr.push( xxx ) if !~arr.indexOf( xxx )
+
         vm.lookup['MenuItems'][menuItem.id] = menuItem
         vm.lookup['MenuItemContributions'][menuItem.id] = []
         $rootScope.$broadcast 'lookup-data:changed', {className:'MenuItem'}
         return menuItem
 
   }
-  
+ 
   return self # EventActionHelpers
 
 

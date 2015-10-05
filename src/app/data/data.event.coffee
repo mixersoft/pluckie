@@ -40,14 +40,7 @@ EventsResource = (Resty, amMoment) ->
         allowCategoryKeys: ['SmallPlate','Main','Dessert','Drink']
 
       setting:
-        # isExclusive: false   # invite Only
-        # canForward: true     # guests can forward invites
-        # hideAddress: true    # only guests see address
-        # hasWaitlist: true    # use waitlist if full
-        # feedVisibility: "public"  # [public|guests|none]
-        # fixedMenu: false    # only host can update menu Items
         isExclusive: false   # invite Only
-        denyForward: false     # guests can forward invites
         denyGuestShare: false # guests can share event, same as denyForward
         denyRsvpFriends: false # guests can rsvp friends
         rsvpFriendsLimit: 12 # guests rsvp limit for friends
@@ -102,7 +95,6 @@ EventsResource = (Resty, amMoment) ->
 
       setting:
         isExclusive: false   # invite Only
-        denyForward: false     # guests can forward invites
         denyGuestShare: false # guests can share event, same as denyForward
         denyRsvpFriends: false # guests can rsvp friends
         rsvpFriendsLimit: 12 # guests rsvp limit for friends
@@ -157,7 +149,6 @@ EventsResource = (Resty, amMoment) ->
 
       setting:
         isExclusive: false   # invite Only
-        denyForward: false     # guests can forward invites
         denyGuestShare: false # guests can share event, same as denyForward
         denyRsvpFriends: false # guests can rsvp friends
         rsvpFriendsLimit: 12 # guests rsvp limit for friends
@@ -217,7 +208,6 @@ EventsResource = (Resty, amMoment) ->
 
       setting:
         isExclusive: false   # invite Only
-        denyForward: false     # guests can forward invites
         denyGuestShare: false # guests can share event, same as denyForward
         denyRsvpFriends: false # guests can rsvp friends
         rsvpFriendsLimit: 12 # guests rsvp limit for friends
@@ -245,7 +235,6 @@ EventsResource = (Resty, amMoment) ->
   service.humanizeSettings = (settings, target='humanize')->
     # humanize setting values by expressing settings in postive form
     humanize = {
-      'denyForward'        : 'canForward'     # guests can forward invites
       'denyGuestShare'     : 'allowGuestShare' # guests can share event, same as denyForward
       'denyRsvpFriends'    : 'allowRsvpFriends' # guests can rsvp friends
       'denyParticipantList': 'allowParticipantList' # guests can see Participants
@@ -253,7 +242,6 @@ EventsResource = (Resty, amMoment) ->
       'denyWaitlist'        : 'allowWaitlist'
     }
     dbForm = {
-      'canForward'          : 'denyForward'    # guests can forward invites
       'allowGuestShare'     : 'denyGuestShare' # guests can share event, same as denyForward
       'allowRsvpFriends'    : 'denyRsvpFriends' # guests can rsvp friends
       'allowParticipantList': 'denyParticipantList' # guests can see Participants

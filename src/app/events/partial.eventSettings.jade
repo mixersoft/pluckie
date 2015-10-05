@@ -21,7 +21,11 @@ div.list.condensed.event-settings-control-panel
       )
     i.icon.ion-ios-people.positive
   ion-toggle(ng-model="humanizedSetting.allowPublicAddress" toggle-class="toggle-balanced") Show Exact Location To Visitors 
+  
+  
   ion-toggle(ng-model="humanizedSetting.allowParticipantList" toggle-class="toggle-balanced") Show Guest List
+  ion-toggle(ng-model="humanizedSetting.allowMaybeNoResponseList" toggle-class="toggle-balanced") Show Maybe and No Responses
+
   ion-toggle(ng-model="humanizedSetting.allowAddMenu" toggle-class="toggle-balanced") Guests Can Add New Menu Items
   div.item Feed Visibibility
     ion-radio(ng-model="humanizedSetting.feedVisibility" ng-value="'public'") Public
