@@ -27,6 +27,11 @@ plEventSettings = ($compile, EventsResource) ->
         return
       ,true
 
+      scope.$watch 'event.setting', (newV, oldV)->
+        return if _.isEqual(newV, oldV)
+        scope.humanizedSetting = EventsResource.humanizeSettings( scope.event.setting, 'humanize')
+      ,true
+
 
       return # $compile( element.contents())(scope)
 

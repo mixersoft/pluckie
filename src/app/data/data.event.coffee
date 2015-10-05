@@ -47,6 +47,7 @@ EventsResource = (Resty, amMoment) ->
         allowSuggestedFee: false # monentary fee in lieu of donation
         allowPublicAddress: false    # only guests see address
         denyParticipantList: false # guests can see Participants
+        denyMaybeNoResponseList: false
         denyWaitlist: true    # use waitlist if full
         feedVisibility: "public"  # [public|guests|none]
         denyAddMenu: false    # only host can update menu Items
@@ -227,9 +228,17 @@ EventsResource = (Resty, amMoment) ->
         no: 0
 
   }
-  # coffeelint: enable=max_line_length
+  
 
   service = new Resty(data, className)
+
+  service.selectOptions = {
+    'category':   ['Potluck', 'Popup']
+    'style':      ['Seated','Casual','Grazing','Picnic']
+    'attire':     ['Casual','Cocktail','Business','Formal','Fun']
+    'cuisine':    ['American','Balkan','California','French','Italian','Japanese','Modern','Thai','Seafood']
+  }
+  # coffeelint: enable=max_line_length
 
   # static methods
   service.humanizeSettings = (settings, target='humanize')->
@@ -238,6 +247,7 @@ EventsResource = (Resty, amMoment) ->
       'denyGuestShare'     : 'allowGuestShare' # guests can share event, same as denyForward
       'denyRsvpFriends'    : 'allowRsvpFriends' # guests can rsvp friends
       'denyParticipantList': 'allowParticipantList' # guests can see Participants
+      'denyMaybeNoResponseList' : 'allowMaybeNoResponseList' # guests can see Maybe,No responses
       'denyAddMenu'        : 'allowAddMenu'    # only host can update menu Items
       'denyWaitlist'        : 'allowWaitlist'
     }
@@ -245,6 +255,7 @@ EventsResource = (Resty, amMoment) ->
       'allowGuestShare'     : 'denyGuestShare' # guests can share event, same as denyForward
       'allowRsvpFriends'    : 'denyRsvpFriends' # guests can rsvp friends
       'allowParticipantList': 'denyParticipantList' # guests can see Participants
+      'allowMaybeNoResponseList':'denyMaybeNoResponseList' # guests can see Maybe,No responses
       'allowAddMenu'        : 'denyAddMenu'     # only host can update menu Items
       'allowWaitlist'       : 'denyWaitlist'
       
@@ -254,7 +265,16 @@ EventsResource = (Resty, amMoment) ->
       then humanize
       else dbForm
     copy = {}
+    
+    if target=='humanize'
+      missingKeys = _.difference _.keys( humanize), _.keys(settings)
+      _.each missingKeys, (k)->
+        # patch missing keys, default=false
+        settings[k] = false
+        return
+
     _.each settings, (v, k)->
+
       if !lookup[k]
         copy[k] = settings[k]
       else

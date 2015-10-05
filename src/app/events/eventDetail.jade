@@ -1,6 +1,11 @@
 // home/home.jade
 ion-view(view-title="{{vm.title}}")
   ion-nav-back-button.button-clear
+  ion-nav-buttons(side="secondary")
+    button.button.button-icon.icon.ion-edit.flat(
+      ng-click="vm.on.editEvent(vm.event)"
+      ng-if="vm.acl.isOwner()"
+      )
   // hide ion-navicon???
   ion-content.has-header.light-bg {{item=vm.event;""}}
     ion-refresher(pulling-text="Pull to refresh..." on-refresh="vm.on.refresh()")
@@ -470,7 +475,7 @@ ion-view(view-title="{{vm.title}}")
       div#cp-host.content.row.responsive-sm(ng-if="vm.acl.isOwner()")
         div.col.col-offset-25.col-50
           pl-event-settings(
-            event="item"
+            event="vm.event"
             on-change="vm.on.updateSettings(eventSetting, eventIsPublic)"
             type="Potluck"
             )

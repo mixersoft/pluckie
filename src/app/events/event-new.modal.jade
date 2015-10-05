@@ -1,7 +1,7 @@
 //- events/event-new.modal.jade
 ion-modal-view 
   ion-header-bar.bar-positive 
-    h1.title Create Event
+    h1.title {{mm.action}} Event
   ion-content {{myEvent=mm.event;me=mm.owner;''}}
 
     form(name="createEventForm" novalidate="" ng-submit="mm.submitEvent(myEvent, closeModal);")
@@ -87,8 +87,10 @@ ion-modal-view
               input(type="text" name="Link" placeholder="link to background pic" ng-model="myEvent.heroPic")  
 
             //- startTime DateTime
+            // TODO: add picker
 
             //- duration Time
+            // TODO: add picker
 
             //- Neighborhood text
             label.item.item-input.item-floating-label
@@ -115,6 +117,7 @@ ion-modal-view
               i.icon.ion-ios-people.positive
 
             // menuCategoryKeys checkbox group
+            // TODO: add multi-select
             label.item.item-input.item-select
               div.input-label Menu Item Categories
               select(ng-model="myEvent.menu.allowCategoryKeys")
@@ -127,7 +130,7 @@ ion-modal-view
       div.content.row.responsive-sm
         div.col.col-offset-25.col-50
           pl-event-settings(
-            event="myEvent"
+            event="mm.event"
             on-change=""
             type="{{mm.eventType}}"
             )

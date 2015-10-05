@@ -90,6 +90,7 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
 
         return appModalSvc.show('events/event-new.modal.html', vm, {
           mm: {
+            action: "Create"
             event: blankEvent
             eventType: EVENT_TYPE
             owner: owner
@@ -100,6 +101,7 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
               # data cleanup
               event.location = _.map event.latlon.split(','), (v)->
                 return parseFloat(v)
+              event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
 
               createEvent.call(vm, event).then (result)->
                 utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)

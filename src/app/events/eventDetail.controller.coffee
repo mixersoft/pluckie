@@ -281,6 +281,70 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       EventsResource.put(vm.event.id, data).then (result)->
         $log.info "Event updated, result=" + JSON.stringify _.pick result, fields
 
+    ###
+    # @description show edit event modal and handle response
+    # called by button.ion-plus in app.events
+    ###
+    editEvent: (copyEvent)->
+      # vm = this
+      owner = vm.me
+      EVENT_TYPE = 'Potluck'
+      return $q.reject('MISSING EVENT') if !copyEvent
+      return $q.when()
+      .then ()->
+        # must be user
+        if _.isEmpty owner
+          return AAAHelpers.showSignInRegister.call(vm, 'signin')
+          .then (result)-> # closeModal(result)
+            return $q.reject('CANCELED') if `result==null` || result == 'CANCELED'
+            return $q.reject(result) if result?['isError']
+            return result
+          .then (result)->
+            _.extend owner, result
+
+      .then ()->
+        return $q.reject('NO PRIVILEGE') if owner.id != copyEvent.ownerId
+
+        utils.ga_PageView($location.path() + '/edit' , 'app.event.edit')
+        # get a fresh copy of event
+        return EventsResource.get(copyEvent.id)
+
+      .then (blankEvent)->
+        return $q.reject('NO EVENT IN DB') if _.isEmpty blankEvent
+
+        blankEvent.latlon = blankEvent.location?.join(',')
+        # coffeelint: disable=max_line_length
+
+        # lookups for form select options
+        vm.lookup['select'] = {
+          'MenuItemCategories' : MenuItemsResource.categoryLookup
+        }
+        _.extend vm.lookup['select'], EventsResource.selectOptions
+
+        return appModalSvc.show('events/event-new.modal.html', vm, {
+          mm: {
+            action: "Edit"
+            event: blankEvent
+            eventType: EVENT_TYPE
+            owner: owner
+            select: vm.lookup['select']
+            submitEvent: (event, onSuccess)->
+              # sanity checks
+
+              # data cleanup
+              if event.latlon?
+                event.location = _.map event.latlon.split(','), (v)->
+                  return parseFloat(v)
+              event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
+
+              updateEvent.call(vm, event).then (result)->
+                utils.ga_Send('send', 'event', 'participation', 'edit', 'event', 10)
+                onSuccess?(result)
+                return result
+              return
+          }
+        })
+
   }
 
   initialize = ()->
@@ -543,6 +607,18 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   createMenuItem = (menuItem)->
     $log.warn "deprecate EventDetailCtrl.createMenuItem(), moved to EventActionHelpers"
     return EventActionHelpers.createMenuItem.apply(vm, arguments)
+
+  updateEvent = (event)->
+    return $q.reject "NO PRIVILIGE" if !vm.acl.isOwner()
+    return $q.reject "EVENT DATA ERROR" if event.id != vm.event.id
+    return $q.when()
+    .then ()->
+      EventsResource.put(event.id, event)
+    .then (result)->
+      $log.info "Event Updated, result="+JSON.stringify result
+      return result
+    .then ()->
+      activate()
 
     
   activate = ()->
