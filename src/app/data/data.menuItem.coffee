@@ -304,7 +304,7 @@ MenuItemsResource = (Resty, amMoment) ->
     Dessert   : 'Desserts'
     Drink     : "Drinks"
     Setting   : 'Settings'
-    Serving   : 'Serving Utentils'
+    Serving   : 'Serving Utensils'
     Resource  : 'Resources'
   }
 

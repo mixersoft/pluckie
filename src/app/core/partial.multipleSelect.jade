@@ -1,0 +1,27 @@
+//- core/partial.multipleSelect.html
+ion-modal-view.multipleSelect
+  ion-header-bar.bar-positive
+    button.button.button-clear.button-icon.ion-close(
+      ng-click="closeModal()"
+      )
+    h1.title(ng-bind="multipleSelect.title")
+    button.button.button-clear.button-icon.ion-checkmark(
+      ng-click="saveOptions()"
+      )
+  ion-content
+    ul.list
+      div(ng-if="!multipleSelect.renderCheckbox")
+        li.item.item-toggle(
+          ng-repeat="option in multipleSelect.tempOptions"
+          ) {{ option[multipleSelect.valueProperty] }}
+            label.toggle.toggle-balanced
+              input(type="checkbox" ng-model="option[multipleSelect.selectedProperty]")
+              div.track
+                div.handle
+      div(ng-if="multipleSelect.renderCheckbox")
+        li.item.item-checkbox(
+          ng-repeat="option in multipleSelect.tempOptions"
+          )
+            label.checkbox
+              input(type="checkbox" ng-model="option[multipleSelect.selectedProperty]")
+            {{ option[multipleSelect.valueProperty] }}

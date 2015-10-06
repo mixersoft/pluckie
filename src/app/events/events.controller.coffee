@@ -86,29 +86,55 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             seatsTotal: 0
             setting: vm.lookup['controlPanelDefaults'][EVENT_TYPE]
           }
+        # get menuCategoryOptions
+        menuCategoryOptions = []
+        _.each MenuItemsResource.categoryLookup, (value, key)->
+          menuCategoryOptions.push {
+            id: key
+            value: value
+            selected: true
+          }
+          return
+
+        modalModel = {
+          action: "Create"
+          event: blankEvent
+          eventType: EVENT_TYPE
+          owner: owner
+          select: vm.lookup['select']
+          menuCategoryOptions: menuCategoryOptions
+          menuCategoryParseSelected: (options)->
+            options = modalModel.menuCategoryOptions if !options
+            selected = _.reduce options, (result, o)->
+              result[o.id] = o.value if o.selected
+              return result
+            , {}
+            # $log.info selected
+            modalModel.menuCategorySelected = _.values( selected ).join(', ')
+            return selected
+          menuCategorySelected: _.values( MenuItemsResource.categoryLookup ).join(', ')
+
+          submitEvent: (event, onSuccess)->
+            # sanity checks
+
+            # data cleanup
+            if event.latlon?
+              event.location = _.map event.latlon.split(','), (v)->
+                return parseFloat(v)
+            event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
+            event.menu = event.menu || {}
+            event.menu['allowCategoryKeys'] = _.keys modalModel.menuCategoryParseSelected()
+
+            createEvent.call(vm, event).then (result)->
+              utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)
+              onSuccess?(result)
+              return result
+            return
+        }
           
 
         return appModalSvc.show('events/event-new.modal.html', vm, {
-          mm: {
-            action: "Create"
-            event: blankEvent
-            eventType: EVENT_TYPE
-            owner: owner
-            select: vm.lookup['select']
-            submitEvent: (event, onSuccess)->
-              # sanity checks
-
-              # data cleanup
-              event.location = _.map event.latlon.split(','), (v)->
-                return parseFloat(v)
-              event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
-
-              createEvent.call(vm, event).then (result)->
-                utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)
-                onSuccess?(result)
-                return result
-              return
-          }
+          mm: modalModel
         })
   }
 

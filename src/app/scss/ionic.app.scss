@@ -458,3 +458,45 @@ form[name="contributeForm"] {
     color: #AAA !important;
   }
 }
+
+ion-modal-view.multipleSelect {
+  .bar .title + .button:last-child {
+    top: 0;
+    bottom: 0;
+  }
+}
+
+@media (max-width: $grid-responsive-sm-break) {
+  ion-modal-view.multipleSelect {
+    &.modal {
+      top: 20%;
+      right: 10%;
+      bottom: 0;
+      left: 10%;
+      min-height: 240px;
+      width: 80%; }
+    &.modal.ng-leave-active {
+      bottom: 0; } 
+  }
+    .platform-ios.platform-cordova .modal-wrapper .modal .bar-header:not(.bar-subheader) {
+    height: 44px; }
+    .platform-ios.platform-cordova .modal-wrapper .modal .bar-header:not(.bar-subheader) > * {
+      margin-top: 0; }
+    .platform-ios.platform-cordova .modal-wrapper .modal .tabs-top > .tabs, .platform-ios.platform-cordova .modal-wrapper .modal .tabs.tabs-top {
+      top: 44px; }
+    .platform-ios.platform-cordova .modal-wrapper .modal .has-header, .platform-ios.platform-cordova .modal-wrapper .modal .bar-subheader {
+      top: 44px; }
+    .platform-ios.platform-cordova .modal-wrapper .modal .has-subheader {
+      top: 88px; }
+    .platform-ios.platform-cordova .modal-wrapper .modal .has-header.has-tabs-top {
+      top: 93px; }
+    .platform-ios.platform-cordova .modal-wrapper .modal .has-header.has-subheader.has-tabs-top {
+      top: 137px; }
+    .modal-backdrop-bg {
+      -webkit-transition: opacity 300ms ease-in-out;
+      transition: opacity 300ms ease-in-out;
+      background-color: #000;
+      opacity: 0; }
+    .active .modal-backdrop-bg {
+      opacity: 0.5; }
+}

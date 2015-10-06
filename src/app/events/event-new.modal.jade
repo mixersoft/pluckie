@@ -116,17 +116,18 @@ ion-modal-view
               input(type="range" name="portions" min="0" max="20" ng-model="myEvent.seatsTotal")
               i.icon.ion-ios-people.positive
 
-            // menuCategoryKeys checkbox group
-            // TODO: add multi-select
-            label.item.item-input.item-select
-              div.input-label Menu Item Categories
-              select(ng-model="myEvent.menu.allowCategoryKeys")
-                option(
-                  ng-repeat="(key,label) in mm.select['MenuItemCategories']" 
-                  value="{{key}}"
-                  ng-bind="label"
-                  )
+            pl-multiple-select.item.item-input.item-icon-right(
+              title="Menu Categories"
+              options="mm.menuCategoryOptions"
+              on-close="mm.menuCategoryParseSelected(options)"
+              render-checkbox="true"
 
+              )
+              div
+                div.input-label Menu Categories
+                p.wrap {{mm.menuCategorySelected}}
+              i.icon.ion-ios-arrow-forward
+              
       div.content.row.responsive-sm
         div.col.col-offset-25.col-50
           pl-event-settings(

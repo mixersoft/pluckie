@@ -321,28 +321,58 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         }
         _.extend vm.lookup['select'], EventsResource.selectOptions
 
-        return appModalSvc.show('events/event-new.modal.html', vm, {
-          mm: {
-            action: "Edit"
-            event: blankEvent
-            eventType: EVENT_TYPE
-            owner: owner
-            select: vm.lookup['select']
-            submitEvent: (event, onSuccess)->
-              # sanity checks
-
-              # data cleanup
-              if event.latlon?
-                event.location = _.map event.latlon.split(','), (v)->
-                  return parseFloat(v)
-              event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
-
-              updateEvent.call(vm, event).then (result)->
-                utils.ga_Send('send', 'event', 'participation', 'edit', 'event', 10)
-                onSuccess?(result)
-                return result
-              return
+        menuCategoryOptions = []
+        _.each MenuItemsResource.categoryLookup, (value, key)->
+          menuCategoryOptions.push {
+            id: key
+            value: value
+            selected:
+              if blankEvent.menu?.allowCategoryKeys?
+              then blankEvent.menu.allowCategoryKeys.indexOf(key) > -1
+              else true
           }
+          return
+
+        menuCategorySelected = _.chain(menuCategoryOptions)
+        .filter({selected:true}).pluck('value').value().join(', ')
+
+        modalModel = {
+          action: "Edit"
+          event: blankEvent
+          eventType: EVENT_TYPE
+          owner: owner
+          select: vm.lookup['select']
+          menuCategoryOptions: menuCategoryOptions
+          menuCategoryParseSelected: (options)->
+            options = modalModel.menuCategoryOptions if !options
+            selected = _.reduce options, (result, o)->
+              result[o.id] = o.value if o.selected
+              return result
+            , {}
+            # $log.info selected
+            modalModel.menuCategorySelected = _.values( selected ).join(', ')
+            return selected
+          menuCategorySelected: menuCategorySelected
+          submitEvent: (event, onSuccess)->
+            # sanity checks
+
+            # data cleanup
+            if event.latlon?
+              event.location = _.map event.latlon.split(','), (v)->
+                return parseFloat(v)
+            event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
+            event.menu = event.menu || {}
+            event.menu['allowCategoryKeys'] = _.keys modalModel.menuCategoryParseSelected()
+
+            updateEvent.call(vm, event).then (result)->
+              utils.ga_Send('send', 'event', 'participation', 'edit', 'event', 10)
+              onSuccess?(result)
+              return result
+            return
+        }
+
+        return appModalSvc.show('events/event-new.modal.html', vm, {
+          mm: modalModel
         })
 
   }
