@@ -360,7 +360,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
           when: # initialize values
             startDate: blankEvent.startTime
             startTime: blankEvent.startTime
-            endTime: blankEvent.startTime
+            endTime: moment(blankEvent.startTime).add(blankEvent.duration,'millisecond').toDate()
             asString: moment(blankEvent.startTime).format('ddd, MMM Do YYYY, h:mm a')
           updateWhen: ()->
             newV = modalModel.when
