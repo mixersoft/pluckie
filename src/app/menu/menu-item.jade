@@ -23,7 +23,7 @@ ion-view(view-title="{{vm.title}}")
               input(type="text" ng-model="item.category" readonly)
             div.item.item-text-wrap {{item.detail}}
             div.padding-horizontal(ng-if="item.link")
-              a(ng-href="{{item.link}}" ng-click="vm.openExternalLink($event, item.link)" target="_blank")
+              a(ng-href="{{item.link}}" ng-click="vm.openExternalLink($event, item)" target="_blank")
                 button.button.button-positive see more
             div.last-row
 

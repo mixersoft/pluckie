@@ -20,7 +20,10 @@ MenuItemCtrl = (
     'EventsByMenuId': {}
   }
   vm.imgAsBg = utils.imgAsBg
-  vm.openExternalLink = utils.openExternalLink
+  vm.openExternalLink = (ev, item)->
+    utils.ga_Send('send', 'event'
+            , 'engagement', 'menu-item', 'open-link:' + item.id, 2)
+    return utils.openExternalLink(ev, item.link)
   vm.acl = {
     isVisitor: ()->
       return true if !$rootScope.user
@@ -61,6 +64,7 @@ MenuItemCtrl = (
         pos = ionic.DomUtil.getPositionInParent(menuItemDom)
         $ionicScrollDelegate.scrollTo(pos.left, pos.top, false)
         return
+      ,10
 
     toggleFeaturedIn: (item)->
       item.showFeatured = !item.showFeatured
@@ -120,12 +124,17 @@ MenuItemCtrl = (
     .then ()->
       # vm.lookup['EventsByMenuId'] = {} if !vm.lookup['EventsByMenuId']
       # vm.lookup['Events'] = {} if !vm.lookup['Events']
+      promises = []
       _.each vm.menuItemIds, (mid)->
+        dfd = $q.defer()
+        promises.push dfd
         $timeout ()->
-          skip = getEventIdsByMenuItemId(mid).then (eventIds)->
+          getEventIdsByMenuItemId(mid).then (eventIds)->
             getEvents(eventIds)
-        ,10
-      return
+          .then ()->
+            dfd.resolve()
+        ,5  # add some time for rendering events
+      return $q.all(promises)
 
   getMenuItems = (ids)->
     # vm.lookup['MenuItems'] = {} if !vm.lookup['MenuItems']
@@ -144,45 +153,18 @@ MenuItemCtrl = (
     return ContributionsResource.query(filter).then (results)->
       eventIds = _.chain( results ).pluck('eventId').uniq().value()
       vm.lookup['EventsByMenuId'][mid] = eventIds
-      $log.info "EventIds=" + JSON.stringify eventIds
+      # $log.info "EventIds=" + JSON.stringify eventIds
       return eventIds
 
   getEvents = (eids)->
     missing = _.difference eids, _.keys vm.lookup['Events']
-    return if _.isEmpty missing
-    $log.info "missing EventIds=" + JSON.stringify missing
-    skip = EventsResource.get(missing).then (results)->
+    return $q.when() if _.isEmpty missing
+    $log.info "loading EventIds=" + JSON.stringify missing
+    return EventsResource.get(missing).then (results)->
       _.each results, (o)->
         vm.lookup['Events'][o.id] = o
-      $log.info "Events.title=" + JSON.stringify _.pluck( results, 'title')
+      $log.info "loaded Event, title=" + JSON.stringify _.pluck( results, 'title')
       return
-
-
-
-  xxsetPrevNextItems = (current)->
-    if !vm.menuItemIds
-      vm.prev = vm.next = null
-      return
-    vm.menuItemIds = sorted = _.pluck MenuItemsResource.sortByCategory(vm.lookup['MenuItems']), 'id'
-    i = sorted.indexOf(current.id)
-    vm.prev = if i==0 then null else sorted[i-1]
-    vm.next = if i+1==sorted.length then null else sorted[i+1]
-
-  xxreorderPrevNextDom = (nextDomId)->
-    if !nextDomId || nextDomId == 'menu-item-b'
-      # then 'menu-item-a'
-      vm.menuItemA = vm.menuItem
-      vm.menuItemB = if vm.next then vm.lookup['MenuItems'][vm.next] else {}
-    else
-      # nextDom = 'menu-item-a'
-      vm.menuItemB = vm.menuItem
-      vm.menuItemA = if vm.next then vm.lookup['MenuItems'][vm.next] else {}
-    vm.nextDomId =
-      if nextDomId? == 'menu-item-b'
-      then 'menu-item-a'
-      else 'menu-item-b'
-    $log.info "a/b reordered, next=" + vm.nextDomId
-    return vm.nextDomId
 
 
   $scope.$on '$ionicView.loaded', (e)->
