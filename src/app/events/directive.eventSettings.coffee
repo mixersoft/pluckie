@@ -7,6 +7,7 @@ plEventSettings = ($compile, EventsResource) ->
     templateUrl: 'events/partial.eventSettings.html'
     scope: {
       event: '='
+      when: '='   # update startTime when dateTime fields change
       type: '@'
       onChange: '&'
     }
@@ -31,7 +32,6 @@ plEventSettings = ($compile, EventsResource) ->
         return if _.isEqual(newV, oldV)
         scope.humanizedSetting = EventsResource.humanizeSettings( scope.event.setting, 'humanize')
       ,true
-
 
       return # $compile( element.contents())(scope)
 

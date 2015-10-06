@@ -313,6 +313,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         return $q.reject('NO EVENT IN DB') if _.isEmpty blankEvent
 
         blankEvent.latlon = blankEvent.location?.join(',')
+        if blankEvent.startTime
+          blankEvent.startTime = new Date(blankEvent.startTime)
         # coffeelint: disable=max_line_length
 
         # lookups for form select options
@@ -353,6 +355,33 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
             modalModel.menuCategorySelected = _.values( selected ).join(', ')
             return selected
           menuCategorySelected: menuCategorySelected
+
+          # for setting startTime, duration
+          when: # initialize values
+            startDate: blankEvent.startTime
+            startTime: blankEvent.startTime
+            endTime: blankEvent.startTime
+            asString: moment(blankEvent.startTime).format('ddd, MMM Do YYYY, h:mm a')
+          updateWhen: ()->
+            newV = modalModel.when
+            event = modalModel.event
+            dateTimeString = [
+              moment(newV.startDate).format('YYYY-MM-DD')
+              moment(newV.startTime).format('HH:mm')
+            ].join(' ')
+            event.startTime = new Date(dateTimeString)
+            newV.startDate = newV.startTime = event.startTime
+            nextDay = moment(event.startTime).add(1,'day').startOf('day')
+            if newV.startDate <= newV.endTime && newV.endTime < nextDay
+              'skip'
+            else if newV.endTime.getHours() < 6 # assume it is the next morning
+              nextDay.hour(newV.endTime.getHours()).minute(newV.endTime.getMinutes())
+              newV.endTime = nextDay.toDate()
+            else
+              newV.endTime = moment(newV.startDate).toDate()
+            event.duration = newV.endTime - newV.startTime
+            return
+
           submitEvent: (event, onSuccess)->
             # sanity checks
 

@@ -73,9 +73,9 @@ ion-modal-view
               input(type="text" name="Inspiration" placeholder="Inspire your guests to get excited" ng-model="myEvent.inspiration")
 
             //- aspiration plStarRating
-            div.item.inline-field
-              span.label Aspiration
-              pl-star-ratings(
+            div.item.item-input
+              span.input-label Aspiration
+              pl-star-ratings.inline(
                 value="myEvent.aspiration" 
                 max-value="3" 
                 read-only="false"
@@ -87,7 +87,29 @@ ion-modal-view
               input(type="text" name="Link" placeholder="link to background pic" ng-model="myEvent.heroPic")  
 
             //- startTime DateTime
-            // TODO: add picker
+            div
+              div.item.item-input
+                span.input-label When
+                input(type="text" read-only ng-model="mm.when.asString")
+              div.startTime.card.list.condensed.padding-horizontal
+                label.item.item-input
+                  span.input-label Date
+                  input(type="date" name="startDate" placeholder="Start Date" 
+                    ng-model="mm.when.startDate"
+                    ng-change="mm.updateWhen()"
+                    )
+                label.item.item-input
+                  span.input-label Start Time
+                  input(type="time" name="startTime" placeholder="Start Time" 
+                    ng-model="mm.when.startTime"
+                    ng-blur="mm.updateWhen()")
+                label.item.item-input
+                  span.input-label End Time
+                  input(type="time" name="endTime" placeholder="End Time" 
+                    ng-model="mm.when.endTime"
+                    ng-blur="mm.updateWhen()")  
+
+
 
             //- duration Time
             // TODO: add picker

@@ -95,6 +95,8 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             selected: true
           }
           return
+        # initialize startTime
+        blankEvent.startTime = moment(new Date()).startOf('hour').toDate()
 
         modalModel = {
           action: "Create"
@@ -102,6 +104,8 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
           eventType: EVENT_TYPE
           owner: owner
           select: vm.lookup['select']
+          
+          # for setting event.menu.allowCategoryKeys
           menuCategoryOptions: menuCategoryOptions
           menuCategoryParseSelected: (options)->
             options = modalModel.menuCategoryOptions if !options
@@ -113,6 +117,32 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             modalModel.menuCategorySelected = _.values( selected ).join(', ')
             return selected
           menuCategorySelected: _.values( MenuItemsResource.categoryLookup ).join(', ')
+
+          # for setting startTime, duration
+          when: # initialize values
+            startDate: blankEvent.startTime
+            startTime: blankEvent.startTime
+            endTime: blankEvent.startTime
+            asString: moment(blankEvent.startTime).format('ddd, MMM Do YYYY, h:mm a')
+          updateWhen: ()->
+            newV = modalModel.when
+            event = modalModel.event
+            dateTimeString = [
+              moment(newV.startDate).format('YYYY-MM-DD')
+              moment(newV.startTime).format('HH:mm')
+            ].join(' ')
+            event.startTime = new Date(dateTimeString)
+            newV.startDate = newV.startTime = event.startTime
+            nextDay = moment(event.startTime).add(1,'day').startOf('day')
+            if newV.startDate <= newV.endTime && newV.endTime < nextDay
+              'skip'
+            else if newV.endTime.getHours() < 6 # assume it is the next morning
+              nextDay.hour(newV.endTime.getHours()).minute(newV.endTime.getMinutes())
+              newV.endTime = nextDay.toDate()
+            else
+              newV.endTime = moment(newV.startDate).toDate()
+            event.duration = newV.endTime - newV.startTime
+            return
 
           submitEvent: (event, onSuccess)->
             # sanity checks
@@ -128,14 +158,17 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             createEvent.call(vm, event).then (result)->
               utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)
               onSuccess?(result)
+              
               return result
             return
         }
-          
 
         return appModalSvc.show('events/event-new.modal.html', vm, {
           mm: modalModel
-        })
+        }).then (modal)->
+          # modalClose(): deregister $scope.$watch 'modalModel.when'
+          'check'
+
   }
 
   createEvent = (event)->
