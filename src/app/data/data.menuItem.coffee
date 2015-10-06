@@ -219,6 +219,57 @@ MenuItemsResource = (Resty, amMoment) ->
       category: "Drink"    # [Starter|Side|Main|SmallPlate|Dessert|Drink||Setting|Serving|Resource]
       pic     : "https://thewinecountry.com/twcwp/wp-content/uploads/2014/03/Wine.jpg"
       link    : ""
+    40:
+      title   : "Meathead's Memphis Dust"
+      detail  : """
+      Here's an award winning recipe for a classic Memphis style barbecue dry rub
+      that's great on pork, chicken, fish, beef, and veggies.
+      """
+      category: "Main"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "http://amazingribs.com/images/recipes/memphis_ribs.jpg"
+      link    : "http://amazingribs.com/recipes/rubs_pastes_marinades_and_brines/meatheads_memphis_dust.html"
+    41:
+      title   : "Barbecue Ribs Recipe: Last Meal Ribs, The Best BBQ Ribs Ever, Recipe and Techniques"
+      detail  : """
+      The recipe for making the best barbecue ribs you ever tasted.
+      Just like the champion pitmasters do it.
+      They are coated with a dry rub, then smoked low and slow for hours,
+      and the sauce is added near the end and sizzled on.
+      """
+      category: "Main"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "http://amazingribs.com/images/recipes/single_rib.jpg"
+      link    : "http://amazingribs.com/recipes/porknography/best_BBQ_ribs_ever.html"
+    42:
+      title   : 'Butterflied "Spatchcocked" Chile-Lime Rubbed Chicken'
+      detail  : """
+      Some of you probably read that and thought, &quot;Spa-what?&quot;.
+      Spatchcocked is a cool way of saying what is now more commonly known as &quot;butterflied&quot; chicken. In a matter of minutes you remove the backbone so that the bird lies flat on the grill,
+      allowing the whole chicken to cook quicker and make for a pretty sweet presentation too.
+      """
+      category: "Main"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.traegergrills.com/teamtraeger/image.axd?picture=2013%2f6%2f8+upclose+chile+lime+chick.JPG"
+      link    : "http://www.traegergrills.com/teamtraeger/post/2013/06/25/Butterflied-Chile-Lime-Rubbed-Chicken.aspx#.Vg5INxOqpBc"
+    43:
+      title   : "xxx"
+      detail  : """
+      """
+      category: "Main"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "xxx"
+      link    : "xxx"
+    44:
+      title   : "xxx"
+      detail  : """
+      """
+      category: "Main"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "xxx"
+      link    : "xxx"
+    45:
+      title   : "xxx"
+      detail  : """
+      """
+      category: "Main"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "xxx"
+      link    : "xxx"
 
 
   }

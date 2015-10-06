@@ -6,7 +6,7 @@ Resty = ($q, $sessionStorage) ->
 
   RestyClass = (@_data = {}, className) ->
     if $sessionStorage[className]
-      @_data = $sessionStorage[className]
+      _.extend @_data , $sessionStorage[className]
       console.log "restoring from SessionStorage"
     # alias to mimic ngResource
     @get = RestyClass::get

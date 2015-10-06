@@ -226,6 +226,60 @@ EventsResource = (Resty, amMoment) ->
         yes: 0
         maybe: 0
         no: 0
+    4:
+      # what
+      title: "Last Days of Summer"
+      description: """
+      Come on over, we're having a BBQ before it's too late.
+      """
+      category: "Potluck"     # [Potluck|Popup]
+      cusine: "American"      # [American|Japanese|California|Seafood|etc.]
+      style: 'Casual'         # [Seated|Casual|Grazing|Picnic]
+      attire: 'Casual'        # [Casual|Cocktail|Business|Formal|Fun]
+      inspiration: ""
+      aspiration: 2           # 0-3 stars
+      price: null             # guest can contribute money?
+
+      heroPic: "http://4.bp.blogspot.com/-j8vStXRoslU/UHziypEdbLI/AAAAAAAAJgY/XaKiB0G68_U/s1600/Indian_Summer_99_11.jpg"
+
+      # when: 4=Thur
+      startTime: moment(new Date('2015-10-3')).hour(16).startOf('hour').toJSON() # search/filter
+      duration: moment.duration(5, 'hours').asMilliseconds()
+
+      # where:
+      neighborhood: "Lozenets, Sofia"
+      address: 'Ulitsa Bogatitsa'
+      location: [42.671027, 23.316299] # search/filter
+
+      seatsTotal: 12
+      seatsOpen: null
+
+      # host:
+      ownerId: "10" # belongsTo Users
+      isPublic: true # searchable
+
+      # guests:  # habtm Users
+      # menu:    # menu ideas
+
+      setting:
+        isExclusive: false   # invite Only
+        denyGuestShare: false # guests can share event, same as denyForward
+        denyRsvpFriends: false # guests can rsvp friends
+        rsvpFriendsLimit: 12 # guests rsvp limit for friends
+        allowSuggestedFee: false # monentary fee in lieu of donation
+        allowPublicAddress: false    # only guests see address
+        denyParticipantList: false # guests can see Maybe,No responses
+        denyWaitlist: true    # use waitlist if full
+        feedVisibility: "public"  # [public|guests|none]
+        denyAddMenu: false    # only host can update menu Items
+
+      wrapUp:
+        rating: null          # guest ratings
+
+      controlPanel:
+        yes: 0
+        maybe: 0
+        no: 0
 
   }
   
