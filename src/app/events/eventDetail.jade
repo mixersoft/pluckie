@@ -152,7 +152,7 @@ ion-view(view-title="{{vm.title}}")
                   ) Menu
                 
               div.list.menu-item.text-center(ng-switch-when="less") 
-                div.item(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
+                div.item.cursor-pointer(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
                   b.title(
                     ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
                     ) {{ mitem.title  }} 
@@ -160,7 +160,7 @@ ion-view(view-title="{{vm.title}}")
                   
               div.list.menu-item(ng-switch-when="more")
                 div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  img(
+                  img.cursor-pointer(
                     ng-src="{{mitem.pic}}"
                     ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
                     )
@@ -185,7 +185,7 @@ ion-view(view-title="{{vm.title}}")
 
               div.list.menu-item(ng-switch-when="contribute")
                 div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  img(
+                  img.cursor-pointer(
                     ng-src="{{mitem.pic}}"
                     ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
                     )

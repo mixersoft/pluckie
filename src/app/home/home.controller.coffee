@@ -122,7 +122,8 @@ HomeCtrl = (
     if $location.search()['user']
       DEV_USER_ID = $location.search()['user']
       $location.search('user', null)
-    devConfig.loginUser( DEV_USER_ID , false).then (user)->
+      force = true
+    devConfig.loginUser( DEV_USER_ID , force).then (user)->
       vm.me = $rootScope.user
 
 

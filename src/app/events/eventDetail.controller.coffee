@@ -561,7 +561,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         participation['menuItemContributions'] += 1
         participation['portions'] += parseInt o.portions
         return
-      participation['contributors'] = yesContributions.length
+      participation['contributors'] = _.chain(yesContributions)
+        .pluck('contributorId').uniq().value().length
       participation['contributorsPct'] =
         Math.round( participation['contributors'] / summary.booking['parties'] * 100 )
       participation['menuItemContributionsPct'] =

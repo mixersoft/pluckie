@@ -35,7 +35,7 @@ ion-view(view-title="{{vm.title}}")
               i.icon(
                 ng-class="{'ion-arrow-down-b':!item.showFeatured, 'ion-arrow-up-b':item.showFeatured}"
                 ng-click="item.showFeatured = vm.on.toggleFeaturedIn(item)")
-            div.item.item-icon-left(
+            div.item.item-icon-left.cursor-pointer(
               ng-show="item.showFeatured"
               ng-repeat="eventId in vm.lookup['EventsByMenuId'][item.id]"
               )

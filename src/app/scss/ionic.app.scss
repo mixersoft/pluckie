@@ -249,6 +249,12 @@ label.inline-field {
   }
 }
 
+.cursor-pointer {
+  cursor: pointer;
+  &.item > * {
+    cursor: pointer;
+  }
+}
 
 
 .item-input {
