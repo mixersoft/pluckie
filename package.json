@@ -1,6 +1,6 @@
 {
   "name": "pluckie",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An app for elevating potlucks and community meals around the world.",
   "author": "Michael Lin <michael@snaphappi.com>",
   "repository": {
@@ -33,7 +33,7 @@
     "stream-series": "^0.1.1",
     "yargs": "^3.15.0"
   },
-  "license": "",
+  "license": "(c) Snaphappi, Inc. 2015. All Rights Reserved.",
   "cordovaPlugins": [
     "cordova-plugin-console",
     "com.ionic.keyboard",

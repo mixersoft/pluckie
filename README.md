@@ -116,3 +116,7 @@ $ ionic serve
 ## Improvements and issues
 
 Feel free to collaborate creating a pull request or reporting an issue.
+
+
+# License
+(c) Snaphappi, Inc. 2015, All Rights Reserved.
