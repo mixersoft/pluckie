@@ -162,29 +162,29 @@ ContributionsResource = (Resty, amMoment) ->
       eventId: "3"
       menuItemId: "36"
       contributorId: null
-      portions: 0
+      portions: 12
       portionsRequired: 25
       sort: 20
     40:
       eventId: "4"
       menuItemId: "40"
-      contributorId: null
-      portions: 0
+      contributorId: "10"
+      portions: 12
       portionsRequired: 12
       sort: 20
     41:
       eventId: "4"
       menuItemId: "41"
-      contributorId: null
-      portions: 0
+      contributorId: "10"
+      portions: 12
       portionsRequired: 12
       sort: 20
     42:
       eventId: "4"
       menuItemId: "42"
-      contributorId: null
-      portions: 0
-      portionsRequired: 12
+      contributorId: "10"
+      portions: 16
+      portionsRequired: 16
       sort: 20
     46:
       eventId: "4"
@@ -198,6 +198,13 @@ ContributionsResource = (Resty, amMoment) ->
       menuItemId: "27"
       contributorId: null
       portions: 0
+      portionsRequired: 12
+      sort: 20
+    48:
+      eventId: "4"
+      menuItemId: "43"
+      contributorId: "0"
+      portions: 12
       portionsRequired: 12
       sort: 20
 

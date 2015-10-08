@@ -230,20 +230,20 @@ EventsResource = (Resty, amMoment) ->
       # what
       title: "Last Days of Summer"
       description: """
-      Come on over, we're having a BBQ before it's too late.
+      Come on over, we're having one last BBQ before I start thinking of ski season.
       """
       category: "Potluck"     # [Potluck|Popup]
       cusine: "American"      # [American|Japanese|California|Seafood|etc.]
       style: 'Casual'         # [Seated|Casual|Grazing|Picnic]
       attire: 'Casual'        # [Casual|Cocktail|Business|Formal|Fun]
-      inspiration: ""
+      inspiration: "Because it's a great time of year."
       aspiration: 2           # 0-3 stars
       price: null             # guest can contribute money?
 
-      heroPic: "http://4.bp.blogspot.com/-j8vStXRoslU/UHziypEdbLI/AAAAAAAAJgY/XaKiB0G68_U/s1600/Indian_Summer_99_11.jpg"
+      heroPic: "http://s3.amazonaws.com/collierfalls/rich/rich_files_medium_91_.jpg"
 
       # when: 4=Thur
-      startTime: moment(new Date('2015-10-3')).hour(16).startOf('hour').toJSON() # search/filter
+      startTime: moment().weekday(6).add(7,'d').hour(17).startOf('hour').toJSON()
       duration: moment.duration(5, 'hours').asMilliseconds()
 
       # where:
@@ -251,7 +251,7 @@ EventsResource = (Resty, amMoment) ->
       address: 'Ulitsa Bogatitsa'
       location: [42.671027, 23.316299] # search/filter
 
-      seatsTotal: 12
+      seatsTotal: 16
       seatsOpen: null
 
       # host:
@@ -259,7 +259,8 @@ EventsResource = (Resty, amMoment) ->
       isPublic: true # searchable
 
       # guests:  # habtm Users
-      # menu:    # menu ideas
+      menu:
+        allowCategoryKeys: ['Side','Main','Dessert','Drink']
 
       setting:
         isExclusive: false   # invite Only

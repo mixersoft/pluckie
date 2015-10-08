@@ -153,15 +153,15 @@ MenuItemsResource = (Resty, amMoment) ->
       pic     : "http://www.seriouseats.com/recipes/assets_c/2010/08/20100810-corn-with-chili-lime-butter-thumb-625xauto-105225.jpg"
       link    : "http://www.seriouseats.com/recipes/2010/08/grilling-corn-with-chili-lime-butter-recipe.html"
     25:
-      title   : "бира от България"
+      title   : "Craft Beers"
       detail  : """
-      Bring your favorite local beers
+      Bring your favorite craft beers to share
       """
       category: "Drinks"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
       pic     : "http://s3.amazonaws.com/foodspotting-ec2/reviews/3960046/thumb_600.jpg?1377190710"
       link    : ""
     26:
-      title   : "вино от България"
+      title   : "Wine"
       detail  : """
       Bring your favorite local wines
       """
@@ -171,7 +171,7 @@ MenuItemsResource = (Resty, amMoment) ->
     27:
       title   : "Juices, Smoothies, & Soft Drinks "
       detail  : """
-      And something for the деца
+      And something for the kids
       """
       category: "Drinks"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
       pic     : "http://www.h2o2.com/images/drinking-water.jpg"
@@ -250,12 +250,15 @@ MenuItemsResource = (Resty, amMoment) ->
       pic     : "http://www.traegergrills.com/teamtraeger/image.axd?picture=2013%2f6%2f8+upclose+chile+lime+chick.JPG"
       link    : "http://www.traegergrills.com/teamtraeger/post/2013/06/25/Butterflied-Chile-Lime-Rubbed-Chicken.aspx#.Vg5INxOqpBc"
     43:
-      title   : "xxx"
+      title   : "Chilled Carrots With Tahini-Ginger Dressing"
       detail  : """
+      It's easy to look past carrots when the farmers market is overflowing with tomatoes and corn, but don't:
+      They're in season this time of year too, and are deserving of a spot on the summertime table.
+      Here, beautiful sweet carrots are lightly cooked, then tossed in a flavorful dressing that's rich with ginger, cilantro, lemon, and just a touch of tahini.
       """
-      category: "Main"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
-      pic     : "xxx"
-      link    : "xxx"
+      category: "Side"    # [Starter|Side|Main|SmallPlate|Dessert|Setting|Serving|Resource]
+      pic     : "http://www.seriouseats.com/recipes/assets_c/2015/07/20150701-carrot-salad-vicky-wasik-2-thumb-1500xauto-424622.jpg"
+      link    : "http://www.seriouseats.com/recipes/2015/08/carrot-salad-tahini-ginger-recipe.html"
     44:
       title   : "xxx"
       detail  : """

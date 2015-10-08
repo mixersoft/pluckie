@@ -27,10 +27,10 @@ TokensResource = (Resty, amMoment, $q) ->
       accessors: []
     'justforfun':
       ownerId: '10'
-      target: 'Event:3'  # ClassName:id
+      target: 'Event:4'  # ClassName:id
       views: 3
       expireCount: 50
-      expireDate: moment(new Date('2015-10-03')).hour(23).toJSON()
+      expireDate: moment().weekday(6).add(7,'d').hour(17).startOf('hour').toJSON()
       accessors: []
 
 
