@@ -19,9 +19,9 @@ HomeResource = (Resty, amMoment) ->
     11:
       layout: "tile-left"
       color: ""
-      title: "Nearby"
-      heroPic: "http://www.offthegridnews.com/wp-content/uploads/2015/02/Google-maps-techmeupDOTnet.jpg"
-      target: "app.events({filter:'nearby'})"
+      title: "Recent Events"
+      heroPic: "http://lorempixel.com/400/200/food/6"
+      target: "app.events({filter:'recent'})"
     12:
       layout: "tile-center"
       color: "positive"
@@ -54,9 +54,9 @@ HomeResource = (Resty, amMoment) ->
     18:
       layout: "tile-left"
       color: ""
-      title: "Recent Meals"
-      heroPic: "http://lorempixel.com/400/200/food/6"
-      target: "app.events({filter:'recent'})"
+      title: "Nearby"
+      heroPic: "http://www.offthegridnews.com/wp-content/uploads/2015/02/Google-maps-techmeupDOTnet.jpg"
+      target: "app.events({filter:'nearby'})"
     19:
       layout: "tile-right"
       class: "event"

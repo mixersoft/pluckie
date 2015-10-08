@@ -40,12 +40,18 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   _filters = {
     'comingSoon':
       label: "Coming Soon"
-      filterBy: 'startTime'
+      sortBy: 'startTime'  # ASC
+      filterBy: (o)->
+        return o.startTime > new Date().toJSON()
     'nearby':
       label: "Events Near Me"
-      filterBy: 'distance'
+      sortBy: 'location'
     'recent':
       label: "Recent Events"
+      sortBy: (o)->
+        return -1 * o.startTime  # DESC
+      filterBy: (o)->
+        return o.startTime < new Date().toJSON()
     'all':
       label: "Events"
   }
@@ -185,6 +191,7 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       activate()
 
   initialize = ()->
+    vm.filter = _filters[ $stateParams.filter ] || _filters[ 'all' ]
     getData()
 
   activate = ()->
@@ -196,16 +203,15 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     ionicMaterialInk.displayEffect()
     setMaterialEffects()
 
-  sortEvents = (items, filter)->
-    switch filter
-      when 'comingSoon'
-        _.sortBy items, 'startTime'
-      else
-        return items
+  sortEvents = (items, options)->
+    collection = _.chain(items)
+    collection = collection.filter(options.filterBy) if options.filterBy
+    collection = collection.sortBy(options.sortBy) if options.sortBy
+    return items = collection.value()
 
   getData = () ->
     EventsResource.query().then (events)->
-      events = sortEvents(events, $stateParams.filter)
+      events = sortEvents(events, vm.filter)
       vm.events = events
       # toastr.info JSON.stringify( events)[0...50]
       return events
