@@ -14,7 +14,8 @@
     "moment/min/moment.min.js",
     "angular-moment/angular-moment.min.js",
     "angular-google-maps/dist/angular-google-maps.js",
-    "ngstorage/ngStorage.min.js"   
+    "ngstorage/ngStorage.min.js",
+    "vendor/track-fb.js"   
   ],
   "dev": [
     "ionic/js/ionic.bundle.js", 
@@ -31,6 +32,7 @@
     "moment/min/moment.min.js",
     "angular-moment/angular-moment.min.js",
     "angular-google-maps/dist/angular-google-maps.js",
-    "ngstorage/ngStorage.js"
+    "ngstorage/ngStorage.js",
+    "vendor/track-fb.js"
   ]
 }
