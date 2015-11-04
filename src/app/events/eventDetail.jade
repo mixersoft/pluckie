@@ -59,17 +59,13 @@ ion-view(view-title="{{vm.title}}")
       // ACTIVE BLOCK
       // ***
 
-      div.list.card(ng-if="0")
-        div.item.button-full
-          div.button.button-balanced.icon.ion-ios-upload(
-            ng-click="vm.on.showShareLink(item)"
-          ).
-            &nbsp; Share
-        div.item.button-full
-          div.button.button-balanced.icon.ion-chatbox(
-            ng-click="vm.on.beginResponse(vm.me, item)"
-          )
-            span.padding-left Respond
+      div(ng-if="0")
+        div.content.row.responsive-sm
+          div.col.col-offset-25.col-50
+
+            div.last-row
+
+              
 
 
 

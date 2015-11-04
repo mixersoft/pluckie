@@ -7,37 +7,37 @@ DevConfig = ($rootScope, UsersResource, ParticipationsResource
   $log, exportDebug
   )->
 
-  exportDebug.set('sess', $sessionStorage)
+    exportDebug.set('sess', $sessionStorage)
 
-  self = {
-    signOut: ()->
-      return $rootScope['user'] = $sessionStorage['me'] =  {}
-    loginUser : (id, force=true)->
-      # manually set current user for testing
-      $rootScope.user = $sessionStorage['me']
-      return $q.when( $rootScope.user ) if $rootScope.user? && !force
-      return UsersResource.get( id ).then (user)->
-        # check if this is an invitation response sign-in
-        if $rootScope['user']?.participation?
-          # promote anonymous participation to user participation
-          data = angular.copy $rootScope['user'].participation
-          data['participantId'] = user.id + ''
-          data['responseId'] = null
-          data['responseName'] = null
-          skip = ParticipationsResource.put(data.id, data)
-          .then (result)->
-            delete $rootScope['user'].participation
-            $rootScope.$broadcast 'event:participant-changed', result
+    self = {
+      signOut: ()->
+        return $rootScope['user'] = $sessionStorage['me'] =  {}
+      loginUser : (id, force=true)->
+        # manually set current user for testing
+        $rootScope.user = $sessionStorage['me']
+        return $q.when( $rootScope.user ) if $rootScope.user? && !force
+        return UsersResource.get( id ).then (user)->
+          # check if this is an invitation response sign-in
+          if $rootScope['user']?.participation?
+            # promote anonymous participation to user participation
+            data = angular.copy $rootScope['user'].participation
+            data['participantId'] = user.id + ''
+            data['responseId'] = null
+            data['responseName'] = null
+            skip = ParticipationsResource.put(data.id, data)
+            .then (result)->
+              delete $rootScope['user'].participation
+              $rootScope.$broadcast 'event:participant-changed', result
 
-        $rootScope['user'] = $sessionStorage['me'] =  user
-        $rootScope.$emit 'user:sign-in', $rootScope['user']
-        return $rootScope['user']
-      .catch (err)->
-        return self.signOut()
-        
-  }
-  
-  return self # DevConfig
+          $rootScope['user'] = $sessionStorage['me'] =  user
+          $rootScope.$emit 'user:sign-in', $rootScope['user']
+          return $rootScope['user']
+        .catch (err)->
+          return self.signOut()
+          
+    }
+    
+    return self # DevConfig
 
 
 DevConfig.$inject = ['$rootScope', 'UsersResource', 'ParticipationsResource'
