@@ -92,13 +92,13 @@ $RobotoDraftFontVersion: "1.0.0";
 
 @media(max-width: $grid-responsive-sm-break) {
   .row .row {
-    @extend .no-padding;
+    padding: 0;
     .col {
       margin-bottom: 0;
     }
   }
   .col {
-    @extend .no-padding;
+    padding: 0;
   }
 }
 

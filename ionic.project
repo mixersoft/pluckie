@@ -1,4 +1,12 @@
 {
   "name": "pluckie",
-  "app_id": "6a3036fa"
+  "app_id": "6a3036fa",
+  "gulpStartupTasks": [
+    "sass",
+    "watch"
+  ],
+  "watchPatterns": [
+    "www/**/*",
+    "!www/lib/**/*"
+  ]
 }
