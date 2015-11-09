@@ -1,6 +1,7 @@
 'use strict'
 
-otherwisePath = '/app/home'
+# otherwisePath = '/app/home'
+otherwisePath = '/tab/dash'
 
 appRun = (routerHelper) ->
   routerHelper.configureStates getStates(), otherwisePath

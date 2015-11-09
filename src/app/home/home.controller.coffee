@@ -50,12 +50,6 @@ HomeCtrl = (
     # return
     if $rootScope.user?
       vm.me = $rootScope.user
-    else
-      DEV_USER_ID = '0'
-      devConfig.loginUser( DEV_USER_ID ).then (user)->
-        # loginUser() sets $rootScope.user
-        vm.me = $rootScope.user
-        toastr.info "Login as userId=0"
 
   activate = ()->
     return
