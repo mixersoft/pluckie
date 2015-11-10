@@ -69,7 +69,6 @@ HomeCtrl.$inject = [
   '$scope', '$rootScope', '$location'
   '$ionicScrollDelegate'
   '$log', 'toastr'
-  'appModalSvc'
   'utils', 'devConfig', 'exportDebug'
 ]
 

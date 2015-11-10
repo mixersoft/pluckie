@@ -9,6 +9,7 @@
     "lodash/lodash.min.js",
     "angular-toastr/dist/angular-toastr.tpls.min.js",
     "angular-toastr/dist/angular-toastr.min.css",
+    "angular-moment/angular-moment.min.js",
     "moment/min/moment.min.js"
   ]
 }
