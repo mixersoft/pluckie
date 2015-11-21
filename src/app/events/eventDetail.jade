@@ -1,4 +1,4 @@
-// home/home.jade
+// event/eventDetail.jade
 ion-view(view-title="{{vm.title}}")
   ion-nav-back-button.button-clear
   ion-nav-buttons(side="secondary")
@@ -59,18 +59,17 @@ ion-view(view-title="{{vm.title}}")
       // ACTIVE BLOCK
       // ***
 
-      div(ng-if="0")
+      div(ng-if="1")
         div.content.row.responsive-sm
           div.col.col-offset-25.col-50
 
-            div.last-row
-
-              
-
-
-
-
-
+            div.item
+              button.button.button-full.button-positive.item-icon-left(
+                  type="button"
+                  ng-click="vm.on.testGeocode( item.address )"
+                )
+                  i.icon.ion-map
+                  span See on Map
       // ***
       // ACTIVE BLOCK
       // ***
@@ -137,93 +136,93 @@ ion-view(view-title="{{vm.title}}")
       //- 
       div#menu.content.row.responsive-sm
         div.col.col-offset-25.col-50
-          div.row
-            div.col.text-center(ng-switch="vm.settings.view.menu") 
-              h2 {{nextMenu=vm.on.menuView('next','peek');''}}
-                button.overlay-right.button.button-clear.icon.dark(
+          div.list.dark(ng-switch="vm.settings.view.menu") 
+            div.item.item-divider.item-balanced.light.item-icon-right {{nextMenu=vm.on.menuView('next','peek');''}}
+                button.button.button-clear.icon.dark(
                   ng-click="vm.on.menuView('next')"
                   ng-class="{'ion-arrow-up-b':nextMenu=='less', 'ion-arrow-right-b':nextMenu=='contribute', 'ion-arrow-down-b':nextMenu=='more' }")
-                span(
+                div.larger(
                   ng-click="vm.on.gotoState('app.menu-item','id', 'first')"
                   ) Menu
                 
-              div.list.menu-item.text-center(ng-switch-when="less") 
-                div.item.cursor-pointer(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  b.title(
-                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
-                    ) {{ mitem.title  }} 
-                  div.muted {{ mitem.category }}
-                  
-              div.list.menu-item(ng-switch-when="more")
-                div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  img.cursor-pointer(
-                    ng-src="{{mitem.pic}}"
-                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
-                    )
-                  div.pull-right
-                    span.muted {{ mitem.category }}
-                    
-                  b.title {{ mitem.title  }} 
-                  div.detail {{ mitem.detail  }}
-                  div.list.participation
-                    //- TODO: need to show committed vs suggested menu items to visitors
-                    div.item.item-avatar.contribution(
-                      ng-repeat="contrib in vm.getContributionsByMenuItem(item, mitem)"
-                      ng-if="contrib.contributorId"
-                    ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
-                      img(
-                        ng-src="{{person.face}}" 
-                        ng-click="vm.on.gotoState('app.profile','id',host)"
-                        )
-                      div.pull-right {{contrib.portions}} portions
-                      b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
-                      p.muted {{contrib.comment}}
-
-              div.list.menu-item(ng-switch-when="contribute")
-                div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
-                  img.cursor-pointer(
-                    ng-src="{{mitem.pic}}"
-                    ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
-                    )
-                  div.muted.pull-right {{ mitem.category }}
-                  b.title {{ mitem.title  }} 
-                  p.detail(ng-class="{'wrap':!mitem.summary.isContributed}"){{ mitem.detail  }}
-                  div.list.participation(ng-if="vm.acl.debounced.isParticipant_YES()")
-                    div.item.item-avatar.contribution(
-                      ng-repeat="contrib in vm.getContributionsByMenuItem(item, mitem)"
-                      ng-if="contrib.contributorId"
-                    ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
-                      img(
-                        ng-src="{{person.face}}")
-                      div.pull-right {{contrib.portions}} portions
-                      b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
-                      p.muted {{contrib.comment}}
-                    div.item.btn-contribute(
-                      ng-if="vm.acl.debounced.isParticipant_YES() && !mitem.summary.isContributed" 
-                      ng-click="vm.on.beginContribute(mitem)"
-                    )
-                      i.icon.ion-android-add-circle.balanced
-                      p.label.dark &nbsp; Contribute
-                      span.pull-right {{mitem.summary.portionsRemaining}} portions
+            div.menu-item(ng-switch-when="less") 
+              div.item.cursor-pointer(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
+                div.title.text-center(
+                  ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                  )
+                  b {{ mitem.title  }} 
+                p.muted.text-center {{ mitem.category }}
                 
-                div.card.list.condensed(
-                  ng-if="vm.acl.debounced.isParticipant_YES()"
-                  ng-hide="item.setting['denyAddMenu']"
-                )
-                  div.button-full
-                    div.button.button-balanced.icon.ion-android-add-circle(
-                      ng-click="vm.on.beginContribute()"
-                      ).
-                      &nbsp; Add New Menu Item
-                  div.item.item-icon-left.balanced {{distr = item.summary.distribution;''}}
-                    i.icon.ion-pie-graph
-                    div.balanced(
-                      ng-repeat="(cat,count) in distr.count"
-                      ng-click="vm.on.beginContribute(null, cat)"
-                      ) 
-                      label.inline-field {{value = count + ' (' + distr.pct[cat] + '%)';''}}
-                        span.label.balanced {{vm.getLabel_MenuItemCategory(cat)}}
-                        input.balanced(type="text" ng-model="value" readonly)
+            div.menu-item(ng-switch-when="more")
+              div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
+                img.cursor-pointer(
+                  ng-src="{{mitem.pic}}"
+                  ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                  )
+                div.pull-right
+                  span.muted {{ mitem.category }}
+                  
+                b.title {{ mitem.title  }} 
+                div.detail {{ mitem.detail  }}
+                div.list.participation
+                  //- TODO: need to show committed vs suggested menu items to visitors
+                  div.item.item-avatar.contribution(
+                    ng-repeat="contrib in vm.getContributionsByMenuItem(item, mitem)"
+                    ng-if="contrib.contributorId"
+                  ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
+                    img(
+                      ng-src="{{person.face}}" 
+                      ng-click="vm.on.gotoState('app.profile','id',host)"
+                      )
+                    div.pull-right {{contrib.portions}} portions
+                    b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
+                    p.muted {{contrib.comment}}
+
+            div.menu-item(ng-switch-when="contribute")
+              div.item.item-avatar(ng-repeat="mid in item.menuItemIds") {{mitem=vm.lookup['MenuItems'][mid];''}}
+                img.cursor-pointer(
+                  ng-src="{{mitem.pic}}"
+                  ng-click="vm.on.gotoState('app.menu-item','id',mitem)"
+                  )
+                div.muted.pull-right {{ mitem.category }}
+                b.title {{ mitem.title  }} 
+                p.detail(ng-class="{'wrap':!mitem.summary.isContributed}"){{ mitem.detail  }}
+                div.list.participation(ng-if="vm.acl.debounced.isParticipant_YES()")
+                  div.item.item-avatar.contribution(
+                    ng-repeat="contrib in vm.getContributionsByMenuItem(item, mitem)"
+                    ng-if="contrib.contributorId"
+                  ) {{person=vm.lookup['Users'][contrib.contributorId];''}}
+                    img(
+                      ng-src="{{person.face}}")
+                    div.pull-right {{contrib.portions}} portions
+                    b {{person.displayName || [person.firstname,person.lastname].join(' ') }}
+                    p.muted {{contrib.comment}}
+                  div.item.btn-contribute(
+                    ng-if="vm.acl.debounced.isParticipant_YES() && !mitem.summary.isContributed" 
+                    ng-click="vm.on.beginContribute(mitem)"
+                  )
+                    i.icon.ion-android-add-circle.balanced
+                    p.label.dark &nbsp; Contribute
+                    span.pull-right {{mitem.summary.portionsRemaining}} portions
+              
+              div.card.list.condensed(
+                ng-if="vm.acl.debounced.isParticipant_YES()"
+                ng-hide="item.setting['denyAddMenu']"
+              )
+                div.button-full
+                  div.button.button-balanced.icon.ion-android-add-circle(
+                    ng-click="vm.on.beginContribute()"
+                    ).
+                    &nbsp; Add New Menu Item
+                div.item.item-icon-left.balanced {{distr = item.summary.distribution;''}}
+                  i.icon.ion-pie-graph
+                  div.balanced(
+                    ng-repeat="(cat,count) in distr.count"
+                    ng-click="vm.on.beginContribute(null, cat)"
+                    ) 
+                    label.inline-field {{value = count + ' (' + distr.pct[cat] + '%)';''}}
+                      span.label.balanced {{vm.getLabel_MenuItemCategory(cat)}}
+                      input.balanced(type="text" ng-model="value" readonly)
 
       // 100% iphone, 50% ipad
       //- 
@@ -461,6 +460,8 @@ ion-view(view-title="{{vm.title}}")
                 ng-if="item.visibleMarker"
                 idKey="opt.marker.idKey"
                 coords="opt.marker.coords"
+                options="opt.marker.options"
+                events="opt.marker.events"
                 )
 
 

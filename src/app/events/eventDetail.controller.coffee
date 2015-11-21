@@ -6,7 +6,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
   EventsResource, UsersResource, MenuItemsResource
   EventActionHelpers, AAAHelpers
   ParticipationsResource, ContributionsResource, TokensResource
-  appModalSvc
+  appModalSvc, geocodeSvc
   utils, devConfig
   ionicMaterialMotion, ionicMaterialInk
   ) ->
@@ -37,7 +37,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       showExactLocation = true if event.setting?['allowPublicAddress']
       if showExactLocation
         # add complete address
-        event['visibleAddress'] = [event.address, event.neighborhood].join(', ')
+        event['visibleAddress'] = event.address
         # event['visibleLocation'] = event.location
         event['visibleMarker'] = event.location
       else
@@ -122,7 +122,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       else
         return vm.lookup[ className ][idOrArray]
 
-       
+      
 
     vm.acl = {
       debounced:
@@ -146,7 +146,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       isVisitor: ()-> ## has not responded to or joined event
         return true if AAAHelpers.isAnonymous()
         return vm.acl.isParticipant() == false
-     
+    
       isParticipant: (responseType)->
         return false if _.isEmpty $rootScope['user']
         participations = _.chain(vm.lookup['Participations'])
@@ -181,6 +181,12 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     }
 
     vm.on = {
+      testGeocode: (address)->
+        return geocodeSvc.getLatLon(address)
+        .then (result)->
+          toastr.info result
+          return
+
       refresh: ()->
         event = vm.event
         getDerivedValues_Event(event)
@@ -200,7 +206,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
       menuView: (value, peek=false)->
         values = ['less','more','contribute','less']
-       
+      
         switch value
           when 'next'
             i = _.indexOf values, vm.settings.view.menu
@@ -264,7 +270,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
 
       'beginResponse': ()->
         return EventActionHelpers.beginResponse.apply(vm, arguments)
-      
+     
       # called by button.JoinEvent
       # or do is this action for joinEvent w/o invitation?
       'beginBooking': (person, event)->
@@ -363,6 +369,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
               startTime: blankEvent.startTime
               endTime: moment(blankEvent.startTime).add(blankEvent.duration,'millisecond').toDate()
               asString: moment(blankEvent.startTime).format('ddd, MMM Do YYYY, h:mm a')
+
             updateWhen: ()->
               newV = modalModel.when
               event = modalModel.event
@@ -383,26 +390,46 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
               event.duration = newV.endTime - newV.startTime
               return
 
+            geocodeAddress: (event)->
+              return geocodeSvc.getLatLon( event.address )
+              .then (result)->
+                return event if result == 'CANCELED'
+                if result == 'NOT FOUND'
+                  # show message
+                  toastr.info "No locations were found for that address. Please try again."
+                  return event
+                event.address = result.address
+                event.location = result.location
+                event.latlon = event.location.join(',')
+                event.locateAddress = false
+                return event
+
+
             submitEvent: (event, onSuccess)->
               # sanity checks
 
               # data cleanup
-              if event.latlon?
-                event.location = _.map event.latlon.split(','), (v)->
-                  return parseFloat(v)
-              event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
-              event.menu = event.menu || {}
-              event.menu['allowCategoryKeys'] = _.keys modalModel.menuCategoryParseSelected()
+              return $q.when(event)
+              .then (event)->
+                return modalModel.geocodeAddress(event) if event.locateAddress == true
+                return modalModel.geocodeAddress(event) if _.isEmpty event.location
+                return event
+              .then (event)->
+                event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
+                event.menu ?= {}
+                event.menu['allowCategoryKeys'] = _.keys modalModel.menuCategoryParseSelected()
 
-              updateEvent.call(vm, event).then (result)->
-                utils.ga_Send('send', 'event', 'participation', 'edit', 'event', 10)
-                onSuccess?(result)
-                return result
-              return
+                updateEvent.call(vm, event).then (result)->
+                  utils.ga_Send('send', 'event', 'participation', 'edit', 'event', 10)
+                  onSuccess?(result)
+                  return result
+                return
           }
 
           return appModalSvc.show('events/event-new.modal.html', vm, {
             mm: modalModel
+            test: ()->
+              console.log "I am here"
           })
 
     }
@@ -554,8 +581,8 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
         participation = summary['participation']
         participation['menuItems'] = _.chain(vm.lookup['Contributions'])
           .pluck( 'menuItemId').uniq().value().length
-        
-        
+       
+       
         _.each yesContributions, (o)->
           # return if !o.contributorId?   # mitem with no contributor
           # ignore if contributor changed response, not coming
@@ -681,7 +708,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       .then ()->
         activate()
 
-      
+     
     activate = ()->
       getData()
       # // Set Ink
@@ -689,46 +716,31 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       setMaterialEffects()
 
     getMap = (event)->
-      mapOptions = {
-        'map':
-          options:
-            draggable: false
-      }
-      if event.visibleLocation?
-        latlon = {
-          latitude: event.visibleLocation[0]
-          longitude: event.visibleLocation[1]
-        }
-        mapOptions['circle'] = {
-          center: latlon
-          stroke:
-            color: '#FF0000'
-            weight: 1
-          radius: 500
-          fill:
-            color: '#FF0000'
-            opacity: '0.2'
-        }
-      if event.visibleMarker?
-        latlon = {
-          latitude: event.visibleMarker[0]
-          longitude: event.visibleMarker[1]
-        }
-        mapOptions['marker'] = {
-          idKey: event.id
-          coords: latlon
-        }
-      if event.visibleLocation? || event.visibleMarker?
-        $timeout ()->
-          event.map = {
-            center: latlon
-              # latitude: Math.round((event.location[0]*1000000)/1000000)
-              # longitude: Math.round((event.location[1]*1000000)/1000000)
-            zoom: 14
-            # event.map.options
-            options: mapOptions
-          }
+      if useStaticMap=true
+        mapSrc = "https://maps.googleapis.com/maps/api/staticmap?"
+        params = {}
+        params['size'] = "400x400"
+        params['markers'] = event.visibleMarker.join(',') if event.visibleMarker?
+        qs = _.map (v, k)-> [k,v].join("=")
+        mapSrc += encodeURIComponent(qs.join('&'))
+        $log.info("Static Map=" + mapSrc)
 
+      location = event.visibleMarker || event.visibleLocation
+      mapConfig = geocodeSvc.getMapConfig {
+        id: event.id
+        location: location
+        type: if event.visibleMarker then 'marker' else 'circle'
+        draggableMap: false
+        draggableMarker: vm.acl.isOwner()
+        dragendMarker: (marker, eventName, args)->
+          location = [marker.getPosition().lat(), marker.getPosition().lng()]
+          $log location
+          return
+      }
+
+      if location?
+        $timeout ()->
+          event.map = mapConfig
           return
          , 3000
       return event
@@ -807,7 +819,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       #   })
       #   return
       # , 700
-     
+    
       # $timeout () ->
       #   ionicMaterialMotion.blinds({
       #     startVelocity: 3000
@@ -855,7 +867,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       event.summary['distribution'] = getDerivedValues_MenuItems(event)
       # push notification to host + participants
       return
-    
+   
 
     $scope.$on '$ionicView.loaded', (e) ->
       $log.info "viewLoaded for EventDetailCtrl"
@@ -928,7 +940,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
           return 'Participant' if ~participantIds.indexOf person.id
           return 'Visitor'
     }
-     
+    
     return vm # # end EventDetailCtrl,  return is required for controllerAs syntax
 
 
@@ -939,7 +951,7 @@ EventDetailCtrl.$inject = [
   'EventsResource', 'UsersResource', 'MenuItemsResource'
   'EventActionHelpers', 'AAAHelpers'
   'ParticipationsResource', 'ContributionsResource', 'TokensResource'
-  'appModalSvc'
+  'appModalSvc', 'geocodeSvc'
   'utils', 'devConfig'
   'ionicMaterialMotion', 'ionicMaterialInk'
 ]

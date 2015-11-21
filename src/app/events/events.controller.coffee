@@ -3,7 +3,7 @@
 EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
   $log, toastr, $location
   EventsResource, MenuItemsResource
-  AAAHelpers, appModalSvc, utils
+  AAAHelpers, appModalSvc, geocodeSvc, utils
   ionicMaterialMotion, ionicMaterialInk
   ) ->
     vm = this
@@ -36,7 +36,7 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     vm.events = []
     vm.imgAsBg = utils.imgAsBg
     vm.isDev = utils.isDev
-   
+  
     _filters = {
       'comingSoon':
         label: "Coming Soon"
@@ -110,7 +110,7 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
             eventType: EVENT_TYPE
             owner: owner
             select: vm.lookup['select']
-            
+           
             # for setting event.menu.allowCategoryKeys
             menuCategoryOptions: menuCategoryOptions
             menuCategoryParseSelected: (options)->
@@ -150,22 +150,39 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
               event.duration = newV.endTime - newV.startTime
               return
 
+            geocodeAddress: (event)->
+              return geocodeSvc.getLatLon( event.address )
+              .then (result)->
+                return event if result == 'CANCELED'
+                if result == 'NOT FOUND'
+                  # show message
+                  toastr.info "No locations were found for that address. Please try again."
+                  return event
+                event.address = result.address
+                event.location = result.location
+                event.latlon = event.location.join(',')
+                event.locateAddress = false
+                return event
+
             submitEvent: (event, onSuccess)->
               # sanity checks
 
               # data cleanup
-              if event.latlon?
-                event.location = _.map event.latlon.split(','), (v)->
-                  return parseFloat(v)
-              event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
-              event.menu = event.menu || {}
-              event.menu['allowCategoryKeys'] = _.keys modalModel.menuCategoryParseSelected()
+              return $q.when(event)
+              .then (event)->
+                return modalModel.geocodeAddress(event) if event.locateAddress == true
+                return modalModel.geocodeAddress(event) if _.isEmpty event.location
+                return event
+              .then (event)->
+                event.setting['rsvpFriendsLimit'] = parseInt event.setting['rsvpFriendsLimit']
+                event.menu = event.menu || {}
+                event.menu['allowCategoryKeys'] = _.keys modalModel.menuCategoryParseSelected()
 
-              createEvent.call(vm, event).then (result)->
-                utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)
-                onSuccess?(result)
-                
-                return result
+                createEvent.call(vm, event).then (result)->
+                  utils.ga_Send('send', 'event', 'participation', 'create', 'event', 20)
+                  onSuccess?(result)
+                 
+                  return result
               return
           }
 
@@ -231,7 +248,7 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
       #   })
       #   return
       # , 700
-      
+     
       $timeout () ->
         ionicMaterialMotion.blinds({
           selector: '[nav-view="active"] .animate-blinds .item'
@@ -260,8 +277,8 @@ EventsCtrl = ($scope, $rootScope, $q, $timeout, $stateParams
     $scope.$on '$ionicView.leave', (e) ->
       $log.info "viewLeave for EventsCtrl"
       resetMaterialEffects()
-     
-     
+    
+    
 
     return vm # # end EventsCtrl,  return is required for controllerAs syntax
 
@@ -270,7 +287,7 @@ EventsCtrl.$inject = [
   '$scope', '$rootScope', '$q', '$timeout', '$stateParams'
   '$log', 'toastr', '$location'
   'EventsResource', 'MenuItemsResource'
-  'AAAHelpers', 'appModalSvc', 'utils'
+  'AAAHelpers', 'appModalSvc', 'geocodeSvc', 'utils'
   'ionicMaterialMotion', 'ionicMaterialInk'
 ]
 
