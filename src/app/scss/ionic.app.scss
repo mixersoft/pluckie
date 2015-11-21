@@ -401,7 +401,13 @@ $hero-wrap-bg-height: 170px;
     }
   }
 }
-
+#address-lookup-modal {
+  .item.item-floating-label, .item.item-input-inset {
+    input {
+      width: 100%;
+    }
+  }
+}
 
 #map .wrap {
   $map-height: 360px;

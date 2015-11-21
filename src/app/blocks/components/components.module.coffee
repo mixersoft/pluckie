@@ -1,3 +1,3 @@
 'use strict'
 
-angular.module 'blocks.components', []
+angular.module 'blocks.components', ['uiGmapgoogle-maps']

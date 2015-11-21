@@ -1,0 +1,54 @@
+//- blocks/components/address-map.template.jade
+ion-modal-view
+  ion-header-bar.bar-balanced 
+    h1.title Address Lookup
+  ion-content
+    div#address-lookup-modal.list.condensed
+      div.item.item-input-inset
+        label.item-input-wrapper 
+          input(type="text" ng-model="vm.address0" placeholder="Enter Address")
+        button.button.button-balanced.button-small(
+          ng-click="vm.updateGeocode(vm.address0)"
+        )
+          i.icon.ion-search
+      label.item.item-floating-label
+        span.label Location
+        input(type="text" ng-model="vm.latlon" readonly)
+
+      label.item.item-floating-label
+        span.label Formatted Address
+        input(type="text" ng-model="vm.addressFormatted" readonly)
+
+      label.item.item-floating-label
+        span.label Display Address
+        input(type="text" ng-model="vm.addressDisplay")
+        p.fine This is how the location will be displayed.
+      
+
+      div#map.item.item-complex
+        div.wrap(ng-if="vm.map")
+          {{opt = vm.map.options;''}}
+          ui-gmap-google-map( 
+            center='vm.map.center' 
+            zoom='vm.map.zoom'
+            options='opt.map.options'
+          )
+            ui-gmap-circle(
+              ng-if="vm.map.type=='circle'"
+              center="opt.circle.center"
+              radius="opt.circle.radius"
+              stroke="opt.circle.stroke"
+              )
+            ui-gmap-marker(
+              ng-if="vm.map.type=='marker'"
+              idKey="opt.marker.idKey"
+              coords="opt.marker.coords"
+              options="opt.marker.options"
+              events="opt.marker.events"
+              )
+        p.fine.padding-horizontal Drag the marker to change location
+      div.item
+        div.button-bar
+          button.button.button-balanced.button-outline(ng-click="closeModal('CANCELED')") Cancel
+          button.button.button-balanced(ng-click="closeModal(vm)") OK
+

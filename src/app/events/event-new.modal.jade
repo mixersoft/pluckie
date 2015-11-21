@@ -4,6 +4,7 @@ ion-modal-view
     h1.title {{mm.action}} Event
   ion-content {{myEvent=mm.event;me=mm.owner;''}}
 
+    
     form(name="createEventForm" novalidate="" ng-submit="mm.submitEvent(myEvent, closeModal);")
       div#create-event.content.row.responsive-sm
         div.col.col-offset-25.col-50
@@ -120,14 +121,34 @@ ion-modal-view
               input(type="text" name="Neighborhood" placeholder="The neighborhood for this event is shown to visitors" ng-model="myEvent.neighborhood")
 
             //- Address text
-            label.item.item-input.item-floating-label
+            //- div.item.item-icon-right
+            //-   button.button.icon.button-positive.ion-map(
+            //-     ng-click="mm.geocodeAddress(myEvent)"
+            //-   )
+            div.item.item-input.item-floating-label
               span.input-label Address
-              input(type="text" name="Address" placeholder="The exact address for this event is shown to guests" ng-model="myEvent.address")
+              input(
+                type="text" 
+                name="Address" 
+                placeholder="The exact address for this event is shown to guests" 
+                ng-model="myEvent.address"
+                ng-change="myEvent.locateAddress=true"
+              )
+              button.button.button-full.button-positive.item-icon-left(
+                  type="button"
+                  ng-click="mm.geocodeAddress(myEvent)"
+                )
+                  i.icon.ion-map
+                  span See on Map
+              
+
+
 
             //- location latlon
-            label.item.item-input.item-floating-label
+            label.item.item-input.item-floating-label(ng-if="0")
               span.input-label Location
               input(type="text" name="latlon" placeholder="The exact Google Maps location for this event latlon" ng-model="myEvent.latlon")
+            
 
             //- SeatTotal number / range
             label.item.item-input
