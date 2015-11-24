@@ -184,7 +184,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       testGeocode: (address)->
         return geocodeSvc.getLatLon(address)
         .then (result)->
-          toastr.info result
+          toastr.info ["testGeocode",result]
           return
 
       refresh: ()->
@@ -729,13 +729,9 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
       mapConfig = geocodeSvc.getMapConfig {
         id: event.id
         location: location
-        type: if event.visibleMarker then 'marker' else 'circle'
+        type: if event.visibleMarker then 'oneMarker' else 'circle'
         draggableMap: false
-        draggableMarker: vm.acl.isOwner()
-        dragendMarker: (marker, eventName, args)->
-          location = [marker.getPosition().lat(), marker.getPosition().lng()]
-          $log location
-          return
+        draggableMarker: false
       }
 
       if location?

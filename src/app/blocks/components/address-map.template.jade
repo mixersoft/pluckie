@@ -4,13 +4,28 @@ ion-modal-view
     h1.title Address Lookup
   ion-content
     div#address-lookup-modal.list.condensed
-      div.item.item-input-inset
-        label.item-input-wrapper 
-          input(type="text" ng-model="vm.address0" placeholder="Enter Address")
-        button.button.button-balanced.button-small(
-          ng-click="vm.updateGeocode(vm.address0)"
-        )
-          i.icon.ion-search
+      div.item
+        div.item-input-inset.no-padding
+          div.item-input-wrapper.no-padding
+            input(type="text" ng-model="vm.address0" 
+              placeholder="Enter Address" 
+              ng-attr-clear-field="vm.isBrowser"
+            )
+
+          style.
+            #address-map-search { min-width:32.5px; } 
+            #address-map-search svg {width: 26px; height: 26px; margin: 5px 0;} 
+          button#address-map-search.button.button-balanced.button-small.no-padding(
+            ng-click="vm.updateGeocode(vm.address0)"
+          )
+            i.icon.ion-search(ng-hide="vm.loading")
+            ion-spinner.spinner-light(
+              ng-show="vm.loading"
+            )
+        div.error(ng-show="vm['error-address0']")
+          span.assertive {{vm['error-address0']}}
+        
+
       label.item.item-floating-label
         span.label Location
         input(type="text" ng-model="vm.latlon" readonly)
@@ -19,10 +34,17 @@ ion-modal-view
         span.label Formatted Address
         input(type="text" ng-model="vm.addressFormatted" readonly)
 
-      label.item.item-floating-label
+      div.item.item-floating-label
         span.label Display Address
-        input(type="text" ng-model="vm.addressDisplay")
-        p.fine This is how the location will be displayed.
+        div.item-input-inset.no-padding
+          div.item-input-wrapper.no-padding
+            input(type="text" ng-model="vm.addressDisplay"
+              ng-attr-clear-field="vm.isBrowser"
+            )
+        p.help
+          span.positive(
+            ng-show="vm.isValidMarker()"
+          ) This is how the location will be displayed
       
 
       div#map.item.item-complex
@@ -40,15 +62,35 @@ ion-modal-view
               stroke="opt.circle.stroke"
               )
             ui-gmap-marker(
-              ng-if="vm.map.type=='marker'"
-              idKey="opt.marker.idKey"
-              coords="opt.marker.coords"
-              options="opt.marker.options"
-              events="opt.marker.events"
+              ng-if="vm.isValidMarker()"
+              idKey="opt.oneMarker.idKey"
+              coords="opt.oneMarker.coords"
+              options="opt.oneMarker.options"
+              events="opt.oneMarker.events"
               )
-        p.fine.padding-horizontal Drag the marker to change location
+            ui-gmap-markers(
+              ng-if="vm.map.type=='manyMarkers'"
+              fit="true"
+              idkey="id"
+              coords="'self'"
+              models="opt.manyMarkers.models"
+              options="opt.manyMarkers.options"
+              modelbyref="true"
+              xxclick="'opt.manyMarkers.events.click'"
+              events="opt.manyMarkers.events"
+              )
+        p.padding-horizontal 
+          span.padding-horizontal.positive(
+            ng-show="vm.isValidMarker()"
+          ) Drag the marker to change location
+          span.padding-horizontal.positive(
+            ng-show="vm.map.type=='manyMarkers'"
+          ) Multiple locations found, click Marker to select
       div.item
         div.button-bar
           button.button.button-balanced.button-outline(ng-click="closeModal('CANCELED')") Cancel
-          button.button.button-balanced(ng-click="closeModal(vm)") OK
+          button.button.button-balanced(
+          ng-click="closeModal(vm)"
+          ng-disabled="vm.isValidMarker()==false"
+          ) OK
 
