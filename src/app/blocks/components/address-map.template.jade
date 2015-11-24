@@ -1,5 +1,13 @@
 //- blocks/components/address-map.template.jade
-ion-modal-view
+style#address-lookup-style.
+  @media (min-width: 680px) {
+    #address-lookup-modal-view.modal { top: 10%; bottom: 10%;}
+  }
+  #address-lookup-search { min-width:32.5px; } 
+  #address-lookup-search svg {width: 26px; height: 26px; margin: 5px 0;}
+  #address-lookup-map .wrap {min-height: 200px;}
+  #address-lookup-map .angular-google-map-container {min-height: 200px;}
+ion-modal-view#address-lookup-modal-view
   ion-header-bar.bar-balanced 
     h1.title Address Lookup
   ion-content
@@ -12,10 +20,7 @@ ion-modal-view
               ng-attr-clear-field="vm.isBrowser"
             )
 
-          style.
-            #address-map-search { min-width:32.5px; } 
-            #address-map-search svg {width: 26px; height: 26px; margin: 5px 0;} 
-          button#address-map-search.button.button-balanced.button-small.no-padding(
+          button#address-lookup-search.button.button-balanced.button-small.no-padding(
             ng-click="vm.updateGeocode(vm.address0)"
           )
             i.icon.ion-search(ng-hide="vm.loading")
@@ -47,8 +52,10 @@ ion-modal-view
           ) This is how the location will be displayed
       
 
-      div#map.item.item-complex
-        div.wrap(ng-if="vm.map")
+      div#address-lookup-map.item.item-complex
+        div.wrap(
+          ng-if="vm.map"
+        )
           {{opt = vm.map.options;''}}
           ui-gmap-google-map( 
             center='vm.map.center' 

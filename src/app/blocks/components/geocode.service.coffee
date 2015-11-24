@@ -1,26 +1,45 @@
 # geocode.service.coffee
 'use strict'
 
+_GEOCODER = {
+  STATUS: {}
+  instance: null
+  zeroResultLocation: [37.77493, -122.419416]  # san francisco
+}
+
+geocodeSvcConfig = (uiGmapGoogleMapApiProvider, API_KEY)->
+  # return
+  # API_KEY = null
+  cfg = {}
+  cfg.key = API_KEY if API_KEY
+  uiGmapGoogleMapApiProvider.configure cfg
+  return
+
+geocodeSvcConfig.$inject = ['uiGmapGoogleMapApiProvider', 'API_KEY']
+
 ###
 # @description Google Maps Geocode Service v3
 # see https://developers.google.com/maps/documentation/geocoding/intro
 ###
 
-Geocoder = ($q, $ionicPlatform, KEYS, appModalSvc, defaultLocation)->
+Geocoder = ($q, $ionicPlatform, appModalSvc, uiGmapGoogleMapApi)->
 
   ## private methods & attributes
-  _geocoder = null
-
-  init = ()->
-    # wait for google JS libs to load
-    _geocoder = new google.maps.Geocoder()
+  init = (maps)->
+    _GEOCODER.STATUS = maps.GeocoderStatus
+    _GEOCODER.instance = new maps.Geocoder()
+    console.log _GEOCODER
+    return
 
   mathRound6 = (v)->
     return Math.round( v * 1000000 )/1000000 if _.isNumber v
     return v
 
-  $ionicPlatform.ready ->
-    init()
+
+  # wait for google JS libs to load
+  uiGmapGoogleMapApi.then (maps)->
+    console.log "uiGmapGoogleMapApi promise resolved"
+    init(maps)
     return
 
 
@@ -69,7 +88,7 @@ Geocoder = ($q, $ionicPlatform, KEYS, appModalSvc, defaultLocation)->
       return self.geocode(address)
       .then (results)->
         # console.log ["Geocode results, count=", results.length] if _.isArray results
-        if results == 'ZERO_RESULTS'
+        if results == _GEOCODER.STATUS.ZERO_RESULTS
           console.log "ZERO_RESULTS FOUND"
           results = [self.getPlaceholderDefault()]
         
@@ -84,15 +103,15 @@ Geocoder = ($q, $ionicPlatform, KEYS, appModalSvc, defaultLocation)->
 
     # called by self.displayGeocode() and PartialMatchCtrl.updateGeocode()
     geocode: (address)->
-      return $q.reject("Geocoder JS lib not ready") if !_geocoder?
+      return $q.reject("Geocoder JS lib not ready") if !_GEOCODER.instance?
       dfd = $q.defer()
       # geocode address
-      _geocoder.geocode({ "address": address }, (result, status)->
+      _GEOCODER.instance.geocode({ "address": address }, (result, status)->
         switch status
           when 'OK'
             return dfd.resolve result
-          when 'ZERO_RESULTS'
-            return dfd.resolve 'ZERO_RESULTS'
+          when _GEOCODER.STATUS.ZERO_RESULTS
+            return dfd.resolve _GEOCODER.STATUS.ZERO_RESULTS
           else
             console.err ['geocodeSvc.geocode()', status]
             return dfd.reject {
@@ -106,9 +125,9 @@ Geocoder = ($q, $ionicPlatform, KEYS, appModalSvc, defaultLocation)->
       return geoCodeResult = {
         geometry:
           location:
-            lat: ()-> return defaultLocation[0]
-            lng: ()-> return defaultLocation[1]
-        status: 'ZERO_RESULTS'
+            lat: ()-> return _GEOCODER.zeroResultLocation[0]
+            lng: ()-> return _GEOCODER.zeroResultLocation[1]
+        status: _GEOCODER.STATUS.ZERO_RESULTS
         formatted_address: '[location not found]'
       }
 
@@ -153,7 +172,7 @@ Geocoder = ($q, $ionicPlatform, KEYS, appModalSvc, defaultLocation)->
     ###
     # @description get a location array from an object
     # @param point object of type
-    #     _geocoder.geocode() result
+    #     _GEOCODER.instance.geocode() result
     #     marker from ui-gmap-marker dragend event on map
     #     model from ui-gmap-markers click event
     #       {id: latitude: longititde: formatted_address:}
@@ -296,7 +315,7 @@ Geocoder = ($q, $ionicPlatform, KEYS, appModalSvc, defaultLocation)->
 
   return self
 
-Geocoder.$inject = ['$q', '$ionicPlatform', 'starter.core.KEYS', 'appModalSvc', 'defaultLocation']
+Geocoder.$inject = ['$q', '$ionicPlatform', 'appModalSvc', 'uiGmapGoogleMapApi']
 
 
 
@@ -308,7 +327,7 @@ Geocoder.$inject = ['$q', '$ionicPlatform', 'starter.core.KEYS', 'appModalSvc', 
 @param parameters.geoCodeResult Array of geocode results
        parameters.address String, the original search string
 ###
-PartialMatchCtrl = ($scope, parameters, $q, $timeout, geocodeSvc)->
+PartialMatchCtrl = ($scope, parameters, $q, $timeout, $window, geocodeSvc)->
   ERROR_MSG = {
     zeroMsg: "No results found, please try again."
   }
@@ -319,6 +338,38 @@ PartialMatchCtrl = ($scope, parameters, $q, $timeout, geocodeSvc)->
     return false if vm['error-address0']
     return true if vm.map.type == 'oneMarker'
     return false
+
+  init = (parameters)->
+    vm['geoCodeResults'] = parameters.geoCodeResults[0...GEOCODE_RESULT_LIMIT]
+    vm['map'] = setupMap(parameters.address, vm['geoCodeResults'])
+    stop = $scope.$on 'modal.afterShow', (ev)->
+      h = setMapHeight()
+      stop?()
+      return
+    return
+    
+    
+  setMapHeight = ()->
+    # calculate mapHeight
+    OFFSET_HEIGHT = 420
+
+    contentH =
+      if $window.innerWidth <= 680  # same as @media(max-width: 680)
+      then $window.innerHeight
+      else $window.innerHeight * 0.8 # margin: 10% auto
+
+    mapH = contentH - OFFSET_HEIGHT
+    mapH = Math.max(200,mapH)
+    console.log ["height=",$window.innerHeight , contentH,mapH]
+
+    styleH = """
+      #address-lookup-map .wrap {height: %height%px;}
+      #address-lookup-map .angular-google-map-container {height: %height%px;}
+    """
+    styleH = styleH.replace(/%height%/g, mapH)
+    angular.element(document.getElementById('address-lookup-style')).append(styleH)
+    return mapH
+
   
 
   parseLocation = (geoCodeResultOrModel, target)->
@@ -333,7 +384,7 @@ PartialMatchCtrl = ($scope, parameters, $q, $timeout, geocodeSvc)->
     }
     # add error message, as necessary
     switch geoCodeResultOrModel.status
-      when 'ZERO_RESULTS'
+      when _GEOCODER.STATUS.ZERO_RESULTS
         resp['error-address0'] = ERROR_MSG.zeroMsg
         resp['latlon'] = null
         resp['addressDisplay'] = null
@@ -343,7 +394,7 @@ PartialMatchCtrl = ($scope, parameters, $q, $timeout, geocodeSvc)->
 
   setupMap = (address, geoCodeResults, model)->
 
-    if isZeroResult = geoCodeResults=='ZERO_RESULTS'
+    if isZeroResult = geoCodeResults==_GEOCODER.STATUS.ZERO_RESULTS
       geoCodeResults = [geocodeSvc.getPlaceholderDefault()]
 
     vm['address0'] = address       # search address
@@ -403,7 +454,7 @@ PartialMatchCtrl = ($scope, parameters, $q, $timeout, geocodeSvc)->
     vm.loading = true
     return geocodeSvc.geocode(address)
     .then (results)->
-      if results == 'ZERO_RESULTS'
+      if results == _GEOCODER.STATUS.ZERO_RESULTS
         console.log "ZERO_RESULTS FOUND"
         results = [geocodeSvc.getPlaceholderDefault()]
       return results
@@ -425,11 +476,10 @@ PartialMatchCtrl = ($scope, parameters, $q, $timeout, geocodeSvc)->
     vm['address-changed'] = true
     return
 
-  vm['geoCodeResults'] = parameters.geoCodeResults[0...GEOCODE_RESULT_LIMIT]
-  vm['map'] = setupMap(parameters.address, vm['geoCodeResults'])
+  init(parameters)
   return vm
 
-PartialMatchCtrl.$inject = ['$scope', 'parameters', '$q', '$timeout', 'geocodeSvc']
+PartialMatchCtrl.$inject = ['$scope', 'parameters', '$q', '$timeout', '$window', 'geocodeSvc']
 
 
 
@@ -482,7 +532,8 @@ ClearFieldDirective = ($compile, $timeout)->
 ClearFieldDirective.$inject = ['$compile', '$timeout']
 
 angular.module 'blocks.components'
-  .value 'defaultLocation', [37.77493, -122.419416]  # san francisco
+  .constant 'API_KEY', null
+  .config geocodeSvcConfig
   .factory 'geocodeSvc', Geocoder
   .directive 'clearField', ClearFieldDirective
   .controller 'PartialMatchCtrl', PartialMatchCtrl
