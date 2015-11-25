@@ -36,7 +36,7 @@ appRun = ($rootScope, $ionicPlatform, $ionicHistory, $location
       return
 
 
-  return # appRun
+    return # appRun
 
 ionicConfig = ($ionicConfigProvider)->
   $ionicConfigProvider.backButton
