@@ -181,11 +181,6 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
     }
 
     vm.on = {
-      testGeocode: (address)->
-        return geocodeSvc.getLatLon(address)
-        .then (result)->
-          toastr.info ["testGeocode",result]
-          return
 
       refresh: ()->
         event = vm.event
@@ -393,11 +388,7 @@ EventDetailCtrl = ($scope, $rootScope, $q, $timeout, $state, $stateParams
             geocodeAddress: (event)->
               return geocodeSvc.getLatLon( event.address )
               .then (result)->
-                return event if result == 'CANCELED'
-                if result == 'NOT FOUND'
-                  # show message
-                  toastr.info "No locations were found for that address. Please try again."
-                  return event
+                return event if !result
                 event.address = result.address
                 event.location = result.location
                 event.latlon = event.location.join(',')

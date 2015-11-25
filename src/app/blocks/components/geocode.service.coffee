@@ -77,8 +77,8 @@ Geocoder = ($q, $ionicPlatform, appModalSvc, uiGmapGoogleMapApi)->
 
     ###
     @description an Entry Point for this service, returns an object with a geocode location
-    @return object { address: location: place_id:(optional) }
-      'NOT FOUND', 'CANCELED', 'ERROR'
+    @resolve object { address: location: place_id:(optional) } or null if canceled
+    @reject ['ERROR', err]
     ###
     getLatLon: (address)->
       self.displayGeocode(address)
@@ -105,7 +105,7 @@ Geocoder = ($q, $ionicPlatform, appModalSvc, uiGmapGoogleMapApi)->
         resp['place_id'] = result['place_id'] if !result.override
         return resp
       .catch (err)->
-        return 'ERROR'
+        return ['ERROR: geocodeSvc.getLatLon()', err]
 
 
     ###
@@ -118,7 +118,6 @@ Geocoder = ($q, $ionicPlatform, appModalSvc, uiGmapGoogleMapApi)->
       .then (results)->
         # console.log ["Geocode results, count=", results.length] if _.isArray results
         if results == GEOCODER.STATUS.ZERO_RESULTS
-          console.log "ZERO_RESULTS FOUND"
           results = [GEOCODER.getPlaceholderDefault()]
         
         return self.showResultsAsMap(address, results)
@@ -379,7 +378,7 @@ VerifyLookupCtrl = ($scope, parameters, $q, $timeout, $window, geocodeSvc)->
 
     mapH = contentH - MODAL_VIEW.OFFSET_HEIGHT
     mapH = Math.max( MODAL_VIEW.MAP_MIN_HEIGHT , mapH)
-    console.log ["height=",$window.innerHeight , contentH,mapH]
+    # console.log ["height=",$window.innerHeight , contentH,mapH]
 
     styleH = """
       #address-lookup-map .wrap {height: %height%px;}
