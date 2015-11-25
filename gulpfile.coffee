@@ -39,8 +39,11 @@ vendorPaths =
 
 gulp.task 'vendor', ->
   absolutePaths = vendorPaths.map (p) -> path.resolve("./bower_components", p)
-  gulp.src absolutePaths, base: './bower_components'
+  copyPaths = vendor.copy.map (p) -> path.resolve("./bower_components", p)
+  gulp.src absolutePaths.concat(copyPaths), base: './bower_components'
     .pipe gulp.dest paths.vendor
+  # gulp.src absolutePaths, base: './bower_components'
+  #   .pipe gulp.dest paths.vendor
 
 gulp.task 'images', ->
   gulp.src paths.img
@@ -71,7 +74,10 @@ gulp.task 'coffee', ->
 
 gulp.task 'index', ->
   # Inject in the correct order to startup app
-  vendor = gulp.src [paths.vendor+'**/*.js','!**/lib/ionic/**'], read: false
+  skipVendorPaths = vendor.copy.map (p) -> "!**/"+p
+  gutil.log(["do NOT inject:"].concat(skipVendorPaths))
+  vendor = gulp.src [paths.vendor+'**/*.js','!**/lib/ionic/**'].concat(skipVendorPaths), read: false
+  # vendor = gulp.src [paths.vendor+'**/*.js','!**/lib/ionic/**'], read: false
   blocks = gulp.src ['./www/blocks/router/*.module.js', './www/blocks/router/*.js'], read: false
   core = gulp.src ['./www/core/core.module.js', './www/core/core.*.js'], read: false
   layout = gulp.src ['./www/layout/layout.module.js', './www/layout/layout.route.js'], read: false
