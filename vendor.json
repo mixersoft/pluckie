@@ -1,8 +1,6 @@
 {
   "production": [
-    "ionic/js/ionic.bundle.js",
     "ionic/fonts/*",
-    "ngCordova/dist/ng-cordova.js",
     "lodash/lodash.min.js",
     "angular-toastr/dist/angular-toastr.tpls.min.js",
     "angular-toastr/dist/angular-toastr.min.css",
@@ -11,16 +9,13 @@
     "ionic-material/dist/ionic.material.css",
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.css",
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.js",
-    "moment/min/moment.min.js",
     "angular-moment/angular-moment.min.js",
     "angular-google-maps/dist/angular-google-maps.js",
     "ngstorage/ngStorage.min.js",
     "vendor/track-fb.js"   
   ],
   "dev": [
-    "ionic/js/ionic.bundle.js", 
     "ionic/fonts/*", 
-    "ngCordova/dist/ng-cordova.js",
     "lodash/lodash.min.js",
     "angular-toastr/dist/angular-toastr.tpls.min.js",
     "angular-toastr/dist/angular-toastr.min.css",
@@ -29,10 +24,15 @@
     "ionic-material/dist/ionic.material.css",
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.css",
     "x-ionic-material-design-lite/dist/ionic.material-design-lite.js",
-    "moment/min/moment.min.js",
     "angular-moment/angular-moment.min.js",
     "angular-google-maps/dist/angular-google-maps.js",
     "ngstorage/ngStorage.js",
+    "parse-js-sdk/lib/parse.js",
     "vendor/track-fb.js"
+  ],
+  "copy": [
+    "ionic/js/ionic.bundle.js",
+    "ngCordova/dist/ng-cordova.js",
+    "moment/min/moment.min.js"
   ]
 }
